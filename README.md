@@ -3,8 +3,8 @@
 ## Group T0xG0y
 | Name             | Number    | E-Mail             |
 | ---------------- | --------- | ------------------ |
-| John Doe         | 201901010 | ...                |
-| Jane Doe         | 201901011 | ...                |
+| Catarina Gonçalves         | 201906638 | up201906638@fc.up.pt                |
+| Luísa Salvador         | 202006471 | up202006471@fe.up.pt               |
 
 ----
 
