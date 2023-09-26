@@ -1,6 +1,6 @@
 # SGI 2023/2024
 
-## Group T0xG0y
+## Group T06G10
 | Name             | Number    | E-Mail             |
 | ---------------- | --------- | ------------------ |
 | Catarina Gonçalves         | 201906638 | up201906638@fc.up.pt                |
