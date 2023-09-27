@@ -73,11 +73,17 @@ class MyContents  {
         
         // Create a Plane Mesh with basic material
         
-        let plane = new THREE.PlaneGeometry( 10, 10 );
-        this.planeMesh = new THREE.Mesh( plane, this.planeMaterial );
+        const planeWidth = 13.4; 
+        const planeHeight = 13.4; 
+        const planeColor = 0x8B5A2B; // Cor chão
+    
+        let plane = new THREE.PlaneGeometry(planeWidth, planeHeight);
+        this.planeMaterial = new THREE.MeshBasicMaterial({ color: planeColor });
+        this.planeMesh = new THREE.Mesh(plane, this.planeMaterial);
         this.planeMesh.rotation.x = -Math.PI / 2;
-        this.planeMesh.position.y = -0;
-        this.app.scene.add( this.planeMesh );
+        this.planeMesh.position.y = -0; 
+        this.app.scene.add(this.planeMesh);
+        
     }
     
     /**
