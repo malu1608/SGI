@@ -27,6 +27,17 @@ class MyContents  {
         this.planeShininess = 30
         this.planeMaterial = new THREE.MeshPhongMaterial({ color: this.diffusePlaneColor, 
             specular: this.diffusePlaneColor, emissive: "#000000", shininess: this.planeShininess })
+
+        // Scene related attributes
+        this.tableTexture = new THREE.TextureLoader().load('/textures/table.jpg');
+        this.wallTexture = new THREE.TextureLoader().load('/textures/wall.jpg');
+        this.floorTexture = new THREE.TextureLoader().load('/textures/floor.jpg');
+        this.chairTexture = new THREE.TextureLoader().load('/textures/chair.jpg');
+        this.doorTexture = new THREE.TextureLoader().load('/textures/door.jpg');
+        this.dishTexture = new THREE.TextureLoader().load('/textures/dish.jpg');
+        this.flameTexture = new THREE.TextureLoader().load('/textures/flame.jpg');
+        this.carpetTexture = new THREE.TextureLoader().load('/textures/carpet.jpg');
+        this.booksTexture = new THREE.TextureLoader().load('/textures/books.jpg');
     }
 
     /**
@@ -56,8 +67,8 @@ class MyContents  {
         }
 
         // add a point light on top of the model
-        const pointLight = new THREE.PointLight( 0xffffff, 500, 0 );
-        pointLight.position.set( 0, 20, 0 );
+        const pointLight = new THREE.PointLight( 0xffffff, 200, 0 );
+        pointLight.position.set( 0, 10, 0 );
         this.app.scene.add( pointLight );
 
         // add a point light helper for the previous point light
@@ -69,16 +80,17 @@ class MyContents  {
         const ambientLight = new THREE.AmbientLight( 0x555555 );
         this.app.scene.add( ambientLight );
 
+
+
         this.buildBox()
         
         // Create a Plane Mesh with basic material
         
         const planeWidth = 13.4; 
         const planeHeight = 13.4; 
-        const planeColor = 0x8B5A2B; // Cor chão
     
         let plane = new THREE.PlaneGeometry(planeWidth, planeHeight);
-        this.planeMaterial = new THREE.MeshBasicMaterial({ color: planeColor });
+        this.planeMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, map: this.floorTexture });
         this.planeMesh = new THREE.Mesh(plane, this.planeMaterial);
         this.planeMesh.rotation.x = -Math.PI / 2;
         this.planeMesh.position.y = -0; 
@@ -86,6 +98,8 @@ class MyContents  {
         
         // Paredes
         this.createWalls();
+        this.createDoor();
+        this.createBookshelf();
 
         // Mesa
         const table = this.createTable();
@@ -95,14 +109,17 @@ class MyContents  {
         const candle = this.createCandle(cake);
         this.createFlame(candle);
         this.createSmallPlate(table);
+        this.createCarpet();
 
         // Cadeira
         const chair = this.createChair();
         this.app.scene.add(chair);
+        this.createFrames();
+
     }
 
     createWalls() {    
-        const wallMaterial = new THREE.MeshBasicMaterial({ color: 0xe2b5f5 }); // Cor das paredes 
+        const wallMaterial = new THREE.MeshPhongMaterial({ color: 0xefd6da, map: this.wallTexture });
     
         let wall1Geometry = new THREE.PlaneGeometry(13.4, 7);
         let wall1Mesh = new THREE.Mesh(wall1Geometry, wallMaterial);
@@ -130,13 +147,71 @@ class MyContents  {
 
     }
 
+    createBookshelf() {
+        const shelfWidth = 3.0;
+        const shelfHeight = 0.15;
+        const shelfThickness = 0.6;
+    
+        const shelfGeometry = new THREE.BoxGeometry(shelfWidth, shelfHeight, shelfThickness);
+        const shelfMaterial = new THREE.MeshPhongMaterial({color: 0xbb9469, map: this.tableTexture });
+    
+        const shelfMesh = new THREE.Mesh(shelfGeometry, shelfMaterial);
+        shelfMesh.position.set(4.5, 4.0, 6.4);
+        this.app.scene.add(shelfMesh);
+
+        const rectangleWidth = 1.5;
+        const rectangleHeight = 1.0;
+        const rectangleDepth = 0.4;
+        
+        const rectangleGeometry = new THREE.BoxGeometry(rectangleWidth, rectangleHeight, rectangleDepth);
+        const rectangleMaterial = new THREE.MeshPhongMaterial({ color: 0xf0e0a3, map: this.booksTexture });
+        
+        const rectangleMesh = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
+        rectangleMesh.position.set(-0.5, 0.5, 0);
+        
+        shelfMesh.add(rectangleMesh);
+    
+        return shelfMesh;
+    }
+    
+    createDoor() {
+        const doorWidth = 2.7;
+        const doorHeight = 5.7;
+        const doorThickness = 0.10;
+    
+        const doorGeometry = new THREE.BoxGeometry(doorWidth, doorHeight, doorThickness);
+        const doorMaterial = new THREE.MeshPhongMaterial({color: 0xbb9469, map: this.doorTexture });
+    
+        const doorMesh = new THREE.Mesh(doorGeometry, doorMaterial);
+        doorMesh.position.set(-4.5, doorHeight / 2, 6.7);
+        this.app.scene.add(doorMesh);
+    
+        return doorMesh;
+    }
+
+    createCarpet() {
+        const carpetWidth = 6;
+        const carpetLength = 12.5;
+        const carpetThickness = 0.02;
+    
+        const carpetGeometry = new THREE.BoxGeometry(carpetWidth, carpetThickness, carpetLength);
+    
+        const carpetMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, map: this.carpetTexture });
+    
+        const carpetMesh = new THREE.Mesh(carpetGeometry, carpetMaterial);
+        carpetMesh.position.set(0, carpetThickness / 2, 0); 
+        this.app.scene.add(carpetMesh);
+    
+        return carpetMesh;
+    }
+
     createTable() {
         const tableWidth = 4; 
         const tableLength = 8;
         const tableHeight = 0.2; 
 
         const tableGeometry = new THREE.BoxGeometry(tableWidth, tableHeight, tableLength);
-        const tableMaterial = new THREE.MeshBasicMaterial({ color: 0x2E1D06 }); // Cor da mesa
+        const tableMaterial = new THREE.MeshPhongMaterial({color: 0xbb9469, map: this.tableTexture });
 
         const table = new THREE.Mesh(tableGeometry, tableMaterial);
         table.rotation.x = -Math.PI;
@@ -150,7 +225,7 @@ class MyContents  {
         const legRadius = 0.1; 
         const legHeight = 2; 
 
-        const legMaterial = new THREE.MeshBasicMaterial({ color: 0x2E1D06 }); // Cor das pernas
+        const legMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513, specular: 0xffffff, shininess: 500 });
 
         const legPositions = [
             { x: -table.geometry.parameters.width / 2 + legRadius, y: legHeight / 2, z: -table.geometry.parameters.depth / 2 + legRadius }, // Canto esquerdo
@@ -172,7 +247,7 @@ class MyContents  {
     createPlate(table) {
         const plateRadius = 1.2; 
         const plateHeight = 0.08; 
-        const plateMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff }); // Cor do prato
+        const plateMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map: this.dishTexture });
     
         const plateGeometry = new THREE.CylinderGeometry(plateRadius, plateRadius, plateHeight, 32);
         const plate = new THREE.Mesh(plateGeometry, plateMaterial);
@@ -186,7 +261,7 @@ class MyContents  {
     createSmallPlate(table) {
         const plateRadius = 0.6; 
         const plateHeight = 0.05; 
-        const plateMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff }); // Cor do prato
+        const plateMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map: this.dishTexture });
     
         const plateGeometry = new THREE.CylinderGeometry(plateRadius, plateRadius, plateHeight, 32);
         const plate = new THREE.Mesh(plateGeometry, plateMaterial);
@@ -200,7 +275,7 @@ class MyContents  {
     createCake(plate) {
         const cakeRadius = 0.9; 
         const cakeHeight = 1; 
-        const cakeMaterial = new THREE.MeshBasicMaterial({ color: 0xe7a8ba }); // Cor do bolo
+        const cakeMaterial = new THREE.MeshPhongMaterial({ color: 0xe7a8ba, specular: 0xe7a8ba, shininess: 100}); // Cor do bolo
     
         const cakeGeometry = new THREE.CylinderGeometry(cakeRadius, cakeRadius, cakeHeight, 32, 1, false, 0, Math.PI * 7/4);
 
@@ -241,7 +316,7 @@ class MyContents  {
     createFlame(candle) {
         const flameRadius = 0.06; 
         const flameHeight = 0.1; 
-        const flameMaterial = new THREE.MeshBasicMaterial({ color: 0xff7f00 }); // Cor da chama
+        const flameMaterial = new THREE.MeshPhongMaterial({color: 0xff7f00, map: this.flameTexture });
     
         const flameGeometry = new THREE.ConeGeometry(flameRadius, flameHeight, 32);
         const flame = new THREE.Mesh(flameGeometry, flameMaterial);
@@ -257,7 +332,7 @@ class MyContents  {
         const chairHeight = 3;
         const chairDepth = 1.8; 
         const chairLegsHeight = 0.8; 
-        const chairMaterial = new THREE.MeshBasicMaterial({ color: 0x654321 }); // Cor da cadeira
+        const chairMaterial = new THREE.MeshPhongMaterial({ color: 0xefd6da, map: this.chairTexture });
         
         const seatGeometry = new THREE.BoxGeometry(chairWidth, 0.2, chairDepth);
         const seat = new THREE.Mesh(seatGeometry, chairMaterial);
@@ -282,7 +357,7 @@ class MyContents  {
         const legRadius = 0.1; 
         const legHeight = 1.2;
     
-        const legMaterial = new THREE.MeshBasicMaterial({ color: 0x472c11 }); // Cor das pernas
+        const legMaterial = new THREE.MeshBasicMaterial({ color: 0x363636 }); // Cor das pernas
     
         const legPositions = [
             { x: -3.1, y: -1, z: 4.2 }, // Canto esquerdo da frente
@@ -300,6 +375,39 @@ class MyContents  {
             chair.add(leg);
         }
     }
+
+    createFrames() {
+    const frameWidth = 2;
+    const frameHeight = 1.5;
+    const borderWidth = 2.3;
+    const borderHeight = 1.8;
+    const frameGeometry = new THREE.PlaneGeometry(frameWidth, frameHeight);
+    const borderGeometry = new THREE.PlaneGeometry(borderWidth, borderHeight);
+
+    
+    const frameMaterial = new THREE.MeshBasicMaterial({ color: 0xbb9469 }); // Cor do quadro
+    const borderMaterial = new THREE.MeshBasicMaterial({ color: 0xbb9469 }); // Cor da borda
+    
+    const frame1 = new THREE.Mesh(frameGeometry, frameMaterial);
+    frame1.position.set(-3, 4, -6.59); 
+    frame1.material = frameMaterial;
+
+    const border1 = new THREE.Mesh(borderGeometry, borderMaterial);
+    border1.position.set(-3, 4, -6.6); 
+    
+    const frame2 = new THREE.Mesh(frameGeometry, frameMaterial);
+    frame2.position.set(3, 4, -6.59); 
+
+    const border2 = new THREE.Mesh(borderGeometry, borderMaterial);
+    border2.position.set(3, 4, -6.6); 
+    
+    this.app.scene.add(frame1);
+    this.app.scene.add(border1);
+    this.app.scene.add(frame2);
+    this.app.scene.add(border2);
+
+
+}
 
     
     /**
