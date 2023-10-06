@@ -14,14 +14,14 @@ class MyContents  {
         this.app = app
         this.axis = null
 
-        // box related attributes
+        // Box related attributes
         this.boxMesh = null
         this.boxMeshSize = 1.0
         this.boxEnabled = true
         this.lastBoxEnabled = null
         this.boxDisplacement = new THREE.Vector3(0,2,0)
 
-        // plane related attributes
+        // Plane related attributes
         this.diffusePlaneColor = "#00ffff"
         this.specularPlaneColor = "#777777"
         this.planeShininess = 30
@@ -64,19 +64,19 @@ class MyContents  {
      */
     init() {
        
-        // create once 
+        // Create once 
         if (this.axis === null) {
             // create and attach the axis to the scene
             this.axis = new MyAxis(this)
             this.app.scene.add(this.axis)
         }
 
-        // add a point light on top of the model   
+        // Add a point light on top of the model   
         const pointLight = new THREE.PointLight( 0xffffff, 100, 15 );
         pointLight.position.set(0, 10, 0);
         this.app.scene.add(pointLight);
 
-        // add a point light helper for the previous point light
+        // Add a point light helper for the previous point light
         const sphereSize = 0.5;
         const pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
         this.app.scene.add(pointLightHelper);
@@ -89,10 +89,9 @@ class MyContents  {
         spotLight.target.position.set(0,0.5,0);
         this.app.scene.add(spotLight.target);
 
-        // add an ambient light
+        // Add an ambient light
         const ambientLight = new THREE.AmbientLight( 0x555555 );
         this.app.scene.add(ambientLight);
-
 
         this.buildBox()
         
@@ -121,6 +120,9 @@ class MyContents  {
         const candle = this.createCandle(cake);
         this.createFlame(candle);
         this.createSmallPlate(table);
+        this.createSpiral();
+
+        // Chão
         this.createCarpet();
 
         // Cadeira
@@ -438,6 +440,32 @@ class MyContents  {
         this.app.scene.add(border);
     }
 
+    createSpiral() {
+        const numLoops = 5;         
+        const numSegmentsPerLoop = 20; 
+        const radius = 0.3;            
+        const pitch = 0.2;           
+
+        const spiralPoints = [];
+
+        for (let i = 0; i < numLoops * numSegmentsPerLoop; i++) {
+        const t = i / numSegmentsPerLoop;
+        const x = radius * Math.cos(t * 2 * Math.PI);
+        const y = radius * Math.sin(t * 2 * Math.PI);
+        const z = t * pitch;
+        spiralPoints.push(new THREE.Vector3(x, y, z));
+        }
+
+        const spiralGeometry = new THREE.BufferGeometry().setFromPoints(spiralPoints);
+        const spiralMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+
+        const spiral = new THREE.Line(spiralGeometry, spiralMaterial);
+        spiral.position.set(0, 3, -3);
+        spiral.rotation.x = Math.PI / 2;
+        this.app.scene.add(spiral);
+
+      }
+      
     
     /**
      * updates the diffuse plane color and the material
