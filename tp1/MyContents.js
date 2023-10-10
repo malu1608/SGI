@@ -72,7 +72,7 @@ class MyContents  {
         }
 
         // Add a point light on top of the model   
-        const pointLight = new THREE.PointLight( 0xffffff, 100, 15 );
+        const pointLight = new THREE.PointLight( 0xffffff, 100, 17 );
         pointLight.position.set(0, 10, 0);
         this.app.scene.add(pointLight);
 
@@ -96,8 +96,8 @@ class MyContents  {
         this.buildBox()
         
         // Create a Plane Mesh with basic material
-        const planeWidth = 13.4; 
-        const planeHeight = 13.4; 
+        const planeWidth = 25; 
+        const planeHeight = 25; 
     
         let plane = new THREE.PlaneGeometry(planeWidth, planeHeight);
         this.planeMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, map: this.floorTexture });
@@ -111,6 +111,7 @@ class MyContents  {
         this.createDoor();
         this.createBookshelf();
         this.createWindow();
+        this.createCarocha();
 
         // Mesa
         const table = this.createTable();
@@ -135,26 +136,26 @@ class MyContents  {
     createWalls() {    
         const diffuseColor = 0xefd6da;
         const wallMaterial = new THREE.MeshPhongMaterial({ color: diffuseColor, map: this.wallTexture });
-        const wallGeometry = new THREE.PlaneGeometry(13.4, 7);
+        const wallGeometry = new THREE.PlaneGeometry(25, 7);
 
         const wall1Mesh = new THREE.Mesh(wallGeometry, wallMaterial);
         wall1Mesh.rotation.x = 0;
-        wall1Mesh.position.set(0, 3.5, -6.7);
+        wall1Mesh.position.set(0, 3.5, -12.5);
         this.app.scene.add(wall1Mesh);
 
         const wall2Mesh = new THREE.Mesh(wallGeometry, wallMaterial);
         wall2Mesh.rotation.y = Math.PI / 2;
-        wall2Mesh.position.set(-6.7, 3.5, 0);
+        wall2Mesh.position.set(-12.5, 3.5, 0);
         this.app.scene.add(wall2Mesh);
 
         const wall3Mesh = new THREE.Mesh(wallGeometry, wallMaterial);
         wall3Mesh.rotation.y = -Math.PI / 2;
-        wall3Mesh.position.set(6.7, 3.5, 0);
+        wall3Mesh.position.set(12.5, 3.5, 0);
         this.app.scene.add(wall3Mesh);
 
         const wall4Mesh = new THREE.Mesh(wallGeometry, wallMaterial);
         wall4Mesh.rotation.x = Math.PI;
-        wall4Mesh.position.set(0, 3.5, 6.7);
+        wall4Mesh.position.set(0, 3.5, 12.5);
         this.app.scene.add(wall4Mesh);
 
     }
@@ -168,7 +169,7 @@ class MyContents  {
         const shelfMaterial = new THREE.MeshPhongMaterial({color: 0xbb9469, map: this.tableTexture });
     
         const shelfMesh = new THREE.Mesh(shelfGeometry, shelfMaterial);
-        shelfMesh.position.set(4.5, 4.0, 6.4);
+        shelfMesh.position.set(8.5, 4.0, 12.2);
         this.app.scene.add(shelfMesh);
 
         const rectangleWidth = 1.5;
@@ -188,21 +189,21 @@ class MyContents  {
     createDoor() {
         const doorWidth = 2.7;
         const doorHeight = 5.7;
-        const doorThickness = 0.10;
+        const doorThickness = 0.15;
     
         const doorGeometry = new THREE.BoxGeometry(doorWidth, doorHeight, doorThickness);
         const doorMaterial = new THREE.MeshPhongMaterial({color: 0xbb9469, map: this.doorTexture });
     
         const doorMesh = new THREE.Mesh(doorGeometry, doorMaterial);
-        doorMesh.position.set(-4.5, doorHeight / 2, 6.7);
+        doorMesh.position.set(-8.5, doorHeight / 2, 12.5);
         this.app.scene.add(doorMesh);
     
         return doorMesh;
     }
 
     createCarpet() {
-        const carpetWidth = 6;
-        const carpetLength = 12.5;
+        const carpetWidth = 8;
+        const carpetLength = 14.5;
         const carpetThickness = 0.02;
     
         const carpetGeometry = new THREE.BoxGeometry(carpetWidth, carpetThickness, carpetLength);
@@ -355,7 +356,7 @@ class MyContents  {
         const chairGroup = new THREE.Group();
         chairGroup.add(seat, backrest);
 
-        chairGroup.position.set(2.5, chairHeight / 2, 0); 
+        chairGroup.position.set(2.5, 1.6, 0); 
         this.app.scene.add(chairGroup);
         this.createChairLegs(chairGroup);
 
@@ -399,16 +400,16 @@ class MyContents  {
         const borderMaterial = new THREE.MeshBasicMaterial({ color: 0xbb9469, map:this.borderTexture }); 
         
         const frame1 = new THREE.Mesh(frameGeometry, frame1Material);
-        frame1.position.set(-3, 4, -6.59); 
+        frame1.position.set(-3, 4, -12.48); 
     
         const border1 = new THREE.Mesh(borderGeometry, borderMaterial);
-        border1.position.set(-3, 4, -6.6); 
+        border1.position.set(-3, 4, -12.49); 
         
         const frame2 = new THREE.Mesh(frameGeometry, frame2Material);
-        frame2.position.set(3, 4, -6.59); 
+        frame2.position.set(3, 4, -12.48); 
     
         const border2 = new THREE.Mesh(borderGeometry, borderMaterial);
-        border2.position.set(3, 4, -6.6); 
+        border2.position.set(3, 4, -12.49); 
         
         this.app.scene.add(frame1);
         this.app.scene.add(border1);
@@ -430,11 +431,11 @@ class MyContents  {
         
         const window = new THREE.Mesh(windowGeometry, windowMaterial);
         window.rotation.y = Math.PI / 2;
-        window.position.set(-6.6, 4, 0);
+        window.position.set(-12.48, 4, 0);
     
         const border = new THREE.Mesh(borderGeometry, borderMaterial);
         border.rotation.y = Math.PI / 2;
-        border.position.set(-6.61, 4, 0);
+        border.position.set(-12.49, 4, 0);
         
         this.app.scene.add(window);
         this.app.scene.add(border);
@@ -464,6 +465,79 @@ class MyContents  {
         spiral.rotation.x = Math.PI / 2;
         this.app.scene.add(spiral);
 
+      }
+
+      createCarocha() {
+        this.mesh = new THREE.Group();
+        const scale = 0.5;
+
+        const startPoint = new THREE.Vector3(-4.0, 1.5, 24.8);
+        const controlPoint = new THREE.Vector3(-4.0, 3.5, 24.8); 
+        const controlPoint_2 = new THREE.Vector3(-1.0, 3.5, 24.8); 
+        const endPoint = new THREE.Vector3(-1.0, 1.5, 24.8);
+
+        const curve = new THREE.CubicBezierCurve3(startPoint, controlPoint, controlPoint_2, endPoint);
+        const curveGeometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(50)); 
+        const curveMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+        this.curveObject = new THREE.Line(curveGeometry, curveMaterial);
+
+        const startPoint2 = new THREE.Vector3(-4.0, 1.5, 24.8);
+        const controlPoint2 = new THREE.Vector3(-4.0, 4.0, 24.8); 
+        const controlPoint2_1 = new THREE.Vector3(-2.5, 5.5, 24.8); 
+        const endPoint2 = new THREE.Vector3(0, 5.5, 24.8);
+
+        const curve2 = new THREE.CubicBezierCurve3(startPoint2, controlPoint2, controlPoint2_1, endPoint2);
+        const curveGeometry2 = new THREE.BufferGeometry().setFromPoints(curve2.getPoints(50)); 
+        const curveMaterial2 = new THREE.LineBasicMaterial({ color: 0x000000 });
+        this.curveObject2 = new THREE.Line(curveGeometry2, curveMaterial2);
+
+        const startPoint3 = new THREE.Vector3(0, 5.5, 24.8);
+        const controlPoint3_1 = new THREE.Vector3(1.0, 5.5, 24.8); 
+        const controlPoint3_2 = new THREE.Vector3(2.0, 4.5, 24.8); 
+        const endPoint3 = new THREE.Vector3(2.0, 3.5, 24.8);
+
+        const curve3 = new THREE.CubicBezierCurve3(startPoint3, controlPoint3_1, controlPoint3_2, endPoint3);
+        const curveGeometry3 = new THREE.BufferGeometry().setFromPoints(curve3.getPoints(50)); 
+        const curveMaterial3 = new THREE.LineBasicMaterial({ color: 0x000000 });
+        this.curveObject3 = new THREE.Line(curveGeometry3, curveMaterial3);
+
+        const startPoint4 = new THREE.Vector3(2.0, 3.5, 24.8);
+        const controlPoint4_1 = new THREE.Vector3(3.0, 3.5, 24.8); 
+        const controlPoint4_2 = new THREE.Vector3(4.0, 2.5, 24.8); 
+        const endPoint4 = new THREE.Vector3(4.0, 1.5, 24.8);
+
+        const curve4 = new THREE.CubicBezierCurve3(startPoint4, controlPoint4_1, controlPoint4_2, endPoint4);
+        const curveGeometry4 = new THREE.BufferGeometry().setFromPoints(curve4.getPoints(50)); 
+        const curveMaterial4 = new THREE.LineBasicMaterial({ color: 0x000000 });
+        this.curveObject4 = new THREE.Line(curveGeometry4, curveMaterial4);
+
+        const startPoint5 = new THREE.Vector3(1.0, 1.5, 24.8);
+        const controlPoint5_1 = new THREE.Vector3(1.0, 3.5, 24.8); 
+        const controlPoint5_2 = new THREE.Vector3(4.0, 3.5, 24.8);
+        const endPoint5 = new THREE.Vector3(4.0, 1.5, 24.8);
+
+        const curve5 = new THREE.CubicBezierCurve3(startPoint5, controlPoint5_1, controlPoint5_2, endPoint5);
+        const curveGeometry5 = new THREE.BufferGeometry().setFromPoints(curve5.getPoints(50)); 
+        const curveMaterial5 = new THREE.LineBasicMaterial({ color: 0x000000 });
+        this.curveObject5 = new THREE.Line(curveGeometry5, curveMaterial5);
+
+        this.mesh.add(this.curveObject);
+        this.mesh.add(this.curveObject2);
+        this.mesh.add(this.curveObject3);
+        this.mesh.add(this.curveObject4);
+        this.mesh.add(this.curveObject5);
+
+        this.mesh.scale.set(scale, scale, scale);
+
+        const frameGeometry = new THREE.BoxGeometry(8.5, 0.1, 5);
+        const frameMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
+      
+        const frame = new THREE.Mesh(frameGeometry, frameMaterial);
+        frame.rotation.x = Math.PI / 2;
+        frame.position.set(0, 4.0, 24.9);
+    
+        this.mesh.add(frame);
+        this.app.scene.add(this.mesh);
       }
       
     
