@@ -29,15 +29,15 @@ class MyContents  {
             specular: this.diffusePlaneColor, emissive: "#000000", shininess: this.planeShininess })
 
         // Scene related attributes
-        this.tableTexture = new THREE.TextureLoader().load('/textures/table.jpg');
-        this.wallTexture = new THREE.TextureLoader().load('/textures/wall.jpg');
-        this.floorTexture = new THREE.TextureLoader().load('/textures/floor.jpg');
-        this.chairTexture = new THREE.TextureLoader().load('/textures/chair.jpg');
-        this.doorTexture = new THREE.TextureLoader().load('/textures/door.jpg');
-        this.dishTexture = new THREE.TextureLoader().load('/textures/dish.jpg');
-        this.flameTexture = new THREE.TextureLoader().load('/textures/flame.jpg');
-        this.carpetTexture = new THREE.TextureLoader().load('/textures/carpet.jpg');
-        this.booksTexture = new THREE.TextureLoader().load('/textures/books.jpg');
+        this.tableTexture = new THREE.TextureLoader().load('textures/table.jpg');
+        this.wallTexture = new THREE.TextureLoader().load('textures/wall.jpg');
+        this.floorTexture = new THREE.TextureLoader().load('textures/floor.jpg');
+        this.chairTexture = new THREE.TextureLoader().load('textures/chair.jpg');
+        this.doorTexture = new THREE.TextureLoader().load('textures/door.jpg');
+        this.dishTexture = new THREE.TextureLoader().load('textures/dish.jpg');
+        this.flameTexture = new THREE.TextureLoader().load('textures/flame.jpg');
+        this.carpetTexture = new THREE.TextureLoader().load('textures/carpet.jpg');
+        this.booksTexture = new THREE.TextureLoader().load('textures/books.jpg');
         this.friends1Texture = new THREE.TextureLoader().load('textures/amigas1.jpg');
         this.friends2Texture = new THREE.TextureLoader().load('textures/amigas2.jpg');
         this.windowTexture = new THREE.TextureLoader().load('textures/window.jpg');
@@ -130,6 +130,7 @@ class MyContents  {
         const chair = this.createChair();
         this.app.scene.add(chair);
         this.createFrames();
+        this.createJar();
 
     }
 
@@ -539,6 +540,25 @@ class MyContents  {
         this.mesh.add(frame);
         this.app.scene.add(this.mesh);
       }
+      createJar() {
+        const jarRadius = 1.0; // Raio do corpo da jarra
+        const jarHeight = 3.0; // Altura do corpo da jarra
+        const jarSegments = 64; // Segmentos radiais
+
+        const bodyGeometry = new THREE.CylinderGeometry(jarRadius, jarRadius, jarHeight, jarSegments);
+        const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x00800 });
+
+        const bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        bodyMesh.position.set(10, jarHeight / 3, 0);
+        
+        const jarGroup = new THREE.Group();
+        jarGroup.add(bodyMesh);
+        
+    
+
+    return jarGroup;
+}
+
       
     
     /**
