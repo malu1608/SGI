@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { MyAxis } from './MyAxis.js';
-
+import { MyNurbsBuilder } from './MyNurbsBuilder.js';
 /**
  *  This class contains the contents of out application
  */
@@ -43,6 +43,32 @@ class MyContents  {
         this.windowTexture = new THREE.TextureLoader().load('textures/window.jpg');
         this.whitewoodTexture = new THREE.TextureLoader().load('textures/whitewood.jpg');
         this.borderTexture = new THREE.TextureLoader().load('textures/border.jpg');
+        const map =
+
+        new THREE.TextureLoader().load( 'textures/books.jpg' );
+
+        map.wrapS = map.wrapT = THREE.RepeatWrapping;
+
+        map.anisotropy = 16;
+
+        map.colorSpace = THREE.SRGBColorSpace;
+
+        this.material = new THREE.MeshLambertMaterial( { map: map,
+
+                        side: THREE.DoubleSide,
+
+                        transparent: true, opacity: 0.90 } );
+        
+        this.builder = new MyNurbsBuilder()
+
+        this.meshes = []
+
+        this.samplesU = 8         // maximum defined in MyGuiInterface
+
+        this.samplesV = 8  
+        this.init()
+
+        this.createNurbsSurfaces()  
     }
 
     /**
@@ -130,10 +156,116 @@ class MyContents  {
         const chair = this.createChair();
         this.app.scene.add(chair);
         this.createFrames();
-        this.createJar();
+        //const { meshU, meshV } = this.createJar();
+
+        // Adicione as superfícies curvas à cena
+        //this.app.scene.add(meshU);
+        //this.app.scene.add(meshV);
 
     }
+    createNurbsSurfaces() {  
+        // are there any meshes to remove?
+        if (this.meshes !== null) {
 
+            // traverse mesh array
+
+            for (let i=0; i<this.meshes.length; i++) {
+
+                // remove all meshes from the scene
+
+                this.app.scene.add(this.meshes[i])
+
+            }
+
+            this.meshes = [] // empty the array  
+
+        }
+        // declare local variables
+
+        let controlPoints;
+        let surfaceData;
+        let mesh;
+        let orderU = 1
+        let orderV = 1
+
+        // build nurb #1
+
+        controlPoints =
+
+        [   // U = 0
+
+    [ // V = 0..2;
+
+        [ -2.0, -2.0, 1.0, 1 ],
+
+        [  0, -2.0, 0, 1 ],
+
+        [ 2.0, -2.0, -1.0, 1 ]
+
+    ],
+
+// U = 1
+
+    [ // V = 0..2
+
+        [  -2.0, -1.0, -2.0, 1 ],
+
+        [ 0, -1.0, -1.0, 1  ],
+
+        [ 2.0, -1.0, 2.0, 1 ]
+
+    ],
+
+// U = 2
+
+    [ // V = 0..2
+
+        [ -2.0, 1.0, 5.0, 1 ],
+
+        [  0, 1.0, 1.5, 1 ],
+
+        [ 2.0, 1.0, -5.0, 1 ]
+
+    ],
+
+// U = 3
+
+    [ // V = 0..2
+
+        [ -2.0, 2.0, -1.0, 1 ],
+
+        [ 0, 2.0, 0, 1  ],
+
+        [  2.0, 2.0, 1.0, 1 ]
+
+    ]    
+
+        ]
+
+
+        surfaceData = this.builder.build(controlPoints,
+                      orderU, orderV, this.samplesU,
+                      this.samplesV, this.material)  
+
+        mesh = new THREE.Mesh( surfaceData, this.material );
+
+        mesh.rotation.x = 0
+
+        mesh.rotation.y = 0
+
+        mesh.rotation.z = 0
+
+        mesh.scale.set( 1,1,1 )
+
+        mesh.position.set( 4,3,0 )
+
+        this.app.scene.add( mesh )
+
+        this.meshes.push(mesh)
+        
+        this.update();
+
+}
     createWalls() {    
         const diffuseColor = 0xefd6da;
         const wallMaterial = new THREE.MeshPhongMaterial({ color: diffuseColor, map: this.wallTexture });
@@ -541,23 +673,40 @@ class MyContents  {
         this.app.scene.add(this.mesh);
       }
       createJar() {
-        const jarRadius = 1.0; // Raio do corpo da jarra
-        const jarHeight = 3.0; // Altura do corpo da jarra
-        const jarSegments = 64; // Segmentos radiais
-
-        const bodyGeometry = new THREE.CylinderGeometry(jarRadius, jarRadius, jarHeight, jarSegments);
-        const bodyMaterial = new THREE.MeshPhongMaterial({ color: 0x00800 });
-
-        const bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        bodyMesh.position.set(10, jarHeight / 3, 0);
-        
-        const jarGroup = new THREE.Group();
-        jarGroup.add(bodyMesh);
-        
+        const material = new THREE.MeshLambertMaterial({
+            color: 0x00FF00, // Cor do jar
+            transparent: true,
+            opacity: 0.7
+        });
     
-
-    return jarGroup;
-}
+        const builder = new MyNurbsBuilder(this.app);
+    
+        // Defina os pontos de controle para as duas superfícies curvas (U e V)
+        const controlPointsU = [
+            [ [0, 0, 0, 1], [1, 0, 0, 1] ],
+            [ [0, 1, 0, 1], [1, 1, 0, 1] ]
+        ];
+    
+        const controlPointsV = [
+            [ [1, 0, 0, 1], [1, 1, 0, 1] ],
+            [ [1, 0, 1, 1], [1, 1, 1, 1] ]
+        ];
+    
+        const orderU = 1; // Ordem para a direção U
+        const orderV = 1; // Ordem para a direção V
+    
+        const samplesU = 16; // Número de amostras na direção U
+        const samplesV = 16; // Número de amostras na direção V
+    
+        const surfaceDataU = builder.build(controlPointsU, orderU, orderV, samplesU, samplesV, material);
+        const surfaceDataV = builder.build(controlPointsV, orderU, orderV, samplesU, samplesV, material);
+    
+        const meshU = new THREE.Mesh(surfaceDataU, material);
+        const meshV = new THREE.Mesh(surfaceDataV, material);
+    
+        // Retorne os objetos mesh se você precisar manipulá-los posteriormente
+        return { meshU, meshV };
+    }
 
       
     
