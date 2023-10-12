@@ -45,7 +45,7 @@ class MyContents  {
         this.borderTexture = new THREE.TextureLoader().load('textures/border.jpg');
         const map =
 
-        new THREE.TextureLoader().load( 'textures/books.jpg' );
+        new THREE.TextureLoader().load( 'textures/azulejo.jpg' );
 
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
 
@@ -59,16 +59,15 @@ class MyContents  {
 
                         transparent: true, opacity: 0.90 } );
         
-        this.builder = new MyNurbsBuilder()
-
+        
         this.meshes = []
 
-        this.samplesU = 8         // maximum defined in MyGuiInterface
+        this.samplesU = 16         // maximum defined in MyGuiInterface
 
-        this.samplesV = 8  
-        this.init()
+        this.samplesV = 16 
+        //this.init()
 
-        this.createNurbsSurfaces()  
+         
     }
 
     /**
@@ -157,113 +156,139 @@ class MyContents  {
         this.app.scene.add(chair);
         this.createFrames();
         //const { meshU, meshV } = this.createJar();
-
-        // Adicione as superfícies curvas à cena
-        //this.app.scene.add(meshU);
-        //this.app.scene.add(meshV);
+        this.createNurbsSurfaces() 
+        this.createFlower()
 
     }
-    createNurbsSurfaces() {  
-        // are there any meshes to remove?
-        if (this.meshes !== null) {
-
-            // traverse mesh array
-
-            for (let i=0; i<this.meshes.length; i++) {
-
-                // remove all meshes from the scene
-
-                this.app.scene.add(this.meshes[i])
-
-            }
-
-            this.meshes = [] // empty the array  
-
-        }
-        // declare local variables
-
-        let controlPoints;
-        let surfaceData;
-        let mesh;
-        let orderU = 1
-        let orderV = 1
-
-        // build nurb #1
-
-        controlPoints =
-
-        [   // U = 0
-
-    [ // V = 0..2;
-
-        [ -2.0, -2.0, 1.0, 1 ],
-
-        [  0, -2.0, 0, 1 ],
-
-        [ 2.0, -2.0, -1.0, 1 ]
-
-    ],
-
-// U = 1
-
-    [ // V = 0..2
-
-        [  -2.0, -1.0, -2.0, 1 ],
-
-        [ 0, -1.0, -1.0, 1  ],
-
-        [ 2.0, -1.0, 2.0, 1 ]
-
-    ],
-
-// U = 2
-
-    [ // V = 0..2
-
-        [ -2.0, 1.0, 5.0, 1 ],
-
-        [  0, 1.0, 1.5, 1 ],
-
-        [ 2.0, 1.0, -5.0, 1 ]
-
-    ],
-
-// U = 3
-
-    [ // V = 0..2
-
-        [ -2.0, 2.0, -1.0, 1 ],
-
-        [ 0, 2.0, 0, 1  ],
-
-        [  2.0, 2.0, 1.0, 1 ]
-
-    ]    
-
-        ]
-
-
-        surfaceData = this.builder.build(controlPoints,
-                      orderU, orderV, this.samplesU,
-                      this.samplesV, this.material)  
-
-        mesh = new THREE.Mesh( surfaceData, this.material );
-
-        mesh.rotation.x = 0
-
-        mesh.rotation.y = 0
-
-        mesh.rotation.z = 0
-
-        mesh.scale.set( 1,1,1 )
-
-        mesh.position.set( 4,3,0 )
-
-        this.app.scene.add( mesh )
-
-        this.meshes.push(mesh)
+    
+    createFlower() {
+        this.flower = new THREE.Group();
+    
+        const curve = new THREE.CubicBezierCurve3(
+            new THREE.Vector3(0, 0, 0),
+            new THREE.Vector3(1, 1, 0),
+            new THREE.Vector3(2, -1, 0),
+            new THREE.Vector3(3, 0, 0)
+        );
         
-        this.update();
+        const points = curve.getPoints(50);
+        
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({ color:0x00FF00 });
+        
+        const line = new THREE.Line(geometry, material);
+
+        line.rotation.x = Math.PI 
+        line.rotation.y = 0
+        line.rotation.z = -Math.PI/2
+        this.flower.add(line);
+        
+        // Crie as pétalas (triângulos)
+        const petalMaterial = new THREE.MeshLambertMaterial({ color: 0xFF1493 }); // Rosa
+    
+        // Posições das pétalas (triângulos)
+        const petalPositions = [
+            { x: 0.5, y: 1.1, z: 0 },
+            { x: -0.5, y: 1.1, z: 0 },
+            { x: 0, y: 1.1, z: 0.5 },
+            { x: 0, y: 1.1, z: -0.5 },
+        ];
+    
+        petalPositions.forEach(position => {
+            const petalShape = new THREE.Shape();
+            petalShape.moveTo(0, 0);
+            petalShape.lineTo(0.1, 0.3);
+            petalShape.lineTo(-0.1, 0.3);
+            petalShape.lineTo(0, 0);
+    
+            const extrudeSettings = {
+                steps: 1,
+                depth: 0.1,
+                bevelEnabled: false,
+            };
+    
+            const petalGeometry = new THREE.ExtrudeGeometry(petalShape, extrudeSettings);
+            const petal = new THREE.Mesh(petalGeometry, petalMaterial);
+            petal.rotation.x = Math.PI / 2;
+            petal.position.set(position.x, position.y, position.z);
+            this.flower.add(petal);
+        });
+    
+        // Centro amarelo (circunferência)
+        const centerGeometry = new THREE.CircleGeometry(0.2, 32);
+        const centerMaterial = new THREE.MeshLambertMaterial({ color: 0xFFd700 }); // Amarelo torrado
+        const center = new THREE.Mesh(centerGeometry, centerMaterial);
+        center.rotation.x = Math.PI /2;
+        center.position.set(0,1.6,0)
+        this.flower.add(center);
+    
+        this.flower.position.set(10,0,0)
+        this.app.scene.add(this.flower);
+    }
+    
+
+    createNurbsSurfaces() {  
+        
+        let orderU = 4;
+        let orderV = 2;
+        const myNurbsBuilder = new MyNurbsBuilder();
+        const controlVertexes = 
+        [   // U = 0
+            [ // V = 0..1
+                [ -0.5, -2, 0, 1 ],
+                [ 0, -2, 1, 1 ],
+                [ 0.5, -2, 0, 1 ],
+            ],
+            // U = 1
+            [ // V = 0..1
+                [ -0.25, -1.5, 0, 1 ],
+                [ 0, -1.5, 0, 1 ],
+                [ 0.25, -1.5, 0, 1 ],
+            ],
+            // U = 2
+            [ // V = 0..1
+                [ -1, -0.5, 0, 1 ],
+                [ 0, -0.5, 3.5, 1 ],
+                [ 1, -0.5, 0, 1 ],
+            ],
+            // U = 3
+            [ // V = 0..1
+                [ -0.25, 0, 0, 1 ],
+                [ 0, 0, -0.5, 1 ],
+                [ 0.25, 0, 0, 1 ],
+            ],
+            // U = 4
+            [ // V = 0..1
+                [ -0.25, 0.25, 0, 1 ],
+                [ 0, 0.25, 0.5, 1 ],
+                [ 0.25, 0.25, 0, 1 ],
+            ]            
+        ]
+       
+        let nurb_geometry = myNurbsBuilder.build(controlVertexes,
+                        orderU, orderV, this.samplesU,
+                        this.samplesV, this.material)  
+
+        const mesh = new THREE.Mesh( nurb_geometry, this.material );
+
+        mesh.rotation.x =  Math.PI ; 
+        mesh.rotation.y = 0
+        mesh.rotation.z = 0
+        mesh.position.set( -8,0,0)
+       
+        const mesh2 = new THREE.Mesh( nurb_geometry, this.material );
+
+        mesh2.rotation.x =  Math.PI ; 
+        mesh2.rotation.y = Math.PI
+        mesh2.rotation.z = 0
+        mesh2.position.set( -8,0,0)
+        
+        this.jar = new THREE.Group();
+        this.jar.add(mesh,mesh2);
+
+        this.app.scene.add(this.jar)
+        //this.app.scene.add(mesh2);
+        this.meshes.push(mesh);
 
 }
     createWalls() {    
@@ -684,7 +709,8 @@ class MyContents  {
         // Defina os pontos de controle para as duas superfícies curvas (U e V)
         const controlPointsU = [
             [ [0, 0, 0, 1], [1, 0, 0, 1] ],
-            [ [0, 1, 0, 1], [1, 1, 0, 1] ]
+            [ [0, 1, 0, 1], [1, 1, 0, 1] ],
+
         ];
     
         const controlPointsV = [
@@ -695,17 +721,37 @@ class MyContents  {
         const orderU = 1; // Ordem para a direção U
         const orderV = 1; // Ordem para a direção V
     
-        const samplesU = 16; // Número de amostras na direção U
-        const samplesV = 16; // Número de amostras na direção V
+        const samplesU = 50; // Número de amostras na direção U
+        const samplesV = 50; // Número de amostras na direção V
     
         const surfaceDataU = builder.build(controlPointsU, orderU, orderV, samplesU, samplesV, material);
         const surfaceDataV = builder.build(controlPointsV, orderU, orderV, samplesU, samplesV, material);
     
         const meshU = new THREE.Mesh(surfaceDataU, material);
         const meshV = new THREE.Mesh(surfaceDataV, material);
+
+        orderU = 4
+        orderV = 2
+        controlPoints = [
+            [ [0, 0, 1, 1], [1, 0, 1, 1] ],
+            [ [0, 1, 1, 1], [1, 1, 1, 1] ]
+        ];
+        
+        const surfaceDataUpper = builder.build(controlPoint, orderU, orderV, samplesU, samplesV, material);
+        const meshUpper = new THREE.Mesh(surfaceDataUpper, material);
+        
+        // Crie um grupo para combinar as partes inferior e superior da jarra
+        const jarGroup = new THREE.Group();
+        jarGroup.add(meshU); // Parte inferior da jarra
+        jarGroup.add(meshV);
+        jarGroup.add(meshUpper) // Parte superior da jarra
+        
+        // Ajuste a posição da parte superior da jarra conforme necessário
+        meshUpper.position.set(0, 0, 1);
     
+        this.app.scene.add(jarGroup)
         // Retorne os objetos mesh se você precisar manipulá-los posteriormente
-        return { meshU, meshV };
+        return { meshU, meshUpper };
     }
 
       
