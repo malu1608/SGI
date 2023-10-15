@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { MyAxis } from './MyAxis.js';
-
+import { MyNurbsBuilder } from './MyNurbsBuilder.js';
 /**
  *  This class contains the contents of out application
  */
@@ -28,21 +28,31 @@ class MyContents  {
         this.planeMaterial = new THREE.MeshPhongMaterial({ color: this.diffusePlaneColor, 
             specular: this.diffusePlaneColor, emissive: "#000000", shininess: this.planeShininess })
 
-        // Scene related attributes
-        this.tableTexture = new THREE.TextureLoader().load('/textures/table.jpg');
-        this.wallTexture = new THREE.TextureLoader().load('/textures/wall.jpg');
-        this.floorTexture = new THREE.TextureLoader().load('/textures/floor.jpg');
-        this.chairTexture = new THREE.TextureLoader().load('/textures/chair.jpg');
-        this.doorTexture = new THREE.TextureLoader().load('/textures/door.jpg');
-        this.dishTexture = new THREE.TextureLoader().load('/textures/dish.jpg');
-        this.flameTexture = new THREE.TextureLoader().load('/textures/flame.jpg');
-        this.carpetTexture = new THREE.TextureLoader().load('/textures/carpet.jpg');
-        this.booksTexture = new THREE.TextureLoader().load('/textures/books.jpg');
+        // Textures
+        this.tableTexture = new THREE.TextureLoader().load('textures/table.jpg');
+        this.wallTexture = new THREE.TextureLoader().load('textures/wall.jpg');
+        this.floorTexture = new THREE.TextureLoader().load('textures/floor.jpg');
+        this.chairTexture = new THREE.TextureLoader().load('textures/chair.jpg');
+        this.doorTexture = new THREE.TextureLoader().load('textures/door.jpg');
+        this.dishTexture = new THREE.TextureLoader().load('textures/dish.jpg');
+        this.flameTexture = new THREE.TextureLoader().load('textures/flame.jpg');
+        this.carpetTexture = new THREE.TextureLoader().load('textures/carpet.jpg');
+        this.booksTexture = new THREE.TextureLoader().load('textures/books.jpg');
         this.friends1Texture = new THREE.TextureLoader().load('textures/amigas1.jpg');
         this.friends2Texture = new THREE.TextureLoader().load('textures/amigas2.jpg');
         this.windowTexture = new THREE.TextureLoader().load('textures/window.jpg');
         this.whitewoodTexture = new THREE.TextureLoader().load('textures/whitewood.jpg');
         this.borderTexture = new THREE.TextureLoader().load('textures/border.jpg');
+
+        // Newspaper
+        this.builder = new MyNurbsBuilder(this.app);
+        const newspaperTexture = new THREE.TextureLoader().load('textures/jornal.jpg');
+        newspaperTexture.wrapS = newspaperTexture.wrapT = THREE.RepeatWrapping;
+        newspaperTexture.anisotropy = 16;
+        newspaperTexture.colorSpace = THREE.SRGBColorSpace;
+        this.newspaperMaterial = new THREE.MeshLambertMaterial( { map: newspaperTexture, side: THREE.DoubleSide,
+            transparent: true, opacity: 0.90 } );
+        this.meshes = [];
     }
 
     /**
@@ -81,7 +91,7 @@ class MyContents  {
         const pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
         this.app.scene.add(pointLightHelper);
         const f_color = 0xffffff;
-        const spotLight = new THREE.SpotLight(f_color, 5, 10,Math.PI/12,0,0);
+        const spotLight = new THREE.SpotLight(f_color, 2, 10,Math.PI/12,0,0);
         spotLight.position.set(0,10,0);
         spotLight.penumbra = 0.7;
 
@@ -106,14 +116,15 @@ class MyContents  {
         this.planeMesh.position.y = -0; 
         this.app.scene.add(this.planeMesh);
         
-        // Paredes
+        // Walls
         this.createWalls();
         this.createDoor();
         this.createBookshelf();
         this.createWindow();
+        this.createFrames();
         this.createCarocha();
 
-        // Mesa
+        // Table
         const table = this.createTable();
         this.createLegs(table);
         const plate =  this.createPlate(table);
@@ -122,16 +133,16 @@ class MyContents  {
         this.createFlame(candle);
         this.createSmallPlate(table);
         this.createSpiral();
+        this.createNewspaper();
 
-        // Chão
+        // Floor
         this.createCarpet();
 
-        // Cadeira
+        // Chair
         const chair = this.createChair();
         this.app.scene.add(chair);
-        this.createFrames();
-
     }
+
 
     createWalls() {    
         const diffuseColor = 0xefd6da;
@@ -450,18 +461,18 @@ class MyContents  {
         const spiralPoints = [];
 
         for (let i = 0; i < numLoops * numSegmentsPerLoop; i++) {
-        const t = i / numSegmentsPerLoop;
-        const x = radius * Math.cos(t * 2 * Math.PI);
-        const y = radius * Math.sin(t * 2 * Math.PI);
-        const z = t * pitch;
-        spiralPoints.push(new THREE.Vector3(x, y, z));
+            const t = i / numSegmentsPerLoop;
+            const x = radius * Math.cos(t * 2 * Math.PI);
+            const y = radius * Math.sin(t * 2 * Math.PI);
+            const z = t * pitch;
+            spiralPoints.push(new THREE.Vector3(x, y, z));
         }
 
         const spiralGeometry = new THREE.BufferGeometry().setFromPoints(spiralPoints);
         const spiralMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
 
         const spiral = new THREE.Line(spiralGeometry, spiralMaterial);
-        spiral.position.set(0, 3, -3);
+        spiral.position.set(-0.8, 3, -3); 
         spiral.rotation.x = Math.PI / 2;
         this.app.scene.add(spiral);
 
@@ -529,6 +540,7 @@ class MyContents  {
 
         this.mesh.scale.set(scale, scale, scale);
 
+        // Frame
         const frameGeometry = new THREE.BoxGeometry(8.5, 0.1, 5);
         const frameMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
       
@@ -539,7 +551,50 @@ class MyContents  {
         this.mesh.add(frame);
         this.app.scene.add(this.mesh);
       }
-      
+
+      createNewspaper() {
+        const newspaperSamplesU = 18;
+        const newspaperSamplesV = 18;
+        const newspaperOrderU = 2;
+        const newspaperOrderV = 1;
+
+        let newspaperMesh;
+        let controlPoints;
+        let surfaceData;
+
+        controlPoints = [
+            // U = 0
+                [ // V = 0..1
+                    [ -0.75, -1.0, 0.0, 1.0 ],
+                    [ -0.75, 1.0, 0.0, 1.0 ]
+                ],
+
+            // U = 1
+                [ // V = 0..1
+                    [ 0.0, -1.0, 1.0, 1.0 ],
+                    [ 0.0, 1.0, 1.0, 1.0 ]
+                ],
+
+            // U = 2
+                [ // V = 0..1
+                    [ 0.75, -1.0, 0.0, 1.0 ],
+                    [ 0.75, 1.0, 0.0, 1.0 ]
+                ]
+            ];
+       
+        surfaceData = this.builder.build(controlPoints, newspaperOrderU, newspaperOrderV, newspaperSamplesU,
+            newspaperSamplesV, this.newspaperMaterial);
+
+        newspaperMesh = new THREE.Mesh(surfaceData, this.newspaperMaterial);
+        newspaperMesh.rotation.x = Math.PI/2;
+        newspaperMesh.rotation.y = 0;
+        newspaperMesh.rotation.z = Math.PI;
+        newspaperMesh.position.set(1, 2.6, -2.8);
+        
+        this.app.scene.add(newspaperMesh);
+        this.meshes.push(newspaperMesh);
+    }
+
     
     /**
      * updates the diffuse plane color and the material
