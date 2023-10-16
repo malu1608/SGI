@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { MyAxis } from './MyAxis.js';
 import { MyNurbsBuilder } from './MyNurbsBuilder.js';
+
 /**
  *  This class contains the contents of out application
  */
@@ -21,6 +22,13 @@ class MyContents  {
         this.lastBoxEnabled = null
         this.boxDisplacement = new THREE.Vector3(0,2,0)
 
+        this.mapSize = 2048;
+        this.nbrPolyg = 10;
+        this.volumeDimX = 10;
+        this.volumeDimY = 10;
+        this.volumeDimZ = 10;
+        this.volumeMeshes = [];
+
         // Plane related attributes
         this.diffusePlaneColor = "#00ffff"
         this.specularPlaneColor = "#777777"
@@ -32,6 +40,8 @@ class MyContents  {
         this.tableTexture = new THREE.TextureLoader().load('textures/table.jpg');
         this.wallTexture = new THREE.TextureLoader().load('textures/wall.jpg');
         this.floorTexture = new THREE.TextureLoader().load('textures/floor.jpg');
+        this.floorTexture.wrapS = this.floorTexture.wrapT = THREE.RepeatWrapping;
+        this.floorTexture.repeat.set(4,1);
         this.chairTexture = new THREE.TextureLoader().load('textures/chair.jpg');
         this.doorTexture = new THREE.TextureLoader().load('textures/door.jpg');
         this.dishTexture = new THREE.TextureLoader().load('textures/dish.jpg');
@@ -52,32 +62,19 @@ class MyContents  {
         newspaperTexture.colorSpace = THREE.SRGBColorSpace;
         this.newspaperMaterial = new THREE.MeshLambertMaterial( { map: newspaperTexture, side: THREE.DoubleSide,
             transparent: true, opacity: 0.90 } );
-        this.meshesJournal = [];
-        const map =
+        this.meshesJounal = [];
 
-        new THREE.TextureLoader().load( 'textures/azulejo.jpg' );
-
+        const map = new THREE.TextureLoader().load( 'textures/azulejo.jpg' );
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
-
         map.anisotropy = 16;
-
         map.colorSpace = THREE.SRGBColorSpace;
-
         this.material = new THREE.MeshLambertMaterial( { map: map,
+            side: THREE.DoubleSide,
+            transparent: true, opacity: 0.90 } );
 
-                        side: THREE.DoubleSide,
-
-                        transparent: true, opacity: 0.90 } );
-        
-        
         this.meshes = []
-
         this.samplesU = 16         // maximum defined in MyGuiInterface
-
         this.samplesV = 16 
-        //this.init()
-
-         
     }
 
     /**
@@ -94,6 +91,63 @@ class MyContents  {
         this.boxMesh.position.y = this.boxDisplacement.y;
     }
 
+    rebuildVolume() {
+        for ( let i = 0; i < this.nbrPolyg; i ++ ) {
+            if (this.volumeMeshes[i] !== null) {
+                this.app.scene.remove(this.volumeMeshes[i])
+            }
+        }
+        this.buildVolume()
+    }
+
+    buildVolume() {
+        const volumeDimXd2 = this.volumeDimX / 2
+        const volumeDimYd2 = this.volumeDimY / 2
+        const volumeDimZd2 = this.volumeDimZ / 2
+
+        const maxDimX = this.volumeDimX / 3
+        const maxDimY = this.volumeDimY / 3
+
+        for ( let i = 0; i < this.nbrPolyg; i ++ ) {
+
+            const dimX = maxDimX * Math.random()
+            const dimY = maxDimY * Math.random()
+
+            const rotX = 2 * Math.PI * Math.random()
+            const rotY = 2 * Math.PI * Math.random()
+            const rotZ = 2 * Math.PI * Math.random()
+
+            const posX = this.volumeDimX * Math.random() - volumeDimXd2
+            const posY = this.volumeDimY * Math.random() - volumeDimYd2
+            const posZ = this.volumeDimZ * Math.random() - volumeDimZd2
+
+            const colorR = Math.random()
+            const colorG = Math.random()
+            const colorB = Math.random()
+            const colorP = new THREE.Color(colorR, colorG, colorB);
+
+            var smallP = new THREE.PlaneGeometry( dimX, dimY )
+
+            this.volumeMeshes[i] =
+                new THREE.Mesh( smallP,
+                    new THREE.MeshStandardMaterial({ color: colorP }) )
+
+            this.volumeMeshes[i].rotation.x = rotX
+            this.volumeMeshes[i].rotation.y = rotY
+            this.volumeMeshes[i].rotation.z = rotZ
+
+            this.volumeMeshes[i].position.x = posX
+            this.volumeMeshes[i].position.y = posY
+            this.volumeMeshes[i].position.z = posZ
+
+            this.volumeMeshes[i].receiveShadow = true
+            this.volumeMeshes[i].castShadow = true
+
+            this.app.scene.add( this.volumeMeshes[i] )
+
+        }
+    }
+
     /**
      * initializes the contents
      */
@@ -107,22 +161,59 @@ class MyContents  {
         }
 
         // Add a point light on top of the model   
-        const pointLight = new THREE.PointLight( 0xffffff, 100, 17 );
-        pointLight.position.set(0, 10, 0);
+        const pointLight = new THREE.PointLight( 0xffffff, 50, 1000 );
+        pointLight.position.set(0, 20, 0);
         this.app.scene.add(pointLight);
+
+        // Add another point light on top of the model   
+        const pointLight1 = new THREE.PointLight( 0xffffff, 50, 1000 );
+        pointLight1.position.set(5, 10, 0);
+        this.app.scene.add(pointLight1);
 
         // Add a point light helper for the previous point light
         const sphereSize = 0.5;
         const pointLightHelper = new THREE.PointLightHelper( pointLight, sphereSize );
         this.app.scene.add(pointLightHelper);
-        const f_color = 0xffffff;
-        const spotLight = new THREE.SpotLight(f_color, 2, 10,Math.PI/12,0,0);
-        spotLight.position.set(0,10,0);
-        spotLight.penumbra = 0.7;
 
-        this.app.scene.add(spotLight);
-        spotLight.target.position.set(0,0.5,0);
-        this.app.scene.add(spotLight.target);
+        const spotlight = new THREE.SpotLight(0xffffff, 1, 15, Math.PI/5, 1, 1);
+        spotlight.position.set(0, 9, -2);
+        spotlight.target.position.set(0, 2.2, 0);
+        spotlight.angle = Math.PI / 5;
+        spotlight.intensity = 10;
+        spotlight.penumbra = 0.7;
+        spotlight.castShadow = true;
+        spotlight.shadow.mapSize.width = this.mapSize;
+        spotlight.shadow.mapSize.height = this.mapSize;
+        this.app.scene.add(spotlight);
+        const spotHelper = new THREE.SpotLightHelper(spotlight)
+        //  this.app.scene.add(spotHelper)
+
+        // Add window light
+        const windowlight = new THREE.SpotLight(0xffffff, 1, 20);
+        windowlight.position.set(-14, 4, 0);
+        windowlight.target.position.set(0, 2.2, 0);
+        windowlight.angle = Math.PI / 3;
+        windowlight.intensity = 100;
+        windowlight.penumbra = 0.7;
+        windowlight.castShadow = true;
+        windowlight.shadow.mapSize.width = this.mapSize;
+        windowlight.shadow.mapSize.height = this.mapSize;
+        this.app.scene.add(windowlight);
+       // const windowHelperPlease = new THREE.SpotLightHelper(windowlight)
+       // this.app.scene.add(windowHelperPlease)
+
+       const windowlight1 = new THREE.SpotLight(0xffffff, 1, 50);
+       windowlight1.position.set(-10, 4.5, 0);
+       windowlight1.target.position.set(-14, 2.2, 0);
+       windowlight1.angle = Math.PI / 3;
+       windowlight1.intensity = 10;
+       windowlight1.penumbra = 0.7;
+       windowlight1.castShadow = true;
+       windowlight1.shadow.mapSize.width = this.mapSize;
+       windowlight1.shadow.mapSize.height = this.mapSize;
+       this.app.scene.add(windowlight1);
+       const windowHelperPlease = new THREE.SpotLightHelper(windowlight1)
+       // this.app.scene.add(windowHelperPlease)
 
         // Add an ambient light
         const ambientLight = new THREE.AmbientLight( 0x555555 );
@@ -148,6 +239,8 @@ class MyContents  {
         this.createWindow();
         this.createFrames();
         this.createCarocha();
+        this.createNurbsSurfaces(); // Jar
+        this.createFlower();
 
         // Table
         const table = this.createTable();
@@ -166,13 +259,71 @@ class MyContents  {
         // Chair
         const chair = this.createChair();
         this.app.scene.add(chair);
-        this.createFrames();
-        //const { meshU, meshV } = this.createJar();
-        this.createNurbsSurfaces() 
-        this.createFlower()
-
+        
     }
-    
+
+    createNurbsSurfaces() {  
+        let orderU = 4;
+        let orderV = 2;
+        const myNurbsBuilder = new MyNurbsBuilder();
+        const controlVertexes = [   
+            // U = 0
+            [ // V = 0..1
+                [ -0.5, -2, 0, 1 ],
+                [ 0, -2, 1, 1 ],
+                [ 0.5, -2, 0, 1 ],
+            ],
+            // U = 1
+            [ // V = 0..1
+                [ -0.25, -1.5, 0, 1 ],
+                [ 0, -1.5, 0, 1 ],
+                [ 0.25, -1.5, 0, 1 ],
+            ],
+            // U = 2
+            [ // V = 0..1
+                [ -1, -0.5, 0, 1 ],
+                [ 0, -0.5, 3.5, 1 ],
+                [ 1, -0.5, 0, 1 ],
+            ],
+            // U = 3
+            [ // V = 0..1
+                [ -0.25, 0, 0, 1 ],
+                [ 0, 0, -0.5, 1 ],
+                [ 0.25, 0, 0, 1 ],
+            ],
+            // U = 4
+            [ // V = 0..1
+                [ -0.25, 0.25, 0, 1 ],
+                [ 0, 0.25, 0.5, 1 ],
+                [ 0.25, 0.25, 0, 1 ],
+            ]            
+        ]
+       
+        let nurb_geometry = myNurbsBuilder.build(controlVertexes,
+                        orderU, orderV, this.samplesU,
+                        this.samplesV, this.material)  
+
+        const mesh = new THREE.Mesh( nurb_geometry, this.material );
+
+        mesh.rotation.x =  Math.PI ; 
+        mesh.rotation.y = 0
+        mesh.rotation.z = 0
+        mesh.position.set( -8,0,0)
+       
+        const mesh2 = new THREE.Mesh( nurb_geometry, this.material );
+
+        mesh2.rotation.x =  Math.PI ; 
+        mesh2.rotation.y = Math.PI
+        mesh2.rotation.z = 0
+        mesh2.position.set( -8,0,0)
+        
+        this.jar = new THREE.Group();
+        this.jar.add(mesh,mesh2);
+
+        this.app.scene.add(this.jar)
+        this.meshes.push(mesh);
+    }
+
     createFlower() {
         this.flower = new THREE.Group();
     
@@ -227,17 +378,18 @@ class MyContents  {
 
             if (index === 0) {
                 petal.rotation.z = Math.PI /2; 
-            }//debaixo
+            } // debaixo
             if (index === 1) {
                 petal.rotation.z = 3*Math.PI/2 ; // Rotação de 45 graus, por exemplo
             }
-            if (index === 2) {//lado esq
+            if (index === 2) { // lado esq
                 petal.rotation.z = Math.PI
                 
             } 
         
             this.flower.add(petal);
         });
+
         const yellowSphereGeometry = new THREE.SphereGeometry(0.05, 10, 10);
         const yellowSphereMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFF00 }); // Amarelo
         const yellowSphere = new THREE.Mesh(yellowSphereGeometry, yellowSphereMaterial);
@@ -247,72 +399,7 @@ class MyContents  {
         this.flower.position.set(-8,0,0)
         this.app.scene.add(this.flower);
     }
-    
 
-    createNurbsSurfaces() {  
-        
-        let orderU = 4;
-        let orderV = 2;
-        const myNurbsBuilder = new MyNurbsBuilder();
-        const controlVertexes = 
-        [   // U = 0
-            [ // V = 0..1
-                [ -0.5, -2, 0, 1 ],
-                [ 0, -2, 1, 1 ],
-                [ 0.5, -2, 0, 1 ],
-            ],
-            // U = 1
-            [ // V = 0..1
-                [ -0.25, -1.5, 0, 1 ],
-                [ 0, -1.5, 0, 1 ],
-                [ 0.25, -1.5, 0, 1 ],
-            ],
-            // U = 2
-            [ // V = 0..1
-                [ -1, -0.5, 0, 1 ],
-                [ 0, -0.5, 3.5, 1 ],
-                [ 1, -0.5, 0, 1 ],
-            ],
-            // U = 3
-            [ // V = 0..1
-                [ -0.25, 0, 0, 1 ],
-                [ 0, 0, -0.5, 1 ],
-                [ 0.25, 0, 0, 1 ],
-            ],
-            // U = 4
-            [ // V = 0..1
-                [ -0.25, 0.25, 0, 1 ],
-                [ 0, 0.25, 0.5, 1 ],
-                [ 0.25, 0.25, 0, 1 ],
-            ]            
-        ]
-       
-        let nurb_geometry = myNurbsBuilder.build(controlVertexes,
-                        orderU, orderV, this.samplesU,
-                        this.samplesV, this.material)  
-
-        const mesh = new THREE.Mesh( nurb_geometry, this.material );
-
-        mesh.rotation.x =  Math.PI ; 
-        mesh.rotation.y = 0
-        mesh.rotation.z = 0
-        mesh.position.set( -8,0,0)
-       
-        const mesh2 = new THREE.Mesh( nurb_geometry, this.material );
-
-        mesh2.rotation.x =  Math.PI ; 
-        mesh2.rotation.y = Math.PI
-        mesh2.rotation.z = 0
-        mesh2.position.set( -8,0,0)
-        
-        this.jar = new THREE.Group();
-        this.jar.add(mesh,mesh2);
-
-        this.app.scene.add(this.jar)
-        //this.app.scene.add(mesh2);
-        this.meshes.push(mesh);
-
-}
     createWalls() {    
         const diffuseColor = 0xefd6da;
         const wallMaterial = new THREE.MeshPhongMaterial({ color: diffuseColor, map: this.wallTexture });
@@ -391,6 +478,10 @@ class MyContents  {
     
         const carpetMesh = new THREE.Mesh(carpetGeometry, carpetMaterial);
         carpetMesh.position.set(0, carpetThickness / 2, 0); 
+
+        carpetMesh.castShadow = true;
+        carpetMesh.receiveShadow = true;
+
         this.app.scene.add(carpetMesh);
     
         return carpetMesh;
@@ -407,6 +498,10 @@ class MyContents  {
         const table = new THREE.Mesh(tableGeometry, tableMaterial);
         table.rotation.x = -Math.PI;
         table.position.set(0, 2, 0);
+
+        table.castShadow = true;
+        table.receiveShadow = true;
+
         this.app.scene.add(table);
 
         return table;
@@ -444,6 +539,10 @@ class MyContents  {
 
         const plate = new THREE.Mesh(plateGeometry, plateMaterial);
         plate.position.set(0, -0.15, 0);
+
+        plate.castShadow = true;
+        plate.receiveShadow = true;
+
         table.add(plate); 
 
         return plate;
@@ -467,7 +566,7 @@ class MyContents  {
         const cakeRadius = 0.9; 
         const cakeHeight = 1; 
 
-        const cakeMaterial = new THREE.MeshPhongMaterial({ color: 0xe7a8ba, specular: 0xe7a8ba, shininess: 100}); // Cor do bolo
+        const cakeMaterial = new THREE.MeshPhongMaterial({ color: 0xe7a8ba }); 
         const cakeGeometry = new THREE.CylinderGeometry(cakeRadius, cakeRadius, cakeHeight, 32, 1, false, 0, Math.PI * 7/4);
 
         let side1 = new THREE.PlaneGeometry(cakeRadius, cakeHeight);
@@ -482,6 +581,9 @@ class MyContents  {
         side1.position.set(side1.position.x - Math.cos(Math.PI / 4) * (cakeRadius / 2), side1.position.y - cakeHeight / 2, side1.position.z + Math.sin(Math.PI / 4) * (cakeRadius / 2));
         side2.rotateOnAxis(new THREE.Vector3(0, 1, 0), -Math.PI / 2);
         side2.position.set(side2.position.x, side2.position.y - cakeHeight / 2, side2.position.z + (cakeRadius / 2));
+
+        cake.castShadow = true;
+        cake.receiveShadow = true;
 
         plate.add(cake, side1, side2); 
 
@@ -526,6 +628,8 @@ class MyContents  {
         
         const seatGeometry = new THREE.BoxGeometry(chairWidth, 0.2, chairDepth);
         const seat = new THREE.Mesh(seatGeometry, chairMaterial);
+        seat.castShadow = true;
+        seat.receiveShadow = true;        
         seat.position.set(-2.5, -0.3, 5);
         
         const backrestGeometry = new THREE.BoxGeometry(chairWidth, chairHeight - chairLegsHeight, 0.2);
@@ -643,6 +747,10 @@ class MyContents  {
         const spiral = new THREE.Line(spiralGeometry, spiralMaterial);
         spiral.position.set(-0.8, 3, -3); 
         spiral.rotation.x = Math.PI / 2;
+
+        spiral.castShadow = true;
+        spiral.receiveShadow = true;
+
         this.app.scene.add(spiral);
 
       }
@@ -759,69 +867,14 @@ class MyContents  {
         newspaperMesh.rotation.y = 0;
         newspaperMesh.rotation.z = Math.PI;
         newspaperMesh.position.set(1, 2.6, -2.8);
+
+        newspaperMesh.castShadow = true;
+        newspaperMesh.receiveShadow = true;
         
         this.app.scene.add(newspaperMesh);
-        this.meshesJournal.push(newspaperMesh);
+        this.meshesJounal.push(newspaperMesh);
     }
-    /*
-      createJar() {
-        const material = new THREE.MeshLambertMaterial({
-            color: 0x00FF00, // Cor do jar
-            transparent: true,
-            opacity: 0.7
-        });
-    
-        const builder = new MyNurbsBuilder(this.app);
-    
-        // Defina os pontos de controle para as duas superfícies curvas (U e V)
-        const controlPointsU = [
-            [ [0, 0, 0, 1], [1, 0, 0, 1] ],
-            [ [0, 1, 0, 1], [1, 1, 0, 1] ],
 
-        ];
-    
-        const controlPointsV = [
-            [ [1, 0, 0, 1], [1, 1, 0, 1] ],
-            [ [1, 0, 1, 1], [1, 1, 1, 1] ]
-        ];
-    
-        const orderU = 1; // Ordem para a direção U
-        const orderV = 1; // Ordem para a direção V
-    
-        const samplesU = 50; // Número de amostras na direção U
-        const samplesV = 50; // Número de amostras na direção V
-    
-        const surfaceDataU = builder.build(controlPointsU, orderU, orderV, samplesU, samplesV, material);
-        const surfaceDataV = builder.build(controlPointsV, orderU, orderV, samplesU, samplesV, material);
-    
-        const meshU = new THREE.Mesh(surfaceDataU, material);
-        const meshV = new THREE.Mesh(surfaceDataV, material);
-
-        orderU = 4
-        orderV = 2
-        controlPoints = [
-            [ [0, 0, 1, 1], [1, 0, 1, 1] ],
-            [ [0, 1, 1, 1], [1, 1, 1, 1] ]
-        ];
-        
-        const surfaceDataUpper = builder.build(controlPoint, orderU, orderV, samplesU, samplesV, material);
-        const meshUpper = new THREE.Mesh(surfaceDataUpper, material);
-        
-        // Crie um grupo para combinar as partes inferior e superior da jarra
-        const jarGroup = new THREE.Group();
-        jarGroup.add(meshU); // Parte inferior da jarra
-        jarGroup.add(meshV);
-        jarGroup.add(meshUpper) // Parte superior da jarra
-        
-        // Ajuste a posição da parte superior da jarra conforme necessário
-        meshUpper.position.set(0, 0, 1);
-    
-        this.app.scene.add(jarGroup)
-        // Retorne os objetos mesh se você precisar manipulá-los posteriormente
-        return { meshU, meshUpper };
-    }
-    */
-      
     
     /**
      * updates the diffuse plane color and the material
