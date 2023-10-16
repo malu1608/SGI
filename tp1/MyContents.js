@@ -174,7 +174,7 @@ class MyContents  {
         const points = curve.getPoints(50);
         
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        const material = new THREE.LineBasicMaterial({ color:0x00FF00 });
+        const material = new THREE.LineBasicMaterial({ color: 0x006400,linewidth: 50  });
         
         const line = new THREE.Line(geometry, material);
 
@@ -188,18 +188,19 @@ class MyContents  {
     
         // Posições das pétalas (triângulos)
         const petalPositions = [
-            { x: 0.5, y: 1.1, z: 0 },
-            { x: -0.5, y: 1.1, z: 0 },
-            { x: 0, y: 1.1, z: 0.5 },
-            { x: 0, y: 1.1, z: -0.5 },
+            { x: 0.5, y: 3, z: 0 },
+            { x: -0.5, y: 3, z: 0 },
+            { x: 0, y: 3, z: 0.5 },
+            { x: 0, y:3, z: -0.5 },
         ];
     
-        petalPositions.forEach(position => {
+        petalPositions.forEach((position,index) => {
             const petalShape = new THREE.Shape();
             petalShape.moveTo(0, 0);
             petalShape.lineTo(0.1, 0.3);
             petalShape.lineTo(-0.1, 0.3);
-            petalShape.lineTo(0, 0);
+            petalShape.lineTo(0, 0.5);  // Terceiro vértice (ponta para fora)
+            petalShape.lineTo(0.1, 0.3);  // Quarto vértice (para fechar a forma)
     
             const extrudeSettings = {
                 steps: 1,
@@ -211,18 +212,23 @@ class MyContents  {
             const petal = new THREE.Mesh(petalGeometry, petalMaterial);
             petal.rotation.x = Math.PI / 2;
             petal.position.set(position.x, position.y, position.z);
+
+            if (index === 0) {
+                petal.rotation.z = Math.PI /2; 
+            }//debaixo
+            if (index === 1) {
+                petal.rotation.z = 3*Math.PI/2 ; // Rotação de 45 graus, por exemplo
+            }
+            if (index === 2) {//lado esq
+                petal.rotation.z = Math.PI
+                
+            } 
+        
             this.flower.add(petal);
         });
+
     
-        // Centro amarelo (circunferência)
-        const centerGeometry = new THREE.CircleGeometry(0.2, 32);
-        const centerMaterial = new THREE.MeshLambertMaterial({ color: 0xFFd700 }); // Amarelo torrado
-        const center = new THREE.Mesh(centerGeometry, centerMaterial);
-        center.rotation.x = Math.PI /2;
-        center.position.set(0,1.6,0)
-        this.flower.add(center);
-    
-        this.flower.position.set(10,0,0)
+        this.flower.position.set(-8,0,0)
         this.app.scene.add(this.flower);
     }
     
