@@ -203,8 +203,8 @@ class MyContents  {
             petalShape.lineTo(0.1, 0.3);  // Quarto vértice (para fechar a forma)
     
             const extrudeSettings = {
-                steps: 1,
-                depth: 0.1,
+                steps: 0,
+                depth: 600,
                 bevelEnabled: false,
             };
     
@@ -226,8 +226,12 @@ class MyContents  {
         
             this.flower.add(petal);
         });
+        const yellowSphereGeometry = new THREE.SphereGeometry(0.05, 10, 10);
+        const yellowSphereMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFF00 }); // Amarelo
+        const yellowSphere = new THREE.Mesh(yellowSphereGeometry, yellowSphereMaterial);
+        yellowSphere.position.set(0, 3, 0); // Posição no meio das pétalas
 
-    
+        this.flower.add(yellowSphere);
         this.flower.position.set(-8,0,0)
         this.app.scene.add(this.flower);
     }
