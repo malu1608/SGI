@@ -38,7 +38,7 @@ class MyContents  {
 
         // Textures
         this.tableTexture = new THREE.TextureLoader().load('textures/table.jpg');
-        this.wallTexture = new THREE.TextureLoader().load('textures/wall.jpg');
+        this.wallTexture = new THREE.TextureLoader().load('textures/wall3.jpg');
         this.floorTexture = new THREE.TextureLoader().load('textures/floor.jpg');
         this.floorTexture.wrapS = this.floorTexture.wrapT = THREE.RepeatWrapping;
         this.floorTexture.repeat.set(4,1);
@@ -185,7 +185,6 @@ class MyContents  {
         spotlight.shadow.mapSize.width = this.mapSize;
         spotlight.shadow.mapSize.height = this.mapSize;
         this.app.scene.add(spotlight);
-        const spotHelper = new THREE.SpotLightHelper(spotlight)
         //  this.app.scene.add(spotHelper)
 
         // Add window light
@@ -199,20 +198,18 @@ class MyContents  {
         windowlight.shadow.mapSize.width = this.mapSize;
         windowlight.shadow.mapSize.height = this.mapSize;
         this.app.scene.add(windowlight);
-       // const windowHelperPlease = new THREE.SpotLightHelper(windowlight)
-       // this.app.scene.add(windowHelperPlease)
 
-       const windowlight1 = new THREE.SpotLight(0xffffff, 1, 50);
-       windowlight1.position.set(-10, 4.5, 0);
-       windowlight1.target.position.set(-14, 2.2, 0);
-       windowlight1.angle = Math.PI / 3;
-       windowlight1.intensity = 10;
-       windowlight1.penumbra = 0.7;
-       windowlight1.castShadow = true;
-       windowlight1.shadow.mapSize.width = this.mapSize;
-       windowlight1.shadow.mapSize.height = this.mapSize;
-       this.app.scene.add(windowlight1);
-       const windowHelperPlease = new THREE.SpotLightHelper(windowlight1)
+        const windowlight1 = new THREE.SpotLight(0xffffff, 1, 50);
+        windowlight1.position.set(-10, 4.5, 0);
+        windowlight1.target.position.set(-14, 2.2, 0);
+        windowlight1.angle = Math.PI / 3;
+        windowlight1.intensity = 10;
+        windowlight1.penumbra = 0.7;
+        windowlight1.castShadow = true;
+        windowlight1.shadow.mapSize.width = this.mapSize;
+        windowlight1.shadow.mapSize.height = this.mapSize;
+        this.app.scene.add(windowlight1);
+        const windowHelperPlease = new THREE.SpotLightHelper(windowlight1)
        // this.app.scene.add(windowHelperPlease)
 
         // Add an ambient light
@@ -232,7 +229,6 @@ class MyContents  {
         this.planeMesh.position.y = -0; 
         this.app.scene.add(this.planeMesh);
         
-        // Walls
         this.createWalls();
         this.createDoor();
         this.createBookshelf();
@@ -257,8 +253,9 @@ class MyContents  {
         this.createCarpet();
 
         // Chair
-        const chair = this.createChair();
-        this.app.scene.add(chair);
+        //const chair = this.createChair();
+        this.createChairsAroundTable(table.position, 4);
+        //this.app.scene.add(chair);
         
     }
 
@@ -321,6 +318,7 @@ class MyContents  {
         this.jar.add(mesh,mesh2);
 
         this.app.scene.add(this.jar)
+        this.jar.position.set(18,0 , -10)
         this.meshes.push(mesh);
     }
 
@@ -396,14 +394,14 @@ class MyContents  {
         yellowSphere.position.set(0, 3, 0); // Posição no meio das pétalas
 
         this.flower.add(yellowSphere);
-        this.flower.position.set(-8,0,0)
+        this.flower.position.set(10,0 , -10)
         this.app.scene.add(this.flower);
     }
 
     createWalls() {    
         const diffuseColor = 0xefd6da;
         const wallMaterial = new THREE.MeshPhongMaterial({ color: diffuseColor, map: this.wallTexture });
-        const wallGeometry = new THREE.PlaneGeometry(25, 7);
+        const wallGeometry = new THREE.PlaneGeometry(25, 9);
 
         const wall1Mesh = new THREE.Mesh(wallGeometry, wallMaterial);
         wall1Mesh.rotation.x = 0;
@@ -669,7 +667,42 @@ class MyContents  {
             chair.add(leg);
         }
     }
-
+    createChairsAroundTable(tablePosition, numChairs) {
+        const chairSpacing = 4; // Espaçamento entre as cadeiras
+    
+        // Crie um grupo para todas as cadeiras ao redor da mesa
+        const chairsGroup = new THREE.Group();
+    
+        for (let i = 0; i < numChairs; i++) {
+            const chair = this.createChair()
+            
+            // Calcule a posição da cadeira ao redor da mesa
+            const angle = (i / numChairs) * Math.PI * 2;
+            const offsetX = Math.cos(angle) * chairSpacing;
+            const offsetY = Math.sin(angle) * chairSpacing;
+    
+            chair.position.set(
+                tablePosition.x + offsetX,
+                tablePosition.y,
+                tablePosition.z + offsetY
+            );
+            if(i == 0){
+                chair.rotation.y = Math.PI/2
+            }
+            if(i == 2){
+                chair.rotation.y = Math.PI
+            }
+            if(i == 3){
+                chair.rotation.y = 3*Math.PI/2
+            }
+            chairsGroup.add(chair);
+        }
+        for (let i = 0; i < numChairs; i++) {
+            console.log(`Cadeira ${i}:`, chairsGroup.children[i].position);
+        }
+        // Adicione o grupo de cadeiras à cena
+        this.app.scene.add(chairsGroup);
+    }
     createFrames() {
         const frameWidth = 2;
         const frameHeight = 1.5;
