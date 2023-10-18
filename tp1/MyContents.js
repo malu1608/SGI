@@ -64,7 +64,7 @@ class MyContents  {
             transparent: true, opacity: 0.90 } );
         this.meshesJounal = [];
 
-        const map = new THREE.TextureLoader().load( 'textures/azulejo.jpg' );
+        const map = new THREE.TextureLoader().load( 'textures/jar2.jpg' );
         map.wrapS = map.wrapT = THREE.RepeatWrapping;
         map.anisotropy = 16;
         map.colorSpace = THREE.SRGBColorSpace;
@@ -381,8 +381,7 @@ class MyContents  {
                 petal.rotation.z = 3*Math.PI/2 ; // Rotação de 45 graus, por exemplo
             }
             if (index === 2) { // lado esq
-                petal.rotation.z = Math.PI
-                
+                petal.rotation.z = Math.PI 
             } 
         
             this.flower.add(petal);
@@ -676,32 +675,24 @@ class MyContents  {
         for (let i = 0; i < numChairs; i++) {
             const chair = this.createChair()
             
-            // Calcule a posição da cadeira ao redor da mesa
-            const angle = (i / numChairs) * Math.PI * 2;
-            const offsetX = Math.cos(angle) * chairSpacing;
-            const offsetY = Math.sin(angle) * chairSpacing;
-    
-            chair.position.set(
-                tablePosition.x + offsetX,
-                tablePosition.y,
-                tablePosition.z + offsetY
-            );
-            if(i == 0){
+            if(i == 0){//de tras
                 chair.rotation.y = Math.PI/2
+                chair.position.set(-2,1.6,0)
             }
-            if(i == 2){
+            if(i == 2){ //direita
                 chair.rotation.y = Math.PI
+                chair.position.set(-2,1.6,-0.4)
             }
             if(i == 3){
                 chair.rotation.y = 3*Math.PI/2
+                chair.position.set(2,1.6,3.5)
             }
             chairsGroup.add(chair);
         }
-        for (let i = 0; i < numChairs; i++) {
-            console.log(`Cadeira ${i}:`, chairsGroup.children[i].position);
-        }
+        
         // Adicione o grupo de cadeiras à cena
         this.app.scene.add(chairsGroup);
+    
     }
     createFrames() {
         const frameWidth = 2;
