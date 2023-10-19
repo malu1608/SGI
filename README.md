@@ -12,10 +12,9 @@
 
 ### [TP1 - ThreeJS Basics](tp1)
 
-- (items briefly describing main strong points)
-- Scene
-  - (Brief description of the created scene)
-  - (relative link to the scene)
+- Our room contains all the features requested. Furthermore, we added extra objects such as the door, the chairs, the carpet, the shelves,...
+- Cameras fully implemeted: Perspective1, Perspective2, Left, Right, Top, Front and Back.
+- Illumination fully implemented: spotLight coming from the window, spotLight illuminating the cake, pointLight coming from the ceiling
 
 -----
 
