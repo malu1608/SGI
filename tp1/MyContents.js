@@ -186,7 +186,6 @@ class MyContents  {
         spotlight.shadow.mapSize.width = this.mapSize;
         spotlight.shadow.mapSize.height = this.mapSize;
         this.app.scene.add(spotlight);
-        //  this.app.scene.add(spotHelper)
 
         // Add window light
         const windowlight = new THREE.SpotLight(0xffffff, 1, 20);
@@ -210,8 +209,6 @@ class MyContents  {
         windowlight1.shadow.mapSize.width = this.mapSize;
         windowlight1.shadow.mapSize.height = this.mapSize;
         this.app.scene.add(windowlight1);
-        const windowHelperPlease = new THREE.SpotLightHelper(windowlight1)
-       // this.app.scene.add(windowHelperPlease)
 
         // Add an ambient light
         const ambientLight = new THREE.AmbientLight( 0x555555 );
@@ -263,47 +260,49 @@ class MyContents  {
         this.createCarpet();
 
         // Chair
-        //const chair = this.createChair();
         this.createChairsAroundTable(table.position, 4);
-        //this.app.scene.add(chair);
         
     }
 
+    /*
+    *  creating jar 
+    */
     createNurbsSurfaces() {  
         let orderU = 4;
         let orderV = 2;
         const myNurbsBuilder = new MyNurbsBuilder();
-        const controlVertexes = [   
+        const controlVertexes = 
+        [   
             // U = 0
             [ // V = 0..1
                 [ -0.5, -2, 0, 1 ],
-                [ 0, -2, 0.5, 1 ],
+                [ 0, -2, 1, 1 ],
                 [ 0.5, -2, 0, 1 ],
             ],
             // U = 1
             [ // V = 0..1
-                [ -0.25, -1.5, 0.5, 1 ],
-                [ 0, -1.5, 1, 1 ],
-                [ 0.25, -1.5, 0.5, 1 ],
+                [ -0.25, -1.5, 0, 1 ],
+                [ 0, -1.5, 0, 1 ],
+                [ 0.25, -1.5, 0, 1 ],
             ],
             // U = 2
             [ // V = 0..1
-                [ -1, -0.5, 0.5, 1 ],
+                [ -1, -0.5, 0, 1 ],
                 [ 0, -0.5, 3.5, 1 ],
-                [ 1, -0.5, 0.5, 1 ],
+                [ 1, -0.5, 0, 1 ],
             ],
             // U = 3
             [ // V = 0..1
-                [ -0.25, 0, 0.5, 1 ],
-                [ 0, 0, 1, 1 ],
-                [ 0.25, 0, 0.5, 1 ],
+                [ -0.25, 0, 0, 1 ],
+                [ 0, 0, -0.5, 1 ],
+                [ 0.25, 0, 0, 1 ],
             ],
             // U = 4
             [ // V = 0..1
-                [ -0.5, 0.25, 0, 1 ],
+                [ -0.25, 0.25, 0, 1 ],
                 [ 0, 0.25, 0.5, 1 ],
                 [ 0.25, 0.25, 0, 1 ],
-            ]            
+            ]
         ]
        
         let nurb_geometry = myNurbsBuilder.build(controlVertexes,
@@ -331,10 +330,11 @@ class MyContents  {
         this.jar.position.set(18,0 , -10)
         this.meshes.push(mesh);
     }
-
+    
     createFlower() {
         const flower = new THREE.Group();
     
+        // create flower stem
         const curve = new THREE.CubicBezierCurve3(
             new THREE.Vector3(0, 0, 0),
             new THREE.Vector3(1, 1, 0),
@@ -345,7 +345,7 @@ class MyContents  {
         const points = curve.getPoints(50);
         
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
-        const material = new THREE.LineBasicMaterial({ color: 0x006400,linewidth: 50  });
+        const material = new THREE.LineBasicMaterial({ color: 0x004000,linewidth: 50  });
         
         const line = new THREE.Line(geometry, material);
 
@@ -354,10 +354,10 @@ class MyContents  {
         line.rotation.z = -Math.PI/2
         flower.add(line);
         
-        // Crie as pétalas (triângulos)
+        // Creating petals
         const petalMaterial = new THREE.MeshLambertMaterial({ color: 0xFF1493 }); // Rosa
     
-        // Posições das pétalas (triângulos)
+        // Petals position
         const petalPositions = [
             { x: 0.5, y: 3, z: 0 },
             { x: -0.5, y: 3, z: 0 },
@@ -370,12 +370,12 @@ class MyContents  {
             petalShape.moveTo(0, 0);
             petalShape.lineTo(0.1, 0.3);
             petalShape.lineTo(-0.1, 0.3);
-            petalShape.lineTo(0, 0.5);  // Terceiro vértice (ponta para fora)
-            petalShape.lineTo(0.1, 0.3);  // Quarto vértice (para fechar a forma)
+            petalShape.lineTo(0, 0.5);  
+            petalShape.lineTo(0.1, 0.3);  
     
             const extrudeSettings = {
                 steps: 0,
-                depth: 600,
+                depth: 60,
                 bevelEnabled: false,
             };
     
@@ -386,21 +386,22 @@ class MyContents  {
 
             if (index === 0) {
                 petal.rotation.z = Math.PI /2; 
-            } // debaixo
+            } 
             if (index === 1) {
-                petal.rotation.z = 3*Math.PI/2 ; // Rotação de 45 graus, por exemplo
+                petal.rotation.z = 3*Math.PI/2 ; 
             }
-            if (index === 2) { // lado esq
+            if (index === 2) { 
                 petal.rotation.z = Math.PI 
             } 
         
             flower.add(petal);
         });
 
+        // flower center
         const yellowSphereGeometry = new THREE.SphereGeometry(0.05, 10, 10);
-        const yellowSphereMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFF00 }); // Amarelo
+        const yellowSphereMaterial = new THREE.MeshLambertMaterial({ color: 0xFFFF00 }); 
         const yellowSphere = new THREE.Mesh(yellowSphereGeometry, yellowSphereMaterial);
-        yellowSphere.position.set(0, 3, 0); // Posição no meio das pétalas
+        yellowSphere.position.set(0, 3, 0); 
 
         flower.add(yellowSphere);
         flower.position.set(10,0 , -10)
@@ -410,7 +411,7 @@ class MyContents  {
     createWalls() {    
         const diffuseColor = 0xefd6da;
         const wallMaterial = new THREE.MeshPhongMaterial({ color: diffuseColor, map: this.wallTexture });
-        const wallGeometry = new THREE.PlaneGeometry(25, 9);
+        const wallGeometry = new THREE.PlaneGeometry(25, 7);
 
         const wall1Mesh = new THREE.Mesh(wallGeometry, wallMaterial);
         wall1Mesh.rotation.x = 0;
@@ -643,7 +644,6 @@ class MyContents  {
         const backrest = new THREE.Mesh(backrestGeometry, chairMaterial);
         backrest.position.set(-2.5, 0.9, 5.8);
 
-        // Agrupa todas as partes da cadeira
         const chairGroup = new THREE.Group();
         chairGroup.add(seat, backrest);
 
@@ -661,10 +661,10 @@ class MyContents  {
         const legMaterial = new THREE.MeshBasicMaterial({ color: 0x363636 }); // Cor das pernas
     
         const legPositions = [
-            { x: -3.1, y: -1, z: 4.2 }, // Canto esquerdo da frente
-            { x: -1.9, y: -1, z: 4.2 }, // Canto direito da frente
-            { x: -3.1, y: -1, z: 5.8 }, // Canto esquerdo de trás
-            { x: -1.9, y: -1, z: 5.8 }, // Canto direito de trás
+            { x: -3.1, y: -1, z: 4.2 }, 
+            { x: -1.9, y: -1, z: 4.2 }, 
+            { x: -3.1, y: -1, z: 5.8 }, 
+            { x: -1.9, y: -1, z: 5.8 }, 
         ];
     
         for (let i = 0; i < legPositions.length; i++) {
@@ -676,10 +676,8 @@ class MyContents  {
             chair.add(leg);
         }
     }
-    createChairsAroundTable(tablePosition, numChairs) {
-        const chairSpacing = 4; // Espaçamento entre as cadeiras
-    
-        // Crie um grupo para todas as cadeiras ao redor da mesa
+    createChairsAroundTable(numChairs) {
+
         const chairsGroup = new THREE.Group();
     
         for (let i = 0; i < numChairs; i++) {
@@ -700,10 +698,10 @@ class MyContents  {
             chairsGroup.add(chair);
         }
         
-        // Adicione o grupo de cadeiras à cena
         this.app.scene.add(chairsGroup);
     
     }
+
     createFrames() {
         const frameWidth = 2;
         const frameHeight = 1.5;
