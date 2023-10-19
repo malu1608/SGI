@@ -10,11 +10,20 @@
 ----
 ## Project information
 
-- (items describing main strong points)
-- Scene
-  - (Brief description of the created scene)
-  - (relative link to the scene)
+Our room contains all the features requested. Furthermore, we added extra objects such as the door, the chairs, the carpet, the shelves,...
+
+We use different cameras with Perspectives, Left, Right, Top, Front and Back.
 ----
 ## Issues/Problems
 
 - (items describing unimplemented features, bugs, problems, etc.)
+
+----
+## Screenshots of the scene
+
+There are some reference screenshots in the path tp1/screenshots/..
+
+![Screenshot 1](./screenshots/screenshot1.png)
+![Screenshot 2](./screenshots/screenshot2.png)
+![Screenshot 3](./screenshots/screenshot3.png)
+![Screenshot 4](./screenshots/screenshot4.png)```
