@@ -10,13 +10,14 @@
 ----
 ## Project information
 
-Our room contains all the features requested. Furthermore, we added extra objects such as the door, the chairs, the carpet, the shelves,...
+- Our room contains all the features requested. Furthermore, we added extra objects such as the door, the chairs, the carpet, the shelves,...
+- Cameras fully implemeted: Perspective1, Perspective2, Left, Right, Top, Front and Back.
+- Illumination fully implemented: spotLight coming from the window, spotLight illuminating the cake, pointLight coming from the ceiling
 
-We use different cameras with Perspectives, Left, Right, Top, Front and Back.
 ----
 ## Issues/Problems
 
-- (items describing unimplemented features, bugs, problems, etc.)
+- Some problems with the curves of the jar.
 
 ----
 ## Screenshots of the scene
