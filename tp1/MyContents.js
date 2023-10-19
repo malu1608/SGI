@@ -227,6 +227,7 @@ class MyContents  {
         this.planeMesh.position.y = -0; 
         this.app.scene.add(this.planeMesh);
         
+        //Walls
         this.createWalls();
         this.createDoor();
         this.createBookshelf(this.booksTexture);
@@ -235,6 +236,8 @@ class MyContents  {
         this.createWindow();
         this.createFrames();
         this.createCarocha();
+
+        //Jar and flower
         this.createNurbsSurfaces(); // Jar
         const flower1 = this.createFlower();
         this.app.scene.add(flower1);
@@ -259,9 +262,8 @@ class MyContents  {
         // Floor
         this.createCarpet();
 
-        // Chair
-        this.createChairsAroundTable(table.position, 4);
-        
+        // Chairs
+        this.createChairsAroundTable(table.position, 4); 
     }
 
     /*
@@ -309,6 +311,7 @@ class MyContents  {
                         orderU, orderV, this.samplesU,
                         this.samplesV, this.material)  
 
+        //Creating first mesh                
         const mesh = new THREE.Mesh( nurb_geometry, this.material );
 
         mesh.rotation.x =  Math.PI ; 
@@ -316,6 +319,7 @@ class MyContents  {
         mesh.rotation.z = 0
         mesh.position.set( -8,0,0)
        
+        //Creating second mesh
         const mesh2 = new THREE.Mesh( nurb_geometry, this.material );
 
         mesh2.rotation.x =  Math.PI ; 
@@ -355,7 +359,7 @@ class MyContents  {
         flower.add(line);
         
         // Creating petals
-        const petalMaterial = new THREE.MeshLambertMaterial({ color: 0xFF1493 }); // Rosa
+        const petalMaterial = new THREE.MeshLambertMaterial({ color: 0xFF1493 });
     
         // Petals position
         const petalPositions = [
@@ -436,6 +440,7 @@ class MyContents  {
     }
 
     createBookshelf(texture) {
+        //Creating shelf
         const shelfWidth = 3.0;
         const shelfHeight = 0.15;
         const shelfThickness = 0.6;
@@ -447,6 +452,7 @@ class MyContents  {
         shelfMesh.position.set(8.5, 4.0, 12.2);
         this.app.scene.add(shelfMesh);
 
+        //Creating books
         const rectangleWidth = 1.5;
         const rectangleHeight = 1.0;
         const rectangleDepth = 0.4;
@@ -482,11 +488,12 @@ class MyContents  {
         const carpetThickness = 0.02;
     
         const carpetGeometry = new THREE.BoxGeometry(carpetWidth, carpetThickness, carpetLength);
-        const carpetMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, map: this.carpetTexture });
+        const carpetMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff, map: this.carpetTexture }); //Texture added to the carpet
     
         const carpetMesh = new THREE.Mesh(carpetGeometry, carpetMaterial);
         carpetMesh.position.set(0, carpetThickness / 2, 0); 
 
+        //Shade for the carpet
         carpetMesh.castShadow = true;
         carpetMesh.receiveShadow = true;
 
@@ -507,6 +514,7 @@ class MyContents  {
         table.rotation.x = -Math.PI;
         table.position.set(0, 2, 0);
 
+        //Shade for the table
         table.castShadow = true;
         table.receiveShadow = true;
 
@@ -522,13 +530,15 @@ class MyContents  {
         const legMaterial = new THREE.MeshPhongMaterial({ color: 0x8B4513, specular: 0xffffff, shininess: 500 });
         const legGeometry = new THREE.CylinderGeometry(legRadius, legRadius, legHeight, 32);
 
+        //Put the legs of the table in the right place
         const legPositions = [
-            { x: -table.geometry.parameters.width / 2 + legRadius, y: legHeight / 2, z: -table.geometry.parameters.depth / 2 + legRadius }, // Canto esquerdo
-            { x: table.geometry.parameters.width / 2 - legRadius, y: legHeight / 2, z: -table.geometry.parameters.depth / 2 + legRadius }, // Canto direito
-            { x: -table.geometry.parameters.width / 2 + legRadius, y: legHeight / 2, z: table.geometry.parameters.depth / 2 - legRadius }, // Canto esquerdo
-            { x: table.geometry.parameters.width / 2 - legRadius, y: legHeight / 2, z: table.geometry.parameters.depth / 2 - legRadius }, // Canto direito
+            { x: -table.geometry.parameters.width / 2 + legRadius, y: legHeight / 2, z: -table.geometry.parameters.depth / 2 + legRadius }, // Left corner
+            { x: table.geometry.parameters.width / 2 - legRadius, y: legHeight / 2, z: -table.geometry.parameters.depth / 2 + legRadius }, // Right corner
+            { x: -table.geometry.parameters.width / 2 + legRadius, y: legHeight / 2, z: table.geometry.parameters.depth / 2 - legRadius }, // Left corner
+            { x: table.geometry.parameters.width / 2 - legRadius, y: legHeight / 2, z: table.geometry.parameters.depth / 2 - legRadius }, // Right corner
         ];
     
+        //for each coordinate creates and sets each cylindrical leg on its place
         for (let i = 0; i < legPositions.length; i++) {
             const legPosition = legPositions[i];
             const leg = new THREE.Mesh(legGeometry, legMaterial);
@@ -542,12 +552,13 @@ class MyContents  {
         const plateRadius = 1.2; 
         const plateHeight = 0.08; 
 
-        const plateMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map: this.dishTexture });
+        const plateMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map: this.dishTexture }); //Texture added to the plate
         const plateGeometry = new THREE.CylinderGeometry(plateRadius, plateRadius, plateHeight, 32);
 
         const plate = new THREE.Mesh(plateGeometry, plateMaterial);
         plate.position.set(0, -0.15, 0);
 
+        //Shade for the plate
         plate.castShadow = true;
         plate.receiveShadow = true;
 
@@ -560,7 +571,7 @@ class MyContents  {
         const plateRadius = 0.6; 
         const plateHeight = 0.05; 
 
-        const plateMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map: this.dishTexture });
+        const plateMaterial = new THREE.MeshPhongMaterial({color: 0xffffff, map: this.dishTexture }); //Texture added to the plate
         const plateGeometry = new THREE.CylinderGeometry(plateRadius, plateRadius, plateHeight, 32);
         
         const plate = new THREE.Mesh(plateGeometry, plateMaterial);
@@ -577,6 +588,7 @@ class MyContents  {
         const cakeMaterial = new THREE.MeshPhongMaterial({ color: 0xe7a8ba }); 
         const cakeGeometry = new THREE.CylinderGeometry(cakeRadius, cakeRadius, cakeHeight, 32, 1, false, 0, Math.PI * 7/4);
 
+        //Side1 and side2 are for covering the uncovered parts of removing the slice of cake
         let side1 = new THREE.PlaneGeometry(cakeRadius, cakeHeight);
         let side2 = new THREE.PlaneGeometry(cakeRadius, cakeHeight);
         side1 = new THREE.Mesh(side1, cakeMaterial);
@@ -585,11 +597,13 @@ class MyContents  {
         const cake = new THREE.Mesh(cakeGeometry, cakeMaterial);
         cake.position.set(0, side1.position.y - cakeHeight / 2, 0);
 
+        //Put the sides to cover in the right place
         side1.rotateOnAxis(new THREE.Vector3(0, 1, 0), Math.PI / 4);
         side1.position.set(side1.position.x - Math.cos(Math.PI / 4) * (cakeRadius / 2), side1.position.y - cakeHeight / 2, side1.position.z + Math.sin(Math.PI / 4) * (cakeRadius / 2));
         side2.rotateOnAxis(new THREE.Vector3(0, 1, 0), -Math.PI / 2);
         side2.position.set(side2.position.x, side2.position.y - cakeHeight / 2, side2.position.z + (cakeRadius / 2));
 
+        //Shade for the cake
         cake.castShadow = true;
         cake.receiveShadow = true;
 
@@ -603,7 +617,7 @@ class MyContents  {
         const candleRadius = 0.05; 
         const candleHeight = 0.5;
 
-        const candleMaterial = new THREE.MeshBasicMaterial({ color: 0xf0e0a3 }); // Cor da vela
+        const candleMaterial = new THREE.MeshBasicMaterial({ color: 0xf0e0a3 }); // Color of the candle
         const candleGeometry = new THREE.CylinderGeometry(candleRadius, candleRadius, candleHeight, 32);
         
         const candle = new THREE.Mesh(candleGeometry, candleMaterial);
@@ -617,7 +631,7 @@ class MyContents  {
         const flameRadius = 0.06; 
         const flameHeight = 0.1; 
 
-        const flameMaterial = new THREE.MeshPhongMaterial({color: 0xff7f00, map: this.flameTexture });
+        const flameMaterial = new THREE.MeshPhongMaterial({color: 0xff7f00, map: this.flameTexture }); //Textures added to the flame
         const flameGeometry = new THREE.ConeGeometry(flameRadius, flameHeight, 32);
         
         const flame = new THREE.Mesh(flameGeometry, flameMaterial);
@@ -634,12 +648,14 @@ class MyContents  {
 
         const chairMaterial = new THREE.MeshPhongMaterial({ color: 0xefd6da, map: this.chairTexture });
         
+        //creating the seat of the chair
         const seatGeometry = new THREE.BoxGeometry(chairWidth, 0.2, chairDepth);
         const seat = new THREE.Mesh(seatGeometry, chairMaterial);
         seat.castShadow = true;
         seat.receiveShadow = true;        
         seat.position.set(-2.5, -0.3, 5);
         
+        //creating backrest of the chair
         const backrestGeometry = new THREE.BoxGeometry(chairWidth, chairHeight - chairLegsHeight, 0.2);
         const backrest = new THREE.Mesh(backrestGeometry, chairMaterial);
         backrest.position.set(-2.5, 0.9, 5.8);
@@ -658,7 +674,7 @@ class MyContents  {
         const legRadius = 0.1; 
         const legHeight = 1.2;
     
-        const legMaterial = new THREE.MeshBasicMaterial({ color: 0x363636 }); // Cor das pernas
+        const legMaterial = new THREE.MeshBasicMaterial({ color: 0x363636 });
     
         const legPositions = [
             { x: -3.1, y: -1, z: 4.2 }, 
@@ -667,6 +683,7 @@ class MyContents  {
             { x: -1.9, y: -1, z: 5.8 }, 
         ];
     
+        //for each coordinate creates and sets each cylindrical leg on its place
         for (let i = 0; i < legPositions.length; i++) {
             const legPosition = legPositions[i];
             const legGeometry = new THREE.CylinderGeometry(legRadius, legRadius, legHeight, 32);
@@ -676,18 +693,22 @@ class MyContents  {
             chair.add(leg);
         }
     }
+
+
     createChairsAroundTable(table_pos,numChairs) {
 
         const chairsGroup = new THREE.Group();
     
         for (let i = 0; i < numChairs; i++) {
+            //creating each chair
             const chair = this.createChair()
             
-            if(i == 0){//de tras
+            //rotating each chair to be on each side of the table
+            if(i == 0){
                 chair.rotation.y = Math.PI/2
                 chair.position.set(-2,1.6,0)
             }
-            if(i == 2){ //direita
+            if(i == 2){ 
                 chair.rotation.y = Math.PI
                 chair.position.set(-2,1.6,-0.4)
             }
@@ -715,15 +736,19 @@ class MyContents  {
         const frame2Material = new THREE.MeshPhongMaterial({ map:this.friends2Texture }); 
         const borderMaterial = new THREE.MeshBasicMaterial({ color: 0xbb9469, map:this.borderTexture }); 
         
+        //First frame
         const frame1 = new THREE.Mesh(frameGeometry, frame1Material);
         frame1.position.set(-3, 4, -12.48); 
     
+        //Border for the frame
         const border1 = new THREE.Mesh(borderGeometry, borderMaterial);
         border1.position.set(-3, 4, -12.49); 
         
+        //Second frame
         const frame2 = new THREE.Mesh(frameGeometry, frame2Material);
         frame2.position.set(3, 4, -12.48); 
     
+        //Border for the frame
         const border2 = new THREE.Mesh(borderGeometry, borderMaterial);
         border2.position.set(3, 4, -12.49); 
         
@@ -742,6 +767,7 @@ class MyContents  {
         const windowGeometry = new THREE.PlaneGeometry(windowWidth, windowHeight);
         const borderGeometry = new THREE.PlaneGeometry(borderWidth, borderHeight);
 
+        //aplying window and border texture
         const windowMaterial = new THREE.MeshPhongMaterial({ map:this.windowTexture }); 
         const borderMaterial = new THREE.MeshPhongMaterial({ map:this.whitewoodTexture }); 
         
@@ -749,6 +775,7 @@ class MyContents  {
         window.rotation.y = Math.PI / 2;
         window.position.set(-12.48, 4, 0);
     
+        //border for the window
         const border = new THREE.Mesh(borderGeometry, borderMaterial);
         border.rotation.y = Math.PI / 2;
         border.position.set(-12.49, 4, 0);
@@ -765,6 +792,7 @@ class MyContents  {
 
         const spiralPoints = [];
 
+        //Spiral the curves
         for (let i = 0; i < numLoops * numSegmentsPerLoop; i++) {
             const t = i / numSegmentsPerLoop;
             const x = radius * Math.cos(t * 2 * Math.PI);
@@ -780,6 +808,7 @@ class MyContents  {
         spiral.position.set(-0.8, 3, -3); 
         spiral.rotation.x = Math.PI / 2;
 
+        //Shade for the spiral
         spiral.castShadow = true;
         spiral.receiveShadow = true;
 
@@ -791,6 +820,7 @@ class MyContents  {
         this.mesh = new THREE.Group();
         const scale = 0.5;
 
+        //Set of 4 Bezier curves
         const startPoint = new THREE.Vector3(-4.0, 1.5, 24.8);
         const controlPoint = new THREE.Vector3(-4.0, 3.5, 24.8); 
         const controlPoint_2 = new THREE.Vector3(-1.0, 3.5, 24.8); 
@@ -849,7 +879,7 @@ class MyContents  {
 
         this.mesh.scale.set(scale, scale, scale);
 
-        // Frame
+        // Frame for the car
         const frameGeometry = new THREE.BoxGeometry(8.5, 0.1, 5);
         const frameMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
       
@@ -900,6 +930,7 @@ class MyContents  {
         newspaperMesh.rotation.z = Math.PI;
         newspaperMesh.position.set(1, 2.6, -2.8);
 
+        //Shade for the neswpaper
         newspaperMesh.castShadow = true;
         newspaperMesh.receiveShadow = true;
         
