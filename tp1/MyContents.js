@@ -676,7 +676,7 @@ class MyContents  {
             chair.add(leg);
         }
     }
-    createChairsAroundTable(numChairs) {
+    createChairsAroundTable(table_pos,numChairs) {
 
         const chairsGroup = new THREE.Group();
     
