@@ -48,6 +48,7 @@ class MyContents  {
         this.flameTexture = new THREE.TextureLoader().load('textures/flame.jpg');
         this.carpetTexture = new THREE.TextureLoader().load('textures/carpet.jpg');
         this.booksTexture = new THREE.TextureLoader().load('textures/books.jpg');
+        this.books2Texture = new THREE.TextureLoader().load('textures/books3.jpg');
         this.friends1Texture = new THREE.TextureLoader().load('textures/amigas1.jpg');
         this.friends2Texture = new THREE.TextureLoader().load('textures/amigas2.jpg');
         this.windowTexture = new THREE.TextureLoader().load('textures/window.jpg');
@@ -231,12 +232,21 @@ class MyContents  {
         
         this.createWalls();
         this.createDoor();
-        this.createBookshelf();
+        this.createBookshelf(this.booksTexture);
+        const bookshelf2 = this.createBookshelf(this.books2Texture);
+        bookshelf2.position.set(5, 3, 12.3)
         this.createWindow();
         this.createFrames();
         this.createCarocha();
         this.createNurbsSurfaces(); // Jar
-        this.createFlower();
+        const flower1 = this.createFlower();
+        this.app.scene.add(flower1);
+        const flower2 = this.createFlower();
+        flower2.rotation.z = -Math.PI/30
+        this.app.scene.add(flower2);
+        const flower3 = this.createFlower();
+        flower3.rotation.z = Math.PI/40
+        this.app.scene.add(flower3);
 
         // Table
         const table = this.createTable();
@@ -267,30 +277,30 @@ class MyContents  {
             // U = 0
             [ // V = 0..1
                 [ -0.5, -2, 0, 1 ],
-                [ 0, -2, 1, 1 ],
+                [ 0, -2, 0.5, 1 ],
                 [ 0.5, -2, 0, 1 ],
             ],
             // U = 1
             [ // V = 0..1
-                [ -0.25, -1.5, 0, 1 ],
-                [ 0, -1.5, 0, 1 ],
-                [ 0.25, -1.5, 0, 1 ],
+                [ -0.25, -1.5, 0.5, 1 ],
+                [ 0, -1.5, 1, 1 ],
+                [ 0.25, -1.5, 0.5, 1 ],
             ],
             // U = 2
             [ // V = 0..1
-                [ -1, -0.5, 0, 1 ],
+                [ -1, -0.5, 0.5, 1 ],
                 [ 0, -0.5, 3.5, 1 ],
-                [ 1, -0.5, 0, 1 ],
+                [ 1, -0.5, 0.5, 1 ],
             ],
             // U = 3
             [ // V = 0..1
-                [ -0.25, 0, 0, 1 ],
-                [ 0, 0, -0.5, 1 ],
-                [ 0.25, 0, 0, 1 ],
+                [ -0.25, 0, 0.5, 1 ],
+                [ 0, 0, 1, 1 ],
+                [ 0.25, 0, 0.5, 1 ],
             ],
             // U = 4
             [ // V = 0..1
-                [ -0.25, 0.25, 0, 1 ],
+                [ -0.5, 0.25, 0, 1 ],
                 [ 0, 0.25, 0.5, 1 ],
                 [ 0.25, 0.25, 0, 1 ],
             ]            
@@ -323,7 +333,7 @@ class MyContents  {
     }
 
     createFlower() {
-        this.flower = new THREE.Group();
+        const flower = new THREE.Group();
     
         const curve = new THREE.CubicBezierCurve3(
             new THREE.Vector3(0, 0, 0),
@@ -342,7 +352,7 @@ class MyContents  {
         line.rotation.x = Math.PI 
         line.rotation.y = 0
         line.rotation.z = -Math.PI/2
-        this.flower.add(line);
+        flower.add(line);
         
         // Crie as pétalas (triângulos)
         const petalMaterial = new THREE.MeshLambertMaterial({ color: 0xFF1493 }); // Rosa
@@ -384,7 +394,7 @@ class MyContents  {
                 petal.rotation.z = Math.PI 
             } 
         
-            this.flower.add(petal);
+            flower.add(petal);
         });
 
         const yellowSphereGeometry = new THREE.SphereGeometry(0.05, 10, 10);
@@ -392,9 +402,9 @@ class MyContents  {
         const yellowSphere = new THREE.Mesh(yellowSphereGeometry, yellowSphereMaterial);
         yellowSphere.position.set(0, 3, 0); // Posição no meio das pétalas
 
-        this.flower.add(yellowSphere);
-        this.flower.position.set(10,0 , -10)
-        this.app.scene.add(this.flower);
+        flower.add(yellowSphere);
+        flower.position.set(10,0 , -10)
+        return flower;
     }
 
     createWalls() {    
@@ -424,7 +434,7 @@ class MyContents  {
 
     }
 
-    createBookshelf() {
+    createBookshelf(texture) {
         const shelfWidth = 3.0;
         const shelfHeight = 0.15;
         const shelfThickness = 0.6;
@@ -441,7 +451,7 @@ class MyContents  {
         const rectangleDepth = 0.4;
         
         const rectangleGeometry = new THREE.BoxGeometry(rectangleWidth, rectangleHeight, rectangleDepth);
-        const rectangleMaterial = new THREE.MeshPhongMaterial({ color: 0xf0e0a3, map: this.booksTexture });
+        const rectangleMaterial = new THREE.MeshPhongMaterial({ color: 0xf0e0a3, map: texture });
         
         const rectangleMesh = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
         rectangleMesh.position.set(-0.5, 0.5, 0);
