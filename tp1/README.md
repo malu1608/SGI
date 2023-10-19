@@ -24,7 +24,5 @@
 
 There are some reference screenshots in the path tp1/screenshots/..
 
-![Screenshot 1](./screenshots/screenshot1.png)
-![Screenshot 2](./screenshots/screenshot2.png)
-![Screenshot 3](./screenshots/screenshot3.png)
-![Screenshot 4](./screenshots/screenshot4.png)```
+![Screenshot 1](./screenshots/screenshot1.jpg)
+![Screenshot 2](./screenshots/screenshot2.jpg)
