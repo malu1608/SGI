@@ -22,7 +22,5 @@
 ----
 ## Screenshots of the scene
 
-There are some reference screenshots in the path tp1/screenshots/..
-
 ![Screenshot 1](./screenshots/screenshot1.jpg)
 ![Screenshot 2](./screenshots/screenshot2.jpg)
