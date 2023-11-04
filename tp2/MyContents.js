@@ -15,7 +15,7 @@ class MyContents  {
         this.axis = null
 
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
-		this.reader.open("scenes/demo/demo.xml");		
+		this.reader.open("scenes/farm/farm.xml");		
     }
 
     /**
@@ -38,8 +38,39 @@ class MyContents  {
         console.info("scene data loaded " + data + ". visit MySceneData javascript class to check contents for each data item.")
         this.onAfterSceneLoadedAndBeforeRender(data);
 
+        this.set_globals(data.options);
+        this.set_fog(data.getFog());
+
     }
 
+    set_fog(fog){
+        if(fog != null){
+            const color = fog.color;
+            const near = fog.near;
+            const far = fog.far;
+            this.app.scene.fog = new THREE.Fog(new THREE.Color(color.r,color.b,color.c),near,far)
+            console.log("a cor é "+ color.r + " " + color.g + " " + color.b)
+            console.log("near: " + near )
+            console.log("near: " + far)
+        }
+    }
+
+    set_globals(options) {
+        if (options.ambient != null) {
+            const ambient = options.ambient;
+            const ambientColor = new THREE.Color(ambient.r, ambient.g, ambient.b);
+            this.app.scene.ambientLight = new THREE.AmbientLight(ambientColor);
+            console.log("Ambient Light: " + ambient.r + " " + ambient.g + " " + ambient.b);
+        }
+      
+        if (options.background != null) {
+           const background = options.background;
+           const backgroundColor = new THREE.Color(background.r,background.g,background.b)
+           this.app.scene.background = new THREE.AmbientLight(backgroundColor);
+           console.log("Background color : " + background.r + " " + background.g + " " + background.b);
+        }
+      }
+      
     output(obj, indent = 0) {
         console.log("" + new Array(indent * 4).join(' ') + " - " + obj.type + " " + (obj.id !== undefined ? "'" + obj.id + "'" : ""))
     }
@@ -71,7 +102,7 @@ class MyContents  {
         console.log("nodes:")
         for (var key in data.nodes) {
             console.log(data.getNode(key))
-            /*
+            
             let node = data.nodes[key]
             this.output(node, 1)
             if (node.loaded === false) {
@@ -93,7 +124,7 @@ class MyContents  {
                     this.output(child, 2)
                 }
             }
-            */
+            
         }
 
         console.log("lods:")
