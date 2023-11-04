@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="UTF-16" standalone="yes"?>
+<yaf> 	
+    <globals background="0 0 0 1" ambient="0 0 0 1" /> 
+
+    <fog color="1.0 1.0 1.0 1.0" near="0.0" far="100.0" />
+
+    <cameras initial="cam1" > 
+        <perspective id="cam1" 
+            angle="60" 
+            near="0.1" 
+            far="1000" 
+            location="15 15 15" 
+            target="0 0.0 0" /> 
+
+        <orthogonal id="cam2" 
+            near="0.1" 
+            far="1000" 
+            location="0 15 15" 
+            target="0.0 15 0.0" 
+            left="-5" 
+            right="5" 
+            bottom="-5" 
+            top="-5" /> 
+    </cameras> 
+
+    <textures>        
+		<texture id="floorTex" filepath="scenes/T06G10/textures/dirt.png" />
+        <texture id="wallTex" filepath="scenes/T06G10/textures/wall.png" />   
+
+        <texture id="pigHeadTex" filepath="scenes/T06G10/textures/pigHead.png" />
+        <texture id="pigBodyTex" filepath="scenes/T06G10/textures/pigBody.png" />
+        <texture id="pigNoseTex" filepath="scenes/T06G10/textures/pigNose.png" />
+
+        <texture id="goatHeadTex" filepath="scenes/T06G10/textures/goatHead.png" />
+        <texture id="goatHeadTex2" filepath="scenes/T06G10/textures/goatHead2.png" />
+        <texture id="goatHeadTex3" filepath="scenes/T06G10/textures/goatHead3.png" />
+        <texture id="goatBodyTex" filepath="scenes/T06G10/textures/goatBody.png" />
+        <texture id="goatHornTex" filepath="scenes/T06G10/textures/goatHorn.png" />    
+    </textures> 
+
+    <materials> 
+		<material id="leftWallApp" 
+            emissive="0.0 0.0 0.0 1" 
+			color="0.8 0.8 0.8 1.0" 
+            specular="0 0 0 0" 
+            shininess="0" 
+            textureref="wallTex" 
+            texlength_s="25" 
+            texlength_t="15" 
+            twosided = "true" />
+		
+		<material id="floorApp" 
+            emissive="0.0 0.0 0.0 1" 
+            color="0.9 0.9 0.9 1.0"  
+            specular="0 0 0 0" 
+            shininess="0" 
+            textureref="floorTex" 
+            texlength_s="1" 
+            texlength_t="1" 
+            twosided = "true" />
+
+        <material id="pigFaceMaterial"
+            color="0.9 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="pigHeadTex"
+            texlength_s="1" 
+            texlength_t="1" 
+            twosided="true" />
+
+        <material id="pigNoseMaterial"
+            color="0.9 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="pigNoseTex"
+            texlength_s="1" 
+            texlength_t="1" 
+            twosided="true" />
+
+        <material id="pigMaterial"
+            color="0.9 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="pigBodyTex"
+            texlength_s="1" 
+            texlength_t="1" 
+            twosided="true" />
+
+        <material id="goatHeadMaterial"
+            color="0.9 0.89 0.86 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30"
+            texlength_s="1" 
+            texlength_t="1" 
+            twosided="true" />
+
+        <material id="goatMaterial"
+            color="0.9 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="goatBodyTex"
+            texlength_s="1" 
+            texlength_t="1" 
+            twosided="true" />
+
+        <material id="goatFaceMaterial"
+            color="0.9 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="goatHeadTex"
+            texlength_s="1" 
+            texlength_t="1" 
+            twosided="true" />
+
+        <material id="goatFaceMaterial2"
+            color="0.9 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="goatHeadTex2"
+            texlength_s="1" 
+            texlength_t="1" 
+            twosided="true" />
+
+        <material id="goatFaceMaterial3"
+            color="0.9 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="goatHeadTex3"
+            texlength_s="1" 
+            texlength_t="1" 
+            twosided="true" />
+
+        <material id="goatHornMaterial"
+            color="0.9 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="goatHornTex"
+            texlength_s="1" 
+            texlength_t="1" 
+            twosided="true" />
+			
+    </materials> 
+
+    <graph rootid="scene">
+        <node id="scene">
+            <children>
+                <noderef id="wall1" />
+                <noderef id="wall2" />
+                <noderef id="wall3" />
+                <noderef id="wall4" />
+                <noderef id="floor" />
+                <noderef id="pig" />
+                <noderef id="goat" />
+
+                <pointlight id="light1" enabled="true" 
+                    color="0.5 0.6 0.8 1" 
+                    intensity="100"
+                    distance="1000"
+                    decay="0"
+                    castshadow="false"
+                    position="33.75 37.3 33.75" 
+                /> 
+
+                <pointlight id="light2" enabled="true" 
+                    color="0.5 0.6 0.8 1" 
+                    intensity="1.0"
+                    distance="1000"
+                    decay="2.0"
+                    castshadow="false"
+                    position="11.25 7.3 3.75"
+                /> 
+
+                <pointlight id="light3" enabled="true" 
+                    color="0.5 0.6 0.8 1" 
+                    intensity="1.0"
+                    distance="1000"
+                    decay="2.0"
+                    castshadow="false"
+                    position="11.25 7.3 3.75"
+                /> 
+
+                <spotlight id="light4" enabled="true" 
+                    color="1.0 1.0 1.0 1" 
+                    intensity="1.0"
+                    distance="1000"
+                    decay="2.0"
+                    castshadow="true"
+                    position="2 2 4" 
+                    target="0 0 0"
+                    penumbra="1.0"
+                    angle="10.0" 
+                /> 
+
+                <directionallight id="light5" enabled="true" 
+                    color="1.0 1.0 1.0 1" 
+                    intensity="1.0"
+                    castshadow="true"
+                    position="2 2 4" 
+                />
+
+                <pointlight id="light6" enabled="true" 
+                    color="0.5 0.6 0.8 1" 
+                    intensity="100"
+                    distance="1000"
+                    decay="0"
+                    castshadow="false"
+                    position="-33.75 37.3 33.75" 
+                /> 
+
+                <pointlight id="light7" enabled="true" 
+                    color="0.5 0.6 0.8 1" 
+                    intensity="100"
+                    distance="1000"
+                    decay="0"
+                    castshadow="false"
+                    position="-33.75 37.3 -33.75" 
+                /> 
+            </children>
+        </node>
+
+        <!-- PRIMITIVES -->
+
+        <node id="rectangle1"> 
+
+            <transforms>
+				<translate value3="0 0 -0.5" />
+				<rotate value3="0 180.0 0.0" />
+            </transforms> 
+
+            <children>   
+                <primitive>          
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" />
+                </primitive> 
+            </children> 
+        </node>
+		
+		<node id="rectangle2"> 
+
+            <transforms>
+				<translate value3="0 0 0.5" />
+            </transforms> 
+
+            <children>             
+                <primitive>
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" /> 
+                </primitive>
+            </children> 
+        </node>
+		
+		<node id="rectangle3"> 
+
+            <transforms>
+				<translate value3="0 -0.5 0" />
+				<rotate value3="90 0.0 0.0" />
+            </transforms> 
+
+            <children>   
+                <primitive>          
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" /> 
+                </primitive>
+            </children> 
+        </node>
+		
+		<node id="rectangle4"> 
+
+            <transforms>
+				<translate value3="0 0.5 0" />
+				<rotate value3="-90 0.0 0.0" />
+            </transforms> 
+
+            <children>             
+                <primitive>
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" /> 
+                </primitive>
+            </children> 
+        </node>
+		
+		<node id="rectangle5"> 
+
+            <transforms>
+				<translate value3="-0.5 0 0" />
+				<rotate value3="0.0 -90.0 0.0" />
+            </transforms> 
+
+            <children>             
+                <primitive>
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" /> 
+                </primitive>
+            </children> 
+        </node>
+		
+		<node id="rectangle6"> 
+            <transforms>
+				<translate value3="0.5 0 0" />
+				<rotate value3="0.0 90.0 0.0" />
+            </transforms> 
+
+            <children>             
+                <primitive>
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" /> 
+                </primitive>
+            </children> 
+        </node>
+		
+		<node id="unitCube">
+            <children>            
+				<!-- Back -->
+                <noderef id="rectangle1" /> 
+				<!-- Front -->
+				<noderef id="rectangle2" /> 
+				<!-- Bottom -->
+				<noderef id="rectangle3" />
+				<!-- Top -->
+				<noderef id="rectangle4" />
+				<!-- Left -->				
+				<noderef id="rectangle5" />
+				 <!-- Right -->
+				<noderef id="rectangle6" />
+            </children> 
+        </node>
+
+        <!-- WALLS -->
+        
+        <node id="wall1">
+            <transforms>
+                <translate value3="0 7.5 12.5" />
+                <rotate value3="0 90 0" />
+            </transforms>
+            <materialref id="leftWallApp" />
+            <children>
+                <primitive>
+                    <rectangle xy1="0 0" xy2="25 15" />
+                </primitive>
+            </children>
+        </node>
+
+        <node id="wall2">
+            <transforms>
+                <translate value3="12.5 7.5 0" />
+                <rotate value3="0 0 0" />
+            </transforms>
+            <materialref id="leftWallApp" />
+            <children>
+                <primitive>
+                    <rectangle xy1="0 0" xy2="25 15" />
+                </primitive>
+            </children>
+        </node>
+
+        <node id="wall3">
+            <transforms>
+                <translate value3="25 7.5 12.5" />
+                <rotate value3="0 -90 0" />
+            </transforms>
+            <materialref id="leftWallApp" />
+            <children>
+                <primitive>
+                    <rectangle xy1="0 0" xy2="25 15" />
+                </primitive>
+            </children>
+        </node>
+
+        <node id="wall4">
+            <transforms>
+                <translate value3="12.5 7.5 25" />
+                <rotate value3="0 -180 0" />
+            </transforms>
+            <materialref id="leftWallApp" />
+            <children>
+                <primitive>
+                    <rectangle xy1="0 0" xy2="25 15" />
+                </primitive>
+            </children>
+        </node>
+
+
+        <!-- PIG -->
+
+        <node id="pig">
+            <transforms>
+                <scale value3="1.5 1.5 1.5" />
+                <translate value3="12.5 2.55 12.5" />
+            </transforms>
+
+            <children>
+                <noderef id="pigFront" />
+                <noderef id="pigBody" />
+                <noderef id="pigLegs" />
+            </children>
+        </node>
+
+        <node id="pigFront">
+            <transforms>
+                <scale value3="1 1 0.8" />
+            </transforms>
+            <children>
+                <noderef id="pigHead" />
+                <noderef id="pigNose" />
+            </children>
+        </node>
+        
+        <node id="pigHead">
+            <transforms>
+                <scale value3="1 1 1.1" />
+            </transforms>
+
+             <materialref id="pigMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+                <noderef id="pigFace" />
+            </children>
+        </node>
+
+        <node id="pigFace">
+            <transforms>
+                <translate value3="0 0 0.51" />
+            </transforms>
+
+            <materialref id="pigFaceMaterial" />
+
+            <children>
+                <primitive>
+                    <rectangle xy1="0 0" xy2="1 1" />
+                </primitive>
+            </children>
+        </node>
+
+        <node id="pigNose">
+            <transforms>
+                <translate value3="0 -0.20 0.5" />
+                <scale value3="0.5 0.3 0.3" />
+            </transforms>
+
+            <materialref id="pigNoseMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="pigBody">
+            <transforms>
+                <translate value3="0 -0.25 -1.2" />
+                <scale value3="1.4 1 1.8" />
+            </transforms>
+
+            <materialref id="pigMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="pigLegs">
+            <transforms>
+                <translate value3="0 -1.25 -1.2" />
+            </transforms>
+
+            <materialref id="pigMaterial" />
+
+            <children>
+                <noderef id="pigLeg1" />
+                <noderef id="pigLeg2" />
+                <noderef id="pigLeg3" />
+                <noderef id="pigLeg4" />
+            </children>
+        </node>
+
+        <node id="pigLeg1">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="0.35 0 0.45" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="pigLeg2">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="-0.35 0 0.45" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+        
+        <node id="pigLeg3">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="-0.35 0 -0.55" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="pigLeg4">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="0.35 0 -0.55" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+
+        <!-- GOAT -->
+        
+        <node id="goat">
+            <transforms>
+                <scale value3="2 2 2" />
+                <translate value3="5.5 3.5 12.5" />
+            </transforms>
+
+            <children>
+                <noderef id="goatFront" />
+                <noderef id="goatBody" />
+                <noderef id="goatLegs" />
+            </children>
+        </node>
+
+        <node id="goatBody">
+            <transforms>
+                <translate value3="0 -0.25 -1.2" />
+                <scale value3="1.4 1 1.8" />
+            </transforms>
+
+            <materialref id="goatMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="goatLegs">
+            <transforms>
+                <translate value3="0 -1.25 -1.2" />
+            </transforms>
+
+            <materialref id="goatMaterial" />
+
+            <children>
+                <noderef id="goatLeg1" />
+                <noderef id="goatLeg2" />
+                <noderef id="goatLeg3" />
+                <noderef id="goatLeg4" />
+            </children>
+        </node>
+
+        <node id="goatLeg1">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="0.35 0 0.45" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="goatLeg2">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="-0.35 0 0.45" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+        
+        <node id="goatLeg3">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="-0.35 0 -0.55" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="goatLeg4">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="0.35 0 -0.55" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="goatFront">
+            <transforms>
+                <scale value3="1 1 0.8" />
+            </transforms>
+            <children>
+                <noderef id="goatHead" />
+                <noderef id="goatHorns" />
+            </children>
+        </node>
+
+        <node id="goatHead">
+            <transforms>
+                <scale value3="0.55 0.7 1" />
+            </transforms>
+
+            <materialref id="goatHeadMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+                <noderef id="goatLeftFace" />
+                <noderef id="goatRightFace" />
+                <noderef id="goatFace" />
+            </children>
+        </node>
+
+        <node id="goatHorns"> 
+            <transforms>
+                <translate value3="-0.125 0.5 0.4" />
+            </transforms>
+
+            <children>
+                <noderef id="goatHorn1" />
+                <noderef id="goatHorn2" />
+            </children>
+        </node>
+
+        <node id="goatHorn1">
+            <transforms>
+                <scale value3="0.15 0.4 0.2" />
+            </transforms>
+
+            <materialref id="goatHornMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="goatHorn2">
+            <transforms>
+                <scale value3="0.15 0.4 0.2" />
+                <translate value3="0.275 0 0" />
+            </transforms>
+
+            <materialref id="goatHornMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="goatLeftFace">
+            <transforms>
+                <rotate value3="0 -90 0" />
+                <translate value3="-0.502 0 0" />
+            </transforms>
+
+            <materialref id="goatFaceMaterial2" />
+
+            <children>
+                <primitive>
+                    <rectangle xy1="0 0" xy2="1 1" />
+                </primitive>
+            </children>
+        </node>
+
+        <node id="goatRightFace">
+            <transforms>
+                <rotate value3="0 90 0" />
+                <translate value3="0.502 0 0" />
+            </transforms>
+
+            <materialref id="goatFaceMaterial" />
+
+            <children>
+                <primitive>
+                    <rectangle xy1="0 0" xy2="1 1" />
+                </primitive>
+            </children>
+        </node>
+
+        <node id="goatFace">
+            <transforms>
+                <translate value3="0 0 0.501" />
+            </transforms>
+
+            <materialref id="goatFaceMaterial3" />
+
+            <children>
+                <primitive>
+                    <rectangle xy1="0 0" xy2="1 1" />
+                </primitive>
+            </children>
+        </node>
+
+        <node id="floor">
+            <transforms>
+                <translate value3="12.5 0 12.5" />
+                <rotate value3="-90 0 0" />
+            </transforms>
+            <materialref id="floorApp" />
+            <children>
+                <primitive>
+                    <rectangle xy1="0 0" xy2="25 25" />
+                </primitive>
+            </children>
+        </node>
+
+
+    </graph>
+
+              
+</yaf>
