@@ -411,6 +411,7 @@ class MyFileReader  {
 	 * @param {*} attributeName 
 	 * @returns {boolean} if the element has the attribute
 	 */
+	
 	hasAttribute (element, attributeName) {
 		if (element == null) {
 			throw new Error("element is null."); 

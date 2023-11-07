@@ -15,7 +15,7 @@ class MyContents  {
         this.axis = null
 
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
-		this.reader.open("scenes/farm/farm.xml");		
+		this.reader.open("scenes/demo/demo.xml");		
     }
 
     /**
@@ -40,6 +40,9 @@ class MyContents  {
 
         this.set_globals(data.options);
         this.set_fog(data.getFog());
+        this.set_materials(data.materials);
+        this.set_tex(data.textures)
+        this.set_cameras(data.cameras);
 
     }
 
@@ -70,6 +73,67 @@ class MyContents  {
            console.log("Background color : " + background.r + " " + background.g + " " + background.b);
         }
       }
+
+    set_materials(materials){
+        for(let materials_idx in materials){
+            const material = materials[materials_idx]
+            this.app.scene.material = new THREE.MeshPhongMaterial(
+                {"color": new THREE.Color(material.color.r,material.color.g,material.color.b), 
+                "specular": new THREE.Color(material.specular.r,material.specular.g,material.specular.b),  
+                "shininess": material.shininess, 
+                "emissive": new THREE.Color(material.emissive.r,material.emissive.g,material.emissive.b), 
+                "transparent": material.transparent, 
+                //"twosided": THREE.DoubleSide, 
+                "wireframe": material.wireframe, 
+                //funçao textures"aoMap": material.texture,
+                "flatShading": (material.shading === 'flat'),
+            })
+        }
+        
+    }
+
+    set_tex(textures){
+
+    }
+
+    set_cameras(cameras){
+        
+        for (let camera_idx in cameras) {
+            console.log("camera ativa: " + camera_idx);
+            const camera = cameras[camera_idx]
+            const near = camera.near;
+            const far = camera.far;
+            let location = camera.location;
+            let target = camera.target;
+            const aspect = window.innerWidth / window.innerHeight;
+            let camera_obj;
+            if (camera.type === "perspective") {
+                const angle = camera.angle;
+                camera_obj = new THREE.PerspectiveCamera(angle,aspect,near,far);
+                camera_obj.position.set(location[0],location[1],location[2]);
+                console.log("camera_obj: ", camera.location)
+                camera_obj.lookAt(new THREE.Vector3(target[0],target[1],target[2]));
+                //console.log("camera_obj: ", camera_obj.position['x']);
+                this.app.cameras['Perspective Camera'] = camera_obj;
+                console.log("perspective values : " + angle + " " + aspect + " " + near + " " + far+ " "+ target + " " + location + " "+  camera_obj.position['x'] + " " + camera_obj.position['y'] + " " + camera_obj.position['z']);
+            } else if (camera.type === "orthogonal") {
+                const left = camera.left;
+                const right = camera.right;
+                const bottom = camera.bottom;
+                const top = camera.top;
+                camera_obj = new THREE.OrthographicCamera( left, right, top, bottom, near, far);
+                camera_obj.position.set(location[0],location[1],location[2]);
+                camera_obj.lookAt(new THREE.Vector3(target[0],target[1],target[2]));
+                console.log("orthogonal values : " + left + " " + right + " " + top + " " + bottom + " " + near + " " + far);
+                this.app.cameras['Orthogonal Camera'] = camera_obj;
+            }else{
+                console.log("camera type not recognized");
+            
+            }
+
+        }
+
+    }
       
     output(obj, indent = 0) {
         console.log("" + new Array(indent * 4).join(' ') + " - " + obj.type + " " + (obj.id !== undefined ? "'" + obj.id + "'" : ""))

@@ -157,7 +157,6 @@ class MySceneData  {
             {name: "distance", type: "float", required: false, default: 0.0}, // The distance at which to display this level of detail. Default 0.0.  
         ]
         
-
         this.descriptors["nurbs"] = [
 			{name: "degree_u", type: "integer"},
 			{name: "degree_v", type: "integer"},
