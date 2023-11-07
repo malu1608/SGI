@@ -23,7 +23,7 @@
             left="-5" 
             right="5" 
             bottom="-5" 
-            top="-5" /> 
+            top="5" /> 
     </cameras> 
 
     <!-- bloco de texturas. Este bloco tem de existir mas pode estar vazio, se nao forem usadas texturas --> 
