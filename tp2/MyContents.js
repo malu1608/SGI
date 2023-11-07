@@ -13,7 +13,9 @@ class MyContents  {
     constructor(app) {
         this.app = app
         this.axis = null
-
+        this.data = null
+        this.materials = new Map();
+        //this.materials['tableApp'] a key tableApp leva me diretamente ao material_obj
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
 		this.reader.open("scenes/demo/demo.xml");		
     }
@@ -41,7 +43,6 @@ class MyContents  {
         this.set_globals(data.options);
         this.set_fog(data.getFog());
         this.set_materials(data.materials);
-        this.set_tex(data.textures)
         this.set_cameras(data.cameras);
 
     }
@@ -74,26 +75,37 @@ class MyContents  {
         }
       }
 
+    getTexture(texture, length_s, length_t){
+        if(texture != null){
+            const texture_obj = new THREE.TextureLoader().load(this.data.textures[texture].filepath);
+            texture_obj.wrapS = THREE.RepeatWrapping;
+            texture_obj.wrapT = THREE.RepeatWrapping;
+            texture_obj.repeat.set(length_s, length_t);
+            return texture_obj;
+        }
+        return null;
+    }
     set_materials(materials){
         for(let materials_idx in materials){
             const material = materials[materials_idx]
-            this.app.scene.material = new THREE.MeshPhongMaterial(
+            const materialObj = new THREE.MeshPhongMaterial(
                 {"color": new THREE.Color(material.color.r,material.color.g,material.color.b), 
                 "specular": new THREE.Color(material.specular.r,material.specular.g,material.specular.b),  
                 "shininess": material.shininess, 
                 "emissive": new THREE.Color(material.emissive.r,material.emissive.g,material.emissive.b), 
-                "transparent": material.transparent, 
-                //"twosided": THREE.DoubleSide, 
+                "side": (material.twosided) ? THREE.DoubleSide : THREE.FrontSide, 
                 "wireframe": material.wireframe, 
-                //funçao textures"aoMap": material.texture,
+                "bumpScale": material.bumpscale,
+                "specularMap": new THREE.TextureLoader().load(material.specularref),
+                "aoMap" : this.getTexture(material.textureref,material.texlength_s,material.texlength_t),    
+                "bumpMap" : new THREE.TextureLoader().load(material.bumpref),
                 "flatShading": (material.shading === 'flat'),
+
             })
+
+            this.materials[materials_idx] = materialObj;
         }
         
-    }
-
-    set_tex(textures){
-
     }
 
     set_cameras(cameras){
@@ -111,7 +123,7 @@ class MyContents  {
                 const angle = camera.angle;
                 camera_obj = new THREE.PerspectiveCamera(angle,aspect,near,far);
                 camera_obj.position.set(location[0],location[1],location[2]);
-                console.log("camera_obj: ", camera.location)
+                //console.log("camera_obj: ", camera.location)
                 camera_obj.lookAt(new THREE.Vector3(target[0],target[1],target[2]));
                 //console.log("camera_obj: ", camera_obj.position['x']);
                 this.app.cameras['Perspective Camera'] = camera_obj;
@@ -128,7 +140,6 @@ class MyContents  {
                 this.app.cameras['Orthogonal Camera'] = camera_obj;
             }else{
                 console.log("camera type not recognized");
-            
             }
 
         }
@@ -140,7 +151,7 @@ class MyContents  {
     }
 
     onAfterSceneLoadedAndBeforeRender(data) {
-       
+        this.data = data;
         // refer to descriptors in class MySceneData.js
         // to see the data structure for each item
 
