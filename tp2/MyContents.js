@@ -16,6 +16,7 @@ class MyContents  {
         this.data = null
         this.materials = new Map();
         this.object = null;
+        this.lights = {}
         //this.materials['tableApp'] a key tableApp leva me diretamente ao material_obj
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
 		this.reader.open("scenes/demo/demo.xml");		
@@ -44,7 +45,7 @@ class MyContents  {
         this.set_globals(data.options);
         this.set_fog(data.getFog());
         this.set_materials(data.materials);
-        this.set_cameras(data.cameras,data.activeCameraId );
+        this.set_cameras(data.cameras,data.activeCameraId);
         this.object = this.set_nodes(data.rootId);
         this.app.scene.add(this.object);
 
@@ -96,22 +97,24 @@ class MyContents  {
 
     set_materials(materials){
         for(let materials_idx in materials){
+            
             const material = materials[materials_idx]
+            console.log("material: ", material);
             const materialObj = new THREE.MeshPhongMaterial(
-                {"color": new THREE.Color(material.color.r,material.color.g,material.color.b), 
-                "specular": new THREE.Color(material.specular.r,material.specular.g,material.specular.b),  
+                
+                {//"color": new THREE.Color(material.color.r,material.color.g,material.color.b), 
+                "specular": material.specular,  
                 "shininess": material.shininess, 
-                "emissive": new THREE.Color(material.emissive.r,material.emissive.g,material.emissive.b), 
+                "emissive": material.emissive, 
                 "side": (material.twosided) ? THREE.DoubleSide : THREE.FrontSide, 
                 "wireframe": material.wireframe, 
                 "bumpScale": material.bumpscale,
-                "specularMap": new THREE.TextureLoader().load(material.specularref),
-                "aoMap" : this.getTexture(material.textureref,material.texlength_s,material.texlength_t),    
-                "bumpMap" : new THREE.TextureLoader().load(material.bumpref),
+                "map": this.getTexture(material.textureref,material.texlength_s,material.texlength_t),
                 "flatShading": (material.shading === 'flat'),
 
             })
-
+            
+            console.log("materialObj: ", materialObj);
             this.materials[materials_idx] = materialObj;
         }
         
@@ -138,7 +141,7 @@ class MyContents  {
                 camera_obj.lookAt(new THREE.Vector3(target[0],target[1],target[2]));
                 //console.log("camera_obj: ", camera_obj.position['x']);
                 this.app.cameras[camera_idx] = camera_obj;
-                console.log("perspective values : " + angle + " " + aspect + " " + near + " " + far+ " "+ target + " " + location + " "+  camera_obj.position['x'] + " " + camera_obj.position['y'] + " " + camera_obj.position['z']);
+                //console.log("perspective values : " + angle + " " + aspect + " " + near + " " + far+ " "+ target + " " + location + " "+  camera_obj.position['x'] + " " + camera_obj.position['y'] + " " + camera_obj.position['z']);
             } else if (camera.type === "orthogonal") {
                 const left = camera.left;
                 const right = camera.right;
@@ -147,7 +150,7 @@ class MyContents  {
                 camera_obj = new THREE.OrthographicCamera( left, right, top, bottom, near, far);
                 camera_obj.position.set(location[0],location[1],location[2]);
                 camera_obj.lookAt(new THREE.Vector3(target[0],target[1],target[2]));
-                console.log("orthogonal values : " + left + " " + right + " " + top + " " + bottom + " " + near + " " + far);
+                //console.log("orthogonal values : " + left + " " + right + " " + top + " " + bottom + " " + near + " " + far);
                 this.app.cameras[camera_idx] = camera_obj;
             }else{
                 console.log("camera type not recognized");
@@ -165,100 +168,166 @@ class MyContents  {
         //prox semana por o lod
 
         let node = this.data.nodes[rootId];
+        //console.log("node: ", this.data.getNode(rootId));
+        console.log("node: ", rootId)    
         let group = new THREE.Group();
-
+        //console.log("transformation: ", node.transformations);
         //aplicar transformações ao grupo
-        for(let transformation in node.transformations){
-            if(transformation.type === "T" ){
-
-            }else if(transformation.type === "R"){
-
-            }else if(transformation.type === "S"){
-
+        let transformations = node['transformations'];
+        for(const transformation in transformations){
+            console.log("transformation: ", transformations[transformation]);
+            if(transformations[transformation].type === "T" ){
+                const [x, y, z] = transformations[transformation].translate;
+                group.translateX(x);
+                group.translateY(y);
+                group.translateZ(z);
+            }else if(transformations[transformation] === "R"){
+                const [x, y, z] = transformations[transformation].rotation;
+                group.rotateX(x * Math.PI / 180);
+                group.rotateY(y * Math.PI / 180);
+                group.rotateZ(z * Math.PI / 180);
+            }else if(transformations[transformation].type === "S"){
+                const [x, y, z] = transformations[transformation].scale;
+                //group.scale.set(x, y, z);
+                group.scale.x *= x
+                group.scale.y *= y
+                group.scale.z *= z
             }
             
         }
 
         //aplicar materiais ao grupo
-        if(node.materialIds != [] && node.materialIds != null){
-            for(let material in node.materialIds){
-                group.material = this.materials[material];
-            }
-        }
-
-
-        if(node.type === "node"){
-            console.log("node: ", node);
+        let materials = node['materialIds'];
+        //console.log("materials: ", materials);
+        if(materials != [] && materials != null && materials.length > 0){
             
-        } 
-        if(node.transformations != []){
-
+            for(let material_id in materials){
+                let material = this.materials[material_id];
+                //group.material = material;
+            }
+        }else{
+            if(group.parent != null){
+                group.material = group.parent.material;
+            }
+                
         }
-        if(node.materialIds != []){
 
-        }
-        for(let child in node.children){
+        node.children.forEach(child =>{
+            //console.log("child: ", child);
+
             if(child.type === "node"){
                 group.add(this.set_nodes(child.id));
             }
             else if(child.type === "primitive"){
-                group.add( this.set_primitive(child));
+                group.add( this.set_primitive(child,this.materials));
             }
             else if(child.type === "spotlight"){
-                //g add spotlight
+                const { id, color, position, target, angle, enabled, intensity, distance, decay, penumbra, castshadow, shadowfar, shadowmapsize } = child;
+
+                const spotlight = new THREE.SpotLight(color, intensity, distance, angle, penumbra, decay);
+                console.log("spotlight: ", spotlight);
+                spotlight.position.set(position[0], position[1], position[2]);
+
+                spotlight.target.position.set(target[0], target[1], target[2]);
+
+                spotlight.castShadow = castshadow;
+                spotlight.shadow.mapSize.width = shadowmapsize;
+                spotlight.shadow.mapSize.height = shadowmapsize;
+                spotlight.shadow.camera.far = shadowfar;
+                if (enabled) {
+                    spotlight.visible = true;
+                } else {
+                    spotlight.visible = false;
+                }
+    
+                this.lights[id] = spotlight;
+                group.add(spotlight);
             }
             else if(child.type === "directionallight"){
+                const { id, color, position, enabled, intensity, castshadow, shadowleft, shadowright, shadowbottom, shadowtop, shadowfar, shadowmapsize } = child;
+
+                const directionallight = new THREE.DirectionalLight(color, intensity);
+                directionallight.position.set(position[0], position[1], position[2]);
+                    
+                directionallight.castShadow = castshadow;
+                directionallight.shadow.camera.left = shadowleft;
+                directionallight.shadow.camera.right = shadowright;
+                directionallight.shadow.camera.top = shadowtop;
+                directionallight.shadow.camera.bottom = shadowbottom;
+                directionallight.shadow.camera.far = shadowfar;
+                directionallight.shadow.mapSize.width = shadowmapsize;
+                directionallight.shadow.mapSize.height = shadowmapsize;
+
+                if (enabled) {
+                    directionallight.visible = true;
+                } else {
+                    directionallight.visible = false;
+                }
+
+                this.lights[id] = directionallight;
+                group.add(directionallight);
 
             }else if(child.type === "pointlight"){
+                const { id, color, position, enabled, intensity, distance, decay, castshadow, shadowfar, shadowmapsize } = child;
 
+                const pointlight = new THREE.PointLight(color, intensity, distance, decay);
+                pointlight.position.set(position[0], position[1], position[2]);
+
+                pointlight.castShadow = castshadow;
+                pointlight.shadow.mapSize.width = shadowmapsize;
+                pointlight.shadow.mapSize.height = shadowmapsize;
+                pointlight.shadow.camera.far = shadowfar;
+
+                if (enabled) {
+                    pointlight.visible = true;
+                } else {
+                    pointlight.visible = false;
+                }
+                this.lights[id] = pointlight;
+                group.add(pointlight);
             }
-        }
+        });
 
         return group;
 
     }
 
-    set_primitive(primitive){
+    set_primitive(primitive,material ){
+        console.log("primitive: ", primitive);
         switch(primitive.subtype){
             case "rectangle":
-                const rectangle = new THREE.Geometry();
-                rectangle.vertices.push(
-                    new THREE.Vector3( primitive.x1, primitive.y1, primitive.z1 ),
-                    new THREE.Vector3( primitive.x2, primitive.y2, primitive.z2 ),
-                    new THREE.Vector3( primitive.x3, primitive.y3, primitive.z3 ),
-                    new THREE.Vector3( primitive.x4, primitive.y4, primitive.z4 ),
-                );
-                rectangle.faces.push( new THREE.Face3( 0, 1, 2 ) );
-                rectangle.faces.push( new THREE.Face3( 0, 2, 3 ) );
-                rectangle.computeFaceNormals();
-                rectangle.computeVertexNormals();
-                const rectangleMesh = new THREE.Mesh( rectangle, this.materials[primitive.materialId] );
-                //this.app.scene.add( rectangleMesh );
-                break;
+                const { xy1, xy2, parts_x, parts_y } = primitive.representations[0];
+                const rec_geometry = new THREE.PlaneGeometry(xy2[0] - xy1[0], xy2[1] - xy1[1], parts_x, parts_y);
+                const rectangleMesh = new THREE.Mesh( rec_geometry, material[group.ma] );
+                rectangleMesh.position.set((xy2[0] + xy1[0]) / 2, (xy2[1] + xy1[1]) / 2, 0);
+                return rectangleMesh;
+            
             case "triangle":
-                const triangle = new THREE.Geometry();
-                triangle.vertices.push(
-                    new THREE.Vector3( primitive.x1, primitive.y1, primitive.z1 ),
-                    new THREE.Vector3( primitive.x2, primitive.y2, primitive.z2 ),
-                    new THREE.Vector3( primitive.x3, primitive.y3, primitive.z3 ),
-                );
-                triangle.faces.push( new THREE.Face3( 0, 1, 2 ) );
+                const { xyz1, xyz2, xyz3 } = primitive.representations[0];
+                const triangle_geometry = new THREE.Geometry();
+                triangle_geometry.vertices.push(new THREE.Vector3((xyz1[0], xyz1[1], xyz1[2])))
+                triangle_geometry.vertices.push(new THREE.Vector3(xyz2[0], xyz2[1], xyz2[2]));
+                triangle_geometry.vertices.push(new THREE.Vector3(xyz3[0], xyz3[1], xyz3[2]));
+                triangle_geometry.faces.push(new THREE.Face3( 0, 1, 2 ) );
                 triangle.computeFaceNormals();
-                triangle.computeVertexNormals();
-                const triangleMesh = new THREE.Mesh( triangle, this.materials[primitive.materialId] );
-                this.app.scene.add( triangleMesh );
-                break;
+                //triangle.computeVertexNormals(); prreciso?
+                const triangleMesh = new THREE.Mesh( triangle_geometry, material);
+                return triangleMesh
+                
             case "cylinder":
-                const cylinder = new THREE.CylinderGeometry( primitive.base, primitive.top, primitive.height, primitive.slices, primitive.stacks );
-                const cylinderMesh = new THREE.Mesh( cylinder, this.materials[primitive.materialId] );
-                this.app.scene.add( cylinderMesh );
-                break;
+                const { base, top, height, slices, stacks, capsclose, thetastart, thetalength, distance } = primitive.representations[0];
+                const cylinder_geometry = new THREE.CylinderGeometry(top, base, height, slices, stacks, capsclose, thetastart, thetalength,distance);
+                const cylinderMesh = new THREE.Mesh( cylinder_geometry, material);
+                return cylinderMesh;
+                
             case "sphere":
-                const sphere = new THREE.SphereGeometry( primitive.radius, primitive.slices, primitive.stacks );
-                const sphereMesh = new THREE.Mesh( sphere, this.materials[primitive.materialId] );
-                this.app.scene.add( sphereMesh );
-                break;
+                const {radius,s_slices,s_stacks,s_thetastart = 0.0,s_thetalength = 2 * Math.PI,phistart = 0.0,philength = 2 * Math.PI} = primitive.representations[0];
+                const sph_geometry = new THREE.SphereGeometry(radius, s_slices, s_stacks, s_thetastart, s_thetalength, phistart, philength);
+                const sphereMesh = new THREE.Mesh( sph_geometry,material);
+                return sphereMesh;
+
             default:
+                return new THREE.Object3D();
                 break;
 
         }
@@ -274,6 +343,7 @@ class MyContents  {
         // refer to descriptors in class MySceneData.js
         // to see the data structure for each item
 
+        /*
         this.output(data.options)
         console.log("textures:")
         for (var key in data.textures) {
@@ -332,7 +402,7 @@ class MyContents  {
                 let child = lod.children[i]
                 console.log("" + new Array(2 * 4).join(' ') + " - " + child.type + " "  + child.node.id + ", min distance: " + child.mindist)
             }
-        }
+        }*/
     }
 
     update() {
