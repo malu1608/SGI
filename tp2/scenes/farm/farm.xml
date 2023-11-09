@@ -20,7 +20,7 @@
             left="-5" 
             right="5" 
             bottom="-5" 
-            top="-5" /> 
+            top="5" /> 
     </cameras> 
 
     <textures>        
