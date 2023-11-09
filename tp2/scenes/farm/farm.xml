@@ -45,8 +45,8 @@
             specular="0 0 0 0" 
             shininess="0" 
             textureref="wallTex" 
-            texlength_s="25" 
-            texlength_t="15" />
+            texlength_s="1" 
+            texlength_t="1" />
 		
 		<material id="floorApp" 
             emissive="0.0 0.0 0.0 1" 

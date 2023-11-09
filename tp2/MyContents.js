@@ -19,7 +19,7 @@ class MyContents  {
         this.lights = {}
         //this.materials['tableApp'] a key tableApp leva me diretamente ao material_obj
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
-		this.reader.open("scenes/cat_room/room.xml");		
+		this.reader.open("scenes/farm/farm.xml");		
     }
 
     /**
@@ -90,9 +90,9 @@ class MyContents  {
             texture_obj.minFilter = THREE.LinearMipMapLinearFilter;
             texture_obj.anisotropy = this.data.textures[texture].anisotropy;
             texture_obj.mipmaps = true;
-            texture_obj.wrapS = THREE.RepeatWrapping;
-            texture_obj.wrapT = THREE.RepeatWrapping;
-            // texture_obj.repeat.set(length_s, length_t); // TODO: check if this is correct
+            texture_obj.wrapS = THREE.ClampToEdgeWrapping;
+            texture_obj.wrapT = THREE.ClampToEdgeWrapping;
+            texture_obj.repeat.set(length_s, length_t); // TODO: check if this is correct
             return texture_obj;
         }
         return null;
@@ -106,7 +106,7 @@ class MyContents  {
             const materialObj = new THREE.MeshPhongMaterial(
                 
                 {
-                    "color": new THREE.Color(material.color.r,material.color.g,material.color.b), 
+                "color": new THREE.Color(material.color.r,material.color.g,material.color.b), 
                 "specular": material.specular,  
                 "shininess": material.shininess, 
                 "emissive": material.emissive, 
@@ -208,7 +208,7 @@ class MyContents  {
                 const spotlight = new THREE.SpotLight(
                     new THREE.Color(color.x, color.y, color.z),
                     intensity, distance, angle, penumbra, decay);
-                console.log("spotlight: ", spotlight);
+                //console.log("spotlight: ", spotlight);
                 spotlight.position.set(position[0], position[1], position[2]);
 
                 spotlight.target.position.set(target[0], target[1], target[2]);
