@@ -24,20 +24,20 @@
     </cameras> 
 
     <textures>        
-		<texture id="floorTex" filepath="scenes/T06G10/textures/dirt.png" />
-        <texture id="wallTex" filepath="scenes/T06G10/textures/wall.png" />   
+		<texture id="floorTex" filepath="scenes/farm/textures/dirt.png" />
+        <texture id="wallTex" filepath="scenes/farm/textures/wall.png" />   
 
-        <texture id="pigHeadTex" filepath="scenes/T06G10/textures/pigHead.png" />
-        <texture id="pigBodyTex" filepath="scenes/T06G10/textures/pigBody.png" />
-        <texture id="pigNoseTex" filepath="scenes/T06G10/textures/pigNose.png" />
+        <texture id="pigHeadTex" filepath="scenes/farm/textures/pigHead.png" />
+        <texture id="pigBodyTex" filepath="scenes/farm/textures/pigBody.png" />
+        <texture id="pigNoseTex" filepath="scenes/farm/textures/pigNose.png" />
 
-        <texture id="goatHeadTex" filepath="scenes/T06G10/textures/goatHead.png" />
-        <texture id="goatHeadTex2" filepath="scenes/T06G10/textures/goatHead2.png" />
-        <texture id="goatHeadTex3" filepath="scenes/T06G10/textures/goatHead3.png" />
-        <texture id="goatBodyTex" filepath="scenes/T06G10/textures/goatBody.png" />
-        <texture id="goatHornTex" filepath="scenes/T06G10/textures/goatHorn.png" />    
+        <texture id="goatHeadTex" filepath="scenes/farm/textures/goatHead.png" />
+        <texture id="goatHeadTex2" filepath="scenes/farm/textures/goatHead2.png" />
+        <texture id="goatHeadTex3" filepath="scenes/farm/textures/goatHead3.png" />
+        <texture id="goatBodyTex" filepath="scenes/farm/textures/goatBody.png" />
+        <texture id="goatHornTex" filepath="scenes/farm/textures/goatHorn.png" />    
     </textures> 
-
+    
     <materials> 
 		<material id="leftWallApp" 
             emissive="0.0 0.0 0.0 1" 
@@ -46,8 +46,7 @@
             shininess="0" 
             textureref="wallTex" 
             texlength_s="25" 
-            texlength_t="15" 
-            twosided = "true" />
+            texlength_t="15" />
 		
 		<material id="floorApp" 
             emissive="0.0 0.0 0.0 1" 
@@ -99,7 +98,7 @@
             twosided="true" />
 
         <material id="goatMaterial"
-            color="0.9 0.5 0.5 1.0" 
+            color="0.5 0.5 0.5 1.0" 
             emissive="0.0 0.0 0.0 0.0"
             specular="0.2 0.2 0.2 1.0" 
             shininess="30" 
@@ -109,7 +108,7 @@
             twosided="true" />
 
         <material id="goatFaceMaterial"
-            color="0.9 0.5 0.5 1.0" 
+            color="0.5 0.5 0.5 1.0" 
             emissive="0.0 0.0 0.0 0.0"
             specular="0.2 0.2 0.2 1.0" 
             shininess="30" 
@@ -119,7 +118,7 @@
             twosided="true" />
 
         <material id="goatFaceMaterial2"
-            color="0.9 0.5 0.5 1.0" 
+            color="0.5 0.5 0.5 1.0" 
             emissive="0.0 0.0 0.0 0.0"
             specular="0.2 0.2 0.2 1.0" 
             shininess="30" 
@@ -129,7 +128,7 @@
             twosided="true" />
 
         <material id="goatFaceMaterial3"
-            color="0.9 0.5 0.5 1.0" 
+            color="0.5 0.5 0.5 1.0" 
             emissive="0.0 0.0 0.0 0.0"
             specular="0.2 0.2 0.2 1.0" 
             shininess="30" 
@@ -139,7 +138,7 @@
             twosided="true" />
 
         <material id="goatHornMaterial"
-            color="0.9 0.5 0.5 1.0" 
+            color="0.5 0.5 0.5 1.0" 
             emissive="0.0 0.0 0.0 0.0"
             specular="0.2 0.2 0.2 1.0" 
             shininess="30" 
@@ -163,7 +162,7 @@
 
                 <pointlight id="light1" enabled="true" 
                     color="0.5 0.6 0.8 1" 
-                    intensity="100"
+                    intensity="1"
                     distance="1000"
                     decay="0"
                     castshadow="false"
@@ -209,7 +208,7 @@
 
                 <pointlight id="light6" enabled="true" 
                     color="0.5 0.6 0.8 1" 
-                    intensity="100"
+                    intensity="1"
                     distance="1000"
                     decay="0"
                     castshadow="false"
@@ -218,7 +217,7 @@
 
                 <pointlight id="light7" enabled="true" 
                     color="0.5 0.6 0.8 1" 
-                    intensity="100"
+                    intensity="1"
                     distance="1000"
                     decay="0"
                     castshadow="false"
@@ -332,52 +331,52 @@
         
         <node id="wall1">
             <transforms>
-                <translate value3="0 7.5 12.5" />
+                <translate value3="-12.5 0 0" />
                 <rotate value3="0 90 0" />
             </transforms>
             <materialref id="leftWallApp" />
             <children>
                 <primitive>
-                    <rectangle xy1="0 0" xy2="25 15" />
+                    <rectangle xy1="-12.5 0" xy2="12.5 15" />
                 </primitive>
             </children>
         </node>
 
         <node id="wall2">
             <transforms>
-                <translate value3="12.5 7.5 0" />
+                <translate value3="0 0 -12.5" />
                 <rotate value3="0 0 0" />
             </transforms>
             <materialref id="leftWallApp" />
             <children>
                 <primitive>
-                    <rectangle xy1="0 0" xy2="25 15" />
+                    <rectangle xy1="-12.5 0" xy2="12.5 15" />
                 </primitive>
             </children>
         </node>
 
         <node id="wall3">
             <transforms>
-                <translate value3="25 7.5 12.5" />
+                <translate value3="12.5 0 0" />
                 <rotate value3="0 -90 0" />
             </transforms>
             <materialref id="leftWallApp" />
             <children>
                 <primitive>
-                    <rectangle xy1="0 0" xy2="25 15" />
+                    <rectangle xy1="-12.5 0" xy2="12.5 15" />
                 </primitive>
             </children>
         </node>
 
         <node id="wall4">
             <transforms>
-                <translate value3="12.5 7.5 25" />
+                <translate value3="0 0 12.5" />
                 <rotate value3="0 -180 0" />
             </transforms>
             <materialref id="leftWallApp" />
             <children>
                 <primitive>
-                    <rectangle xy1="0 0" xy2="25 15" />
+                    <rectangle xy1="-12.5 0" xy2="12.5 15" />
                 </primitive>
             </children>
         </node>
@@ -388,7 +387,7 @@
         <node id="pig">
             <transforms>
                 <scale value3="1.5 1.5 1.5" />
-                <translate value3="12.5 2.55 12.5" />
+                <translate value3="2.5 2.55 2.5" />
             </transforms>
 
             <children>
@@ -430,7 +429,7 @@
 
             <children>
                 <primitive>
-                    <rectangle xy1="0 0" xy2="1 1" />
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" />
                 </primitive>
             </children>
         </node>
@@ -522,7 +521,7 @@
         <node id="goat">
             <transforms>
                 <scale value3="2 2 2" />
-                <translate value3="5.5 3.5 12.5" />
+                <translate value3="-5.5 3.5 2.5" />
             </transforms>
 
             <children>
@@ -671,7 +670,7 @@
 
             <children>
                 <primitive>
-                    <rectangle xy1="0 0" xy2="1 1" />
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" />
                 </primitive>
             </children>
         </node>
@@ -686,7 +685,7 @@
 
             <children>
                 <primitive>
-                    <rectangle xy1="0 0" xy2="1 1" />
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" />
                 </primitive>
             </children>
         </node>
@@ -700,14 +699,14 @@
 
             <children>
                 <primitive>
-                    <rectangle xy1="0 0" xy2="1 1" />
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" />
                 </primitive>
             </children>
         </node>
 
         <node id="floor">
             <transforms>
-                <translate value3="12.5 0 12.5" />
+                <translate value3="-12.5 0 12.5" />
                 <rotate value3="-90 0 0" />
             </transforms>
             <materialref id="floorApp" />

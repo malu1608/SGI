@@ -19,7 +19,7 @@ class MyContents  {
         this.lights = {}
         //this.materials['tableApp'] a key tableApp leva me diretamente ao material_obj
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
-		this.reader.open("scenes/demo/demo.xml");		
+		this.reader.open("scenes/cat_room/room.xml");		
     }
 
     /**
@@ -56,7 +56,8 @@ class MyContents  {
             const color = fog.color;
             const near = fog.near;
             const far = fog.far;
-            this.app.scene.fog = new THREE.Fog(new THREE.Color(color.r,color.b,color.c),near,far)
+
+            this.app.scene.fog = new THREE.Fog(new THREE.Color(color.r,color.g,color.b),near,far)
             console.log("a cor é "+ color.r + " " + color.g + " " + color.b)
             console.log("near: " + near )
             console.log("near: " + far)
@@ -67,20 +68,22 @@ class MyContents  {
         if (options.ambient != null) {
             const ambient = options.ambient;
             const ambientColor = new THREE.Color(ambient.r, ambient.g, ambient.b);
-            this.app.scene.ambientLight = new THREE.AmbientLight(ambientColor);
+            const light = new THREE.AmbientLight(ambientColor);
+            this.app.scene.add(light);
             console.log("Ambient Light: " + ambient.r + " " + ambient.g + " " + ambient.b);
         }
       
         if (options.background != null) {
            const background = options.background;
            const backgroundColor = new THREE.Color(background.r,background.g,background.b)
-           this.app.scene.background = new THREE.AmbientLight(backgroundColor);
+           this.app.scene.background = backgroundColor;
            console.log("Background color : " + background.r + " " + background.g + " " + background.b);
         }
       }
 
     getTexture(texture, length_s, length_t){
         if(texture != null){
+            console.log("texture: ", texture);
             const texture_obj = new THREE.TextureLoader().load(this.data.textures[texture].filepath);
             texture_obj.isVideo = this.data.textures[texture].isVideo;
             texture_obj.magFilter = THREE.LinearFilter;
@@ -89,7 +92,7 @@ class MyContents  {
             texture_obj.mipmaps = true;
             texture_obj.wrapS = THREE.RepeatWrapping;
             texture_obj.wrapT = THREE.RepeatWrapping;
-            texture_obj.repeat.set(length_s, length_t);
+            // texture_obj.repeat.set(length_s, length_t); // TODO: check if this is correct
             return texture_obj;
         }
         return null;
@@ -102,12 +105,13 @@ class MyContents  {
             console.log("material: ", material);
             const materialObj = new THREE.MeshPhongMaterial(
                 
-                {//"color": new THREE.Color(material.color.r,material.color.g,material.color.b), 
+                {
+                    "color": new THREE.Color(material.color.r,material.color.g,material.color.b), 
                 "specular": material.specular,  
                 "shininess": material.shininess, 
                 "emissive": material.emissive, 
                 "side": (material.twosided) ? THREE.DoubleSide : THREE.FrontSide, 
-                "wireframe": material.wireframe, 
+                "wireframe": material.wireframe,
                 "bumpScale": material.bumpscale,
                 "map": this.getTexture(material.textureref,material.texlength_s,material.texlength_t),
                 "flatShading": (material.shading === 'flat'),
@@ -164,67 +168,46 @@ class MyContents  {
 
     }
 
-    set_nodes(rootId){
+    set_nodes(nodeRef, parent = undefined){
         //prox semana por o lod
 
-        let node = this.data.nodes[rootId];
-        //console.log("node: ", this.data.getNode(rootId));
-        console.log("node: ", rootId)    
+        let node = this.data.nodes[nodeRef];
+        //console.log("node: ", this.data.getNode(nodeRef));
+        console.log("node: ", nodeRef)    
         let group = new THREE.Group();
         //console.log("transformation: ", node.transformations);
         //aplicar transformações ao grupo
         let transformations = node['transformations'];
-        for(const transformation in transformations){
-            console.log("transformation: ", transformations[transformation]);
-            if(transformations[transformation].type === "T" ){
-                const [x, y, z] = transformations[transformation].translate;
-                group.translateX(x);
-                group.translateY(y);
-                group.translateZ(z);
-            }else if(transformations[transformation] === "R"){
-                const [x, y, z] = transformations[transformation].rotation;
-                group.rotateX(x * Math.PI / 180);
-                group.rotateY(y * Math.PI / 180);
-                group.rotateZ(z * Math.PI / 180);
-            }else if(transformations[transformation].type === "S"){
-                const [x, y, z] = transformations[transformation].scale;
-                //group.scale.set(x, y, z);
-                group.scale.x *= x
-                group.scale.y *= y
-                group.scale.z *= z
-            }
-            
-        }
 
-        //aplicar materiais ao grupo
-        let materials = node['materialIds'];
-        //console.log("materials: ", materials);
-        if(materials != [] && materials != null && materials.length > 0){
-            
-            for(let material_id in materials){
-                let material = this.materials[material_id];
-                //group.material = material;
-            }
-        }else{
-            if(group.parent != null){
-                group.material = group.parent.material;
-            }
-                
+        this.set_transformations(group, transformations)
+
+        if (node.materialIds.length != 0) {
+            group.materialIds = node.materialIds;
+        } else if (parent != undefined) {
+            group.materialIds = parent.materialIds;
+        } else {
+            group.materialIds = [];
         }
 
         node.children.forEach(child =>{
             //console.log("child: ", child);
 
             if(child.type === "node"){
-                group.add(this.set_nodes(child.id));
+                group.add(this.set_nodes(child.id, group));
             }
             else if(child.type === "primitive"){
-                group.add( this.set_primitive(child,this.materials));
+                const newPrimitive = this.set_primitive(child, this.materials[group.materialIds[0]]);
+                if (newPrimitive)
+                    group.add(newPrimitive)
+                else
+                    console.warn("primitive not created. Check if the subtype", child.subtype, "is supported by the application.")
             }
             else if(child.type === "spotlight"){
                 const { id, color, position, target, angle, enabled, intensity, distance, decay, penumbra, castshadow, shadowfar, shadowmapsize } = child;
 
-                const spotlight = new THREE.SpotLight(color, intensity, distance, angle, penumbra, decay);
+                const spotlight = new THREE.SpotLight(
+                    new THREE.Color(color.x, color.y, color.z),
+                    intensity, distance, angle, penumbra, decay);
                 console.log("spotlight: ", spotlight);
                 spotlight.position.set(position[0], position[1], position[2]);
 
@@ -246,7 +229,9 @@ class MyContents  {
             else if(child.type === "directionallight"){
                 const { id, color, position, enabled, intensity, castshadow, shadowleft, shadowright, shadowbottom, shadowtop, shadowfar, shadowmapsize } = child;
 
-                const directionallight = new THREE.DirectionalLight(color, intensity);
+                const directionallight = new THREE.DirectionalLight(
+                    new THREE.Color(color.x, color.y, color.z),
+                    intensity);
                 directionallight.position.set(position[0], position[1], position[2]);
                     
                 directionallight.castShadow = castshadow;
@@ -270,7 +255,9 @@ class MyContents  {
             }else if(child.type === "pointlight"){
                 const { id, color, position, enabled, intensity, distance, decay, castshadow, shadowfar, shadowmapsize } = child;
 
-                const pointlight = new THREE.PointLight(color, intensity, distance, decay);
+                const pointlight = new THREE.PointLight(
+                    new THREE.Color(color.x, color.y, color.z),
+                    intensity, distance, decay);
                 pointlight.position.set(position[0], position[1], position[2]);
 
                 pointlight.castShadow = castshadow;
@@ -292,45 +279,87 @@ class MyContents  {
 
     }
 
-    set_primitive(primitive,material ){
+    set_transformations(group, transformations){
+        for(const transformation in transformations){
+            console.log("transformation: ", transformations[transformation]);
+            if(transformations[transformation].type === "T" ){
+                const [x, y, z] = transformations[transformation].translate;
+                group.translateX(x);
+                group.translateY(y);
+                group.translateZ(z);
+            }else if(transformations[transformation].type === "R"){
+                const [x, y, z] = transformations[transformation].rotation;
+                group.rotateX(x * Math.PI / 180);
+                group.rotateY(y * Math.PI / 180);
+                group.rotateZ(z * Math.PI / 180);
+            }else if(transformations[transformation].type === "S"){
+                const [x, y, z] = transformations[transformation].scale;
+                //group.scale.set(x, y, z);
+                group.scale.x *= x
+                group.scale.y *= y
+                group.scale.z *= z
+            }
+            
+        }
+    }
+
+    set_primitive(primitive, material){
         console.log("primitive: ", primitive);
+
+        let geometry = null
+
         switch(primitive.subtype){
             case "rectangle":
                 const { xy1, xy2, parts_x, parts_y } = primitive.representations[0];
-                const rec_geometry = new THREE.PlaneGeometry(xy2[0] - xy1[0], xy2[1] - xy1[1], parts_x, parts_y);
-                const rectangleMesh = new THREE.Mesh( rec_geometry, material[group.ma] );
-                rectangleMesh.position.set((xy2[0] + xy1[0]) / 2, (xy2[1] + xy1[1]) / 2, 0);
-                return rectangleMesh;
-            
+                geometry = new THREE.PlaneGeometry(xy2[0] - xy1[0], xy2[1] - xy1[1], parts_x, parts_y);
+
+                geometry.translate(
+                    (xy2[0] + xy1[0]) / 2, (xy2[1] + xy1[1]) / 2, 0
+                )
+                break
             case "triangle":
                 const { xyz1, xyz2, xyz3 } = primitive.representations[0];
-                const triangle_geometry = new THREE.Geometry();
-                triangle_geometry.vertices.push(new THREE.Vector3((xyz1[0], xyz1[1], xyz1[2])))
-                triangle_geometry.vertices.push(new THREE.Vector3(xyz2[0], xyz2[1], xyz2[2]));
-                triangle_geometry.vertices.push(new THREE.Vector3(xyz3[0], xyz3[1], xyz3[2]));
-                triangle_geometry.faces.push(new THREE.Face3( 0, 1, 2 ) );
-                triangle.computeFaceNormals();
+                geometry = new THREE.Geometry();
+                geometry.vertices.push(new THREE.Vector3((xyz1[0], xyz1[1], xyz1[2])))
+                geometry.vertices.push(new THREE.Vector3(xyz2[0], xyz2[1], xyz2[2]));
+                geometry.vertices.push(new THREE.Vector3(xyz3[0], xyz3[1], xyz3[2]));
+                geometry.faces.push(new THREE.Face3( 0, 1, 2 ) );
+                geometry.computeFaceNormals();
                 //triangle.computeVertexNormals(); prreciso?
-                const triangleMesh = new THREE.Mesh( triangle_geometry, material);
-                return triangleMesh
-                
+                break
             case "cylinder":
                 const { base, top, height, slices, stacks, capsclose, thetastart, thetalength, distance } = primitive.representations[0];
-                const cylinder_geometry = new THREE.CylinderGeometry(top, base, height, slices, stacks, capsclose, thetastart, thetalength,distance);
-                const cylinderMesh = new THREE.Mesh( cylinder_geometry, material);
-                return cylinderMesh;
-                
+                geometry = new THREE.CylinderGeometry(top, base, height, slices, stacks, capsclose, thetastart, thetalength,distance);
+                break
             case "sphere":
                 const {radius,s_slices,s_stacks,s_thetastart = 0.0,s_thetalength = 2 * Math.PI,phistart = 0.0,philength = 2 * Math.PI} = primitive.representations[0];
-                const sph_geometry = new THREE.SphereGeometry(radius, s_slices, s_stacks, s_thetastart, s_thetalength, phistart, philength);
-                const sphereMesh = new THREE.Mesh( sph_geometry,material);
-                return sphereMesh;
-
+                geometry = new THREE.SphereGeometry(radius, s_slices, s_stacks, s_thetastart, s_thetalength, phistart, philength);
+                break
+            case "box":
+                let b_xyz1 = primitive.representations[0].xyz1;
+                let b_xyz2 = primitive.representations[0].xyz2;
+                const b_parts_x = primitive.representations[0].parts_x || 1;
+                const b_parts_y = primitive.representations[0].parts_y || 1;
+                const b_parts_z = primitive.representations[0].parts_z || 1;
+                // { b_xyz1, b_xyz2, b_parts_x , b_parts_y ,b_parts_z} = primitive.representations[0];
+                const b_height = Math.abs(b_xyz2[1]-b_xyz1[1])
+                const b_width = Math.abs(b_xyz2[0]-b_xyz1[0])
+                const b_depth = Math.abs(b_xyz2[2]-b_xyz1[2])
+                geometry = new THREE.BoxGeometry(b_width, b_height, b_depth, b_parts_x, b_parts_y,b_parts_z);
+                break
+            case "nurbs":
+                const { controlpoints, degree1, degree2, knots1, knots2, partsU, partsV } = primitive.representations[0];
+                //geometry = new THREE.NURBSSurfaceGeometry(degree1, degree2, knots1, knots2, controlpoints, partsU, partsV);
+                break
             default:
-                return new THREE.Object3D();
                 break;
-
         }
+
+        if (geometry)
+            return new THREE.Mesh(geometry, material);
+        else
+            return undefined // TODO: do not add undefined mesh to parent
+
     }
 
       
