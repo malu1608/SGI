@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { MyAxis } from './MyAxis.js';
 import { MyFileReader } from './parser/MyFileReader.js';
+import {MyNurbsBuilder} from './MyNurbsBuilder.js';
 /**
  *  This class contains the contents of out application
  */
@@ -19,7 +20,7 @@ class MyContents  {
         this.lights = {}
         //this.materials['tableApp'] a key tableApp leva me diretamente ao material_obj
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
-		this.reader.open("scenes/farm/farm.xml");		
+		this.reader.open("scenes/cat_room/room.xml");		
     }
 
     /**
@@ -90,8 +91,8 @@ class MyContents  {
             texture_obj.minFilter = THREE.LinearMipMapLinearFilter;
             texture_obj.anisotropy = this.data.textures[texture].anisotropy;
             texture_obj.mipmaps = true;
-            texture_obj.wrapS = THREE.ClampToEdgeWrapping;
-            texture_obj.wrapT = THREE.ClampToEdgeWrapping;
+            texture_obj.wrapS = THREE.RepeatWrapping;
+            texture_obj.wrapT = THREE.RepeatWrapping;
             texture_obj.repeat.set(length_s, length_t); // TODO: check if this is correct
             return texture_obj;
         }
@@ -294,10 +295,11 @@ class MyContents  {
                 group.rotateZ(z * Math.PI / 180);
             }else if(transformations[transformation].type === "S"){
                 const [x, y, z] = transformations[transformation].scale;
-                //group.scale.set(x, y, z);
+                group.scale.set(x, y, z);
+                /*
                 group.scale.x *= x
                 group.scale.y *= y
-                group.scale.z *= z
+                group.scale.z *= z*/
             }
             
         }
@@ -328,7 +330,8 @@ class MyContents  {
                 //triangle.computeVertexNormals(); prreciso?
                 break
             case "cylinder":
-                const { base, top, height, slices, stacks, capsclose, thetastart, thetalength, distance } = primitive.representations[0];
+                const { top, base, height, slices, stacks, capsclose, thetastart, thetalength, distance } = primitive.representations[0];
+                console.log("cylinder rep: ", primitive.representations[0]);
                 geometry = new THREE.CylinderGeometry(top, base, height, slices, stacks, capsclose, thetastart, thetalength,distance);
                 break
             case "sphere":
@@ -348,9 +351,21 @@ class MyContents  {
                 geometry = new THREE.BoxGeometry(b_width, b_height, b_depth, b_parts_x, b_parts_y,b_parts_z);
                 break
             case "nurbs":
-                const { controlpoints, degree1, degree2, knots1, knots2, partsU, partsV } = primitive.representations[0];
-                //geometry = new THREE.NURBSSurfaceGeometry(degree1, degree2, knots1, knots2, controlpoints, partsU, partsV);
-                break
+                //const { controlpoints, degree1, degree2, knots1, knots2, partsU, partsV } = primitive.representations[0];
+                let nurb = new MyNurbsBuilder(this.app);
+                let controlPoints = []
+                for (let i = 0; i < primitive.representations[0].controlpoints.length; i++) {
+                    let points = [primitive.representations[0].controlpoints[i].xx,
+                    primitive.representations[0].controlpoints[i].yy,
+                    primitive.representations[0].controlpoints[i].zz, 1]
+                    controlPoints.push(points)
+                }
+
+                nurb = nurb.build(controlPoints,
+                primitive.representations[0].degree_u, primitive.representations[0].degree_v,
+                primitive.representations[0].parts_u, primitive.representations[0].parts_v)
+
+                geometry = nurb;
             default:
                 break;
         }
