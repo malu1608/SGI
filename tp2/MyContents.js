@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { MyAxis } from './MyAxis.js';
 import { MyFileReader } from './parser/MyFileReader.js';
-import {MyNurbsBuilder} from './MyNurbsBuilder.js';
+import { MyNurbsBuilder } from './MyNurbsBuilder.js';
+import { PolygonBuilder } from './PolygonBuilder.js';
 /**
  *  This class contains the contents of out application
  */
@@ -265,18 +266,11 @@ class MyContents  {
             }
 
             else if(child.type === 'lod') {
-                console.log("LOD found: ", child);
                 let lod = new THREE.LOD();
-
-                console.log("NODE: ", node);
-                console.log("CHILD: ", child);
-                
-                console.log("child.children: ", child.children);
 
                 if (child.materialIds === undefined || child.materialIds.length === 0) {
                     child.materialIds = node.materialIds;
                 }
-
                 
                 for(let i = 0; i < child.children.length; i++){
                     let grandChild = child.children[i];
@@ -455,6 +449,9 @@ class MyContents  {
 
                 geometry = nurb;
             case "polygon":
+                
+                geometry = new PolygonBuilder(primitive.representations[0].radius, primitive.representations[0].color_c, primitive.representations[0].color_p, primitive.representations[0].stacks, primitive.representations[0].slices, material);
+                return geometry.mesh;
                 /*
                 const {radius_p,stacks_p,slices_p,color_c,color_p} = primitive.representations[0];
                 geometry = new THREE.Geometry();
