@@ -53,7 +53,7 @@ class MyContents  {
 
     }
 
-    set_fog(fog){
+    set_fog(fog) {
         if(fog != null){
             const color = fog.color;
             const near = fog.near;
@@ -83,8 +83,17 @@ class MyContents  {
         }
       }
 
-    getTexture(texture, length_s, length_t){
+    getTexture(texture, length_s, length_t) {
         if(texture != null){
+
+            if(texture.isVideo){
+                let video = document.getElementById('video');
+                let map = new THREE.VideoTexture(video);
+                map.generateMipmaps = false;
+                map.wrapS = map.wrapT = THREE.RepeatWrapping;
+                map.repeat.set((geometryData.xy2[0] - geometryData.xy1[0]) / material.texlength_s, (geometryData.xy2[1] - geometryData.xy1[1]) / material.texlength_t);
+                material2.map = map;
+            }
             console.log("texture: ", texture);
             const texture_obj = new THREE.TextureLoader().load(this.data.textures[texture].filepath);
             texture_obj.isVideo = this.data.textures[texture].isVideo;
@@ -101,6 +110,7 @@ class MyContents  {
         }
         return null;
     }
+
     loadMipmap(texture, level, mipmap) {
         new THREE.TextureLoader().load(
             mipmap,
@@ -110,6 +120,7 @@ class MyContents  {
                 context.scale(1, 1);
 
                 const img = mipmapTex.image;
+
                 canvas.width = img.width;
                 canvas.height = img.height;
 
@@ -142,17 +153,14 @@ class MyContents  {
             }
             console.log("mipmaps: ", mipmaps);
         }
-    }
-    
+    }   
 
-    set_materials(materials){
+    set_materials(materials){ 
         for(let materials_idx in materials){
             
             const material = materials[materials_idx]
             console.log("material: ", material);
-            const materialObj = new THREE.MeshPhongMaterial(
-                
-                {
+            const materialObj = new THREE.MeshPhongMaterial({
                 "color": new THREE.Color(material.color.r,material.color.g,material.color.b), 
                 "specular": material.specular,  
                 "shininess": material.shininess, 
@@ -171,7 +179,7 @@ class MyContents  {
         
     }
 
-    set_cameras(cameras,id){
+    set_cameras(cameras,id) {
         this.app.cameras = [] // reset cameras
 
         //load das cameras todas
@@ -215,8 +223,7 @@ class MyContents  {
 
     }
 
-
-    set_nodes(nodeRef, parent = undefined){
+    set_nodes(nodeRef, parent = undefined) {
         //prox semana por o lod
 
         let node = this.data.nodes[nodeRef];
@@ -327,7 +334,7 @@ class MyContents  {
 
     }
 
-    set_transformations(group, transformations){
+    set_transformations(group, transformations) {
         for(const transformation in transformations){
             console.log("transformation: ", transformations[transformation]);
             if(transformations[transformation].type === "T" ){
@@ -434,14 +441,58 @@ class MyContents  {
             return undefined // TODO: do not add undefined mesh to parent
 
     }
+ 
+    buildSkyboxs() {
+        if (this.data.skyboxes) {
+            for (let skyboxID in this.data.skyboxes) {
+                const skyboxInfo = this.data.skyboxes[skyboxID];
+                const skyboxGeometry = new THREE.BoxGeometry(skyboxInfo['size'][0], skyboxInfo['size'][1], skyboxInfo['size'][2]);
+                
+                console.log("skyboxInfo: ", skyboxInfo);
+                let textures = [
+                    this.data.textures[skyboxInfo['up']],
+                    this.data.textures[skyboxInfo['down']],                    
+                    this.data.textures[skyboxInfo['left']],                    
+                    this.data.textures[skyboxInfo['right']],                    
+                    this.data.textures[skyboxInfo['front']],                    
+                    this.data.textures[skyboxInfo['back']],                
+                ];
+                
+                let skyboxMaterials = [];
+                console.log("textures: ", textures);
+                for (let texIdx in textures) {
+                    let texture = textures[texIdx];
+                    let map;
+                    if (texture.isVideo) {
+                        console.log("texture: ", texture);
+                        let video = document.getElementById('video');
+                        map = new THREE.VideoTexture(video);
+                    } else {
+                        map = new THREE.TextureLoader().load(texture.filepath);
+                    }
 
-      
+                    map.wrapS = map.wrapT = THREE.RepeatWrapping;
+                    map.repeat.set(1, 1);
+                    let material = new THREE.MeshBasicMaterial({ map: map, side: THREE.DoubleSide })
+                    skyboxMaterials.push(material);
+                    
+                }
+
+                let mesh = new THREE.Mesh(skyboxGeometry, skyboxMaterials);
+                mesh.wrapS = mesh.wrapT = THREE.RepeatWrapping;
+                mesh.position.set(skyboxInfo['center'][0], skyboxInfo['center'][1], skyboxInfo['center'][2]);
+                this.app.scene.add(mesh);
+            }
+        }
+    }
+
     output(obj, indent = 0) {
         console.log("" + new Array(indent * 4).join(' ') + " - " + obj.type + " " + (obj.id !== undefined ? "'" + obj.id + "'" : ""))
     }
 
     onAfterSceneLoadedAndBeforeRender(data) {
         this.data = data;
+        this.buildSkyboxs();
         // refer to descriptors in class MySceneData.js
         // to see the data structure for each item
 
