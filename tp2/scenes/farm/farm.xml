@@ -181,6 +181,7 @@
                 <noderef id="floor" />
                 <lodref id="pigLOD" />
                 <lodref id="goatLOD" />
+                <noderef id="polygon" />
 
                 <pointlight id="light1" enabled="true" 
                     color="0.5 0.6 0.8 1" 
@@ -249,6 +250,14 @@
         </node>
 
         <!-- PRIMITIVES -->
+
+        <node id="polygon">
+            <children>
+                <primitive>
+                    <polygon radius="6" slices="32" stacks="32" color_c="1 0 1 1" color_p="0 0 1 1" />
+                </primitive>
+            </children>
+        </node>
 
         <node id="rectangle1"> 
 
