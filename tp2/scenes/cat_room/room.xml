@@ -285,7 +285,7 @@
 
             <children>   
                 <primitive>          
-                    <cylinder top="1" base="1" height="3"  slices="32" stacks="32" capsclose="true"/>
+                    <cylinder top="1" base="1" height="3"  slices="32" stacks="32" capsclose="true" />
                 </primitive> 
             </children> 
         </node>

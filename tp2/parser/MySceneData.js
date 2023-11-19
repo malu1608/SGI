@@ -15,6 +15,7 @@ class MySceneData  {
 
     constructor() {
         this.options = null;
+        this.skyboxes = []
         this.fog = null;
 
         this.materials = []
@@ -142,7 +143,7 @@ class MySceneData  {
 			{name: "slices", type: "integer"},
 			{name: "stacks", type: "integer"},
             {name: "thetastart", type: "float", required: false, default: 0.0},
-            {name: "thetalength", type: "float", required: false, default: 2 * Math.PI},
+            {name: "thetalength", type: "float", required: false, default: Math.PI},
             {name: "phistart", type: "float", required: false, default: 0.0},
             {name: "philength", type: "float", required: false, default: 2 * Math.PI},
             {name: "distance", type: "float", required: false, default: 0.0}, // The distance at which to display this level of detail. Default 0.0.  
@@ -157,6 +158,7 @@ class MySceneData  {
             {name: "distance", type: "float", required: false, default: 0.0}, // The distance at which to display this level of detail. Default 0.0.  
         ]
         
+
         this.descriptors["nurbs"] = [
 			{name: "degree_u", type: "integer"},
 			{name: "degree_v", type: "integer"},
@@ -172,16 +174,25 @@ class MySceneData  {
 		]
 
         this.descriptors["skybox"] = [
-            {name: "width", type: "float" },
-			{name: "height", type: "float" },
-			{name: "depth", type: "float" },
-			{name: "texture_up_ref", type: "string"}, // up
-			{name: "texture_dn_ref", type: "string"}, // down
-			{name: "texture_bk_ref", type: "string"}, // back
-            {name: "texture_lt_ref", type: "string"}, // left
-			{name: "texture_ft_ref", type: "string"}, // front
-			{name: "texture_rt_ref", type: "string"}, // right
+            {name: "size", type: "vector3" },
+			{name: "center", type: "vector3" },
+			{name: "emissive", type: "rgba" },
+            {name: "intensity", type: "float" },
+			{name: "up", type: "string"}, 
+			{name: "down", type: "string"},
+			{name: "left", type: "string"},
+            {name: "right", type: "string"},
+			{name: "front", type: "string"},
+			{name: "back", type: "string"}, 
         ]
+
+        this.descriptors["polygon"] = [
+			{name: "radius", type: "float"},
+			{name: "stacks", type: "integer"},
+			{name: "slices", type: "integer"},
+            {name: "color_c", type: "rgba"},
+            {name: "color_p", type: "rgba"} 
+		]
 
 		this.descriptors["spotlight"] = [
 			{name: "id", type: "string" },
@@ -227,9 +238,9 @@ class MySceneData  {
             {name: "shadowmapsize", type: "integer", required: false, default: 512},
 		]
 
-        this.primaryNodeIds = ["globals", "fog" ,"textures", "materials", "cameras", "graph"]
+        this.primaryNodeIds = ["globals", "fog", "skybox" ,"textures", "materials", "cameras", "graph"]
 
-        this.primitiveIds = ["cylinder", "rectangle", "triangle", "sphere", "nurbs" , "box", "model3d", "skybox", "lod" ]
+        this.primitiveIds = ["cylinder", "rectangle", "triangle", "sphere", "nurbs" , "box", "model3d", "skybox", "lod", "polygon" ]
     }
 
     createCustomAttributeIfNotExists(obj) {
@@ -244,6 +255,19 @@ class MySceneData  {
 
     getOptions() {
         return this.options;
+    }
+
+    setSkybox(skybox) {
+        if (skybox.id === undefined) {
+            skybox.id = "default"
+        }
+        this.skyboxes[skybox.id] = skybox;
+        this.createCustomAttributeIfNotExists(skybox)
+        console.debug("added skybox " + JSON.stringify(skybox));
+    }
+
+    getSkybox() {
+        return this.skyboxes["default"]
     }
 
     setFog(fog) {

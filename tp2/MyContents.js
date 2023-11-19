@@ -20,7 +20,7 @@ class MyContents  {
         this.lights = {}
         //this.materials['tableApp'] a key tableApp leva me diretamente ao material_obj
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
-		this.reader.open("scenes/cat_room/room.xml");		
+		this.reader.open("scenes/demo/demo.xml");		
     }
 
     /**
@@ -49,6 +49,7 @@ class MyContents  {
         this.set_cameras(data.cameras,data.activeCameraId);
         this.object = this.set_nodes(data.rootId);
         this.app.scene.add(this.object);
+        //this.set_lods(data.lods);
 
     }
 
@@ -90,7 +91,9 @@ class MyContents  {
             texture_obj.magFilter = THREE.LinearFilter;
             texture_obj.minFilter = THREE.LinearMipMapLinearFilter;
             texture_obj.anisotropy = this.data.textures[texture].anisotropy;
-            texture_obj.mipmaps = true;
+            if(texture_obj.mipmaps){
+                this.buildMipmap(this.data.textures[texture],texture_obj);
+            }
             texture_obj.wrapS = THREE.RepeatWrapping;
             texture_obj.wrapT = THREE.RepeatWrapping;
             texture_obj.repeat.set(length_s, length_t); // TODO: check if this is correct
@@ -98,6 +101,49 @@ class MyContents  {
         }
         return null;
     }
+    loadMipmap(texture, level, mipmap) {
+        new THREE.TextureLoader().load(
+            mipmap,
+            function(mipmapTex) {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                context.scale(1, 1);
+
+                const img = mipmapTex.image;
+                canvas.width = img.width;
+                canvas.height = img.height;
+
+                context.drawImage(img, 0, 0);
+                console.log("mipmap: ", texture.mipmaps);
+                //const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                texture.mipmaps[level] = canvas;
+                //texture.needsUpdate = true;
+            },
+            undefined,
+            function(error) {
+                console.error(error);
+            }
+        );
+    }
+    
+    buildMipmap(textureInfo, texture) {
+        texture.generateMipmaps = false;
+
+        if (textureInfo['mipmaps']) {
+            let mipmaps = [
+                textureInfo?.mipmap0, textureInfo?.mipmap1, textureInfo?.mipmap2, textureInfo?.mipmap3,
+                textureInfo?.mipmap4, textureInfo?.mipmap5, textureInfo?.mipmap6, textureInfo?.mipmap7
+            ];
+            
+            for (let level = 0; level < mipmaps.length; level++) {
+                if (mipmaps[level]) { // Add mipmap
+                    this.loadMipmap(texture, level, mipmaps[level]);
+                }
+            }
+            console.log("mipmaps: ", mipmaps);
+        }
+    }
+    
 
     set_materials(materials){
         for(let materials_idx in materials){
@@ -116,8 +162,8 @@ class MyContents  {
                 "bumpScale": material.bumpscale,
                 "map": this.getTexture(material.textureref,material.texlength_s,material.texlength_t),
                 "flatShading": (material.shading === 'flat'),
-
-            })
+                "bumpMap": (material.bumpref) ? new THREE.TextureLoader().load(this.data.textures[material.bumpref].filepath) : null,
+                })
             
             console.log("materialObj: ", materialObj);
             this.materials[materials_idx] = materialObj;
@@ -168,6 +214,7 @@ class MyContents  {
         }
 
     }
+
 
     set_nodes(nodeRef, parent = undefined){
         //prox semana por o lod
@@ -366,6 +413,17 @@ class MyContents  {
                 primitive.representations[0].parts_u, primitive.representations[0].parts_v)
 
                 geometry = nurb;
+            case "polygon":
+                /*
+                const {radius_p,stacks_p,slices_p,color_c,color_p} = primitive.representations[0];
+                geometry = new THREE.Geometry();
+                for (let i = 0; i < points.length; i++) {
+                    console.log()
+                    geometry.vertices.push(new THREE.Vector3(points[i].xx, points[i].yy, points[i].zz))
+                }
+                geometry.faces.push(new THREE.Face3( 0, 1, 2 ) );
+                geometry.computeFaceNormals();*/
+                break
             default:
                 break;
         }

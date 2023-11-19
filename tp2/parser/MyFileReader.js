@@ -120,6 +120,7 @@ class MyFileReader  {
 			this.checkForUnknownNodes(rootElement, this.data.primaryNodeIds)
 
 			this.loadGlobals(rootElement);
+			this.loadSkybox(rootElement);
 			this.loadFog(rootElement);
 			this.loadTextures(rootElement);
 			this.loadMaterials(rootElement);
@@ -411,7 +412,6 @@ class MyFileReader  {
 	 * @param {*} attributeName 
 	 * @returns {boolean} if the element has the attribute
 	 */
-	
 	hasAttribute (element, attributeName) {
 		if (element == null) {
 			throw new Error("element is null."); 
@@ -433,7 +433,7 @@ class MyFileReader  {
 	 */
 	getBoolean(element, attributeName, required) {
 		
-		if (required == undefined) required = true;
+		if (required === undefined) required = true;
 		
 		let value = this.getItem(element, attributeName, ["true", "t", "1", "false", "f", "0"], required);
 		if (value == null && required)  {
@@ -441,7 +441,8 @@ class MyFileReader  {
 		}
 
 		if (value == "1" || value=="true" || value == "t") return true;
-		return false;		
+		if (value == "0" || value=="false" || value == "f") return false;
+		return null;		
 	}
 	
 	/**
@@ -629,12 +630,22 @@ class MyFileReader  {
 	}
 
 	/*
+	 * Load skybox element
+	 * 
+	 */
+	loadSkybox(rootElement) {
+		let elem = this.getAndCheck(rootElement, 'skybox')
+		this.data.setSkybox(this.loadXmlItem({elem: elem, descriptor: this.data.descriptors["skybox"], extras: [["type", "skybox"]]}))
+	}
+
+	/*
 	 * Load fog element
 	 * 
 	 */
 	loadFog(rootElement) {
 		let elem = this.getAndCheck(rootElement, 'fog', 0, 1)
-		this.data.setFog(this.loadXmlItem({elem: elem, descriptor: this.data.descriptors["fog"], extras: [["type", "fog"]]}))
+		if (elem !== null && elem !== undefined)
+			this.data.setFog(this.loadXmlItem({elem: elem, descriptor: this.data.descriptors["fog"], extras: [["type", "fog"]]}))
 	}
 
 	/**
@@ -729,26 +740,26 @@ class MyFileReader  {
 		let id = this.getString(nodeElement, "id");
 
 		// get if node previously added (for instance because it was a child ref in other node)
-		let obj = this.data.getNode(id);
+		let obj = this.data.getNode(id)
 		if (obj == null) {
 			// otherwise add a new node
-			obj = this.data.createEmptyNode(id);			
+			obj = this.data.createEmptyNode(id)		
 		}
 		
-		let castshadows = this.getBoolean(nodeElement, "castshadows", false);
-		let receiveShadows = this.getBoolean(nodeElement, "receiveshadows", false);
+		let castshadows = this.getBoolean(nodeElement, "castshadows", false)
+		let receiveShadows = this.getBoolean(nodeElement, "receiveshadows", false)
 
-		obj.castShadows = castshadows;
-		obj.receiveShadows = receiveShadows;
+		obj.castShadows = (castshadows !== null ? castshadows : false)
+		obj.receiveShadows = (receiveShadows !== null ? receiveShadows : false)
 
 		// load transformations
-		let transforms =  nodeElement.getElementsByTagName('transforms');
+		let transforms =  nodeElement.getElementsByTagName('transforms')
 		if (transforms !== null && transforms.length > 0) {
-			this.loadTransforms(obj, transforms[0]);
+			this.loadTransforms(obj, transforms[0])
 		}
 	
 		// load material refeences
-		let materialsRef =  nodeElement.getElementsByTagName('materialref');
+		let materialsRef =  nodeElement.getElementsByTagName('materialref')
 		if (materialsRef != null && materialsRef.length > 0) {
 			if (materialsRef.length != 1) {
 				throw new Error("in node " + id + ", " + materialsRef.length  + " materialref nodes found. Only one materialref is allowed.");
