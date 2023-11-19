@@ -23,7 +23,10 @@
             top="5" /> 
     </cameras> 
 
+   <skybox size="100 100 100" center="0 0 0" emissive="0.8 0.8 0.8 1.0" intensity="0.7" up="skyboxTex" down="skyboxTex" left="skyboxTex" right="floorTex" front="skyboxTex" back="skyboxTex"/>
+
     <textures>        
+        <texture id="videoTexture" isVideo="false" filepath="scenes/farm/textures/video.mp4"/>  
 		<texture id="floorTex" filepath="scenes/farm/textures/dirt.png" />
         <texture id="wallTex" filepath="scenes/farm/textures/wall.png" />   
 
@@ -35,7 +38,9 @@
         <texture id="goatHeadTex2" filepath="scenes/farm/textures/goatHead2.png" />
         <texture id="goatHeadTex3" filepath="scenes/farm/textures/goatHead3.png" />
         <texture id="goatBodyTex" filepath="scenes/farm/textures/goatBody.png" />
-        <texture id="goatHornTex" filepath="scenes/farm/textures/goatHorn.png" />    
+        <texture id="goatHornTex" filepath="scenes/farm/textures/goatHorn.png" />   
+        
+        <texture id="skyboxTex" filepath="scenes/farm/textures/video.mp4" isVideo="true" />
     </textures> 
     
     <materials> 
@@ -146,10 +151,27 @@
             texlength_s="1" 
             texlength_t="1" 
             twosided="true" />
+        
+        <material id="default"
+            color="0.5 0.5 0.5 1.0"
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0"
+            shininess="30"
+        />
 			
     </materials> 
 
     <graph rootid="scene">
+        <lod id="pigLOD" near="0" far="1000">
+            <noderef id="pig" mindist="20" />
+            <noderef id="pigCylinder" mindist="30" />
+            <noderef id="pigCube" mindist="40" />
+        </lod>
+        <lod id="goatLOD" near="0" far="1000">
+            <noderef id="goat" mindist="20" />
+            <noderef id="goatCylinder" mindist="30" />
+            <noderef id="goatCube" mindist="40" />
+        </lod>
         <node id="scene">
             <children>
                 <noderef id="wall1" />
@@ -157,8 +179,8 @@
                 <noderef id="wall3" />
                 <noderef id="wall4" />
                 <noderef id="floor" />
-                <noderef id="pig" />
-                <noderef id="goat" />
+                <lodref id="pigLOD" />
+                <lodref id="goatLOD" />
 
                 <pointlight id="light1" enabled="true" 
                     color="0.5 0.6 0.8 1" 
@@ -390,6 +412,8 @@
                 <translate value3="2.5 2.55 2.5" />
             </transforms>
 
+            <materialref id="pigMaterial" />
+
             <children>
                 <noderef id="pigFront" />
                 <noderef id="pigBody" />
@@ -462,7 +486,7 @@
 
         <node id="pigLegs">
             <transforms>
-                <translate value3="0 -1.25 -1.2" />
+                <translate value3="0 -1.20 -1.2" />
             </transforms>
 
             <materialref id="pigMaterial" />
@@ -515,6 +539,35 @@
             </children>
         </node>
 
+        <node id="pigCylinder">
+            <transforms>
+                <scale value3="1.5 3 1.5" />
+                <translate value3="2.5 1.5 1.5" />
+            </transforms>
+
+            <materialref id="pigMaterial" />
+
+            <children>
+                <primitive>
+                    <cylinder base="1" top="1" height="1" slices="32" stacks="32"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="pigCube">
+            <transforms>
+                <scale value3="1.5 3 1.5" />
+                <translate value3="2.5 1.5 1.5" />
+            </transforms>
+
+            <materialref id="pigMaterial" />
+
+            <children>
+                <primitive>
+                    <box xyz1="-1 0 -1" xyz2="1 1 1" />
+                </primitive>
+            </children>
+        </node>
 
         <!-- GOAT -->
         
@@ -700,6 +753,36 @@
             <children>
                 <primitive>
                     <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" />
+                </primitive>
+            </children>
+        </node>
+
+        <node id="goatCylinder">
+            <transforms>
+                <scale value3="1.5 3 2" />
+                <translate value3="-5.5 1.5 1.5" />
+            </transforms>
+
+            <materialref id="goatMaterial" />
+
+            <children>
+                <primitive>
+                    <cylinder base="1" top="1" height="1" slices="32" stacks="32"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="goatCube">
+            <transforms>
+                <scale value3="1.5 3 2" />
+                <translate value3="-5.5 1.5 1.5" />
+            </transforms>
+
+            <materialref id="goatMaterial" />
+
+            <children>
+                <primitive>
+                    <box xyz1="-1 0 -1" xyz2="1 1 1" />
                 </primitive>
             </children>
         </node>
