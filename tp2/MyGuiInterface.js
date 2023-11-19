@@ -30,10 +30,7 @@ class MyGuiInterface  {
      */
     init() {
         const cameraFolder = this.datgui.addFolder('Camera')
-        cameraFolder.add(this.app, 'activeCameraName', Object.keys(this.app.cameras) ).name("active camera");
-        // note that we are using a property from the app 
-        cameraFolder.add(this.app.activeCamera.position, 'x', 0, 10).name("x coord")
-        cameraFolder.open()
+        cameraFolder.add(this.app, 'targetName', ['Video Texture', 'LOD', 'MipMap', 'Bump Texture'] ).name("Target").onChange( (target) => { this.app.controls.target.set(this.app.targets[target].x, this.app.targets[target].y, this.app.targets[target].z);  this.app.controls.update();} );
     }
 }
 
