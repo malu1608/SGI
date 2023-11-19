@@ -20,7 +20,7 @@ class MyContents  {
         this.lights = {}
         //this.materials['tableApp'] a key tableApp leva me diretamente ao material_obj
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
-		this.reader.open("scenes/demo/demo.xml");		
+		this.reader.open("scenes/farm/farm.xml");		
     }
 
     /**
@@ -47,6 +47,11 @@ class MyContents  {
         this.set_fog(data.getFog());
         this.set_materials(data.materials);
         this.set_cameras(data.cameras,data.activeCameraId);
+
+        if (data.nodes['scene'].materialIds.length === 0) {
+            data.nodes['scene'].materialIds.push("default");
+        }
+
         this.object = this.set_nodes(data.rootId);
         this.app.scene.add(this.object);
         //this.set_lods(data.lods);
@@ -243,9 +248,10 @@ class MyContents  {
         } else {
             group.materialIds = [];
         }
+        
 
         node.children.forEach(child =>{
-            //console.log("child: ", child);
+            console.log("childAAA: ", child);
 
             if(child.type === "node"){
                 group.add(this.set_nodes(child.id, group));
@@ -256,6 +262,34 @@ class MyContents  {
                     group.add(newPrimitive)
                 else
                     console.warn("primitive not created. Check if the subtype", child.subtype, "is supported by the application.")
+            }
+
+            else if(child.type === 'lod') {
+                console.log("LOD found: ", child);
+                let lod = new THREE.LOD();
+
+                console.log("NODE: ", node);
+                console.log("CHILD: ", child);
+                
+                console.log("child.children: ", child.children);
+
+                if (child.materialIds === undefined || child.materialIds.length === 0) {
+                    child.materialIds = node.materialIds;
+                }
+
+                
+                for(let i = 0; i < child.children.length; i++){
+                    let grandChild = child.children[i];
+                    if (grandChild.type === "lodnoderef") {
+                        let grandChildMaterial = grandChild.materialIds;
+                        console.log("grandChild.node: ", grandChild.node);
+                        let grandChildMesh = this.set_nodes(grandChild.node.id, grandChildMaterial);
+
+                        lod.addLevel(grandChildMesh, grandChild.mindist);
+                    }
+                }
+
+                group.add(lod);
             }
             else if(child.type === "spotlight"){
                 const { id, color, position, target, angle, enabled, intensity, distance, decay, penumbra, castshadow, shadowfar, shadowmapsize } = child;
