@@ -21,7 +21,7 @@ class MyContents  {
         this.lights = {}
         //this.materials['tableApp'] a key tableApp leva me diretamente ao material_obj
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
-		this.reader.open("scenes/demo/demo.xml");		
+		this.reader.open("scenes/farm/farm.xml");		
     }
 
     /**
@@ -58,6 +58,11 @@ class MyContents  {
 
     }
 
+
+    /**
+     * Sets fog based on the provided fog data.
+     * @param {Object} fog The fog data.
+     */
     set_fog(fog) {
         if(fog != null){
             const color = fog.color;
@@ -71,6 +76,10 @@ class MyContents  {
         }
     }
 
+    /**
+     * Sets global options like ambient light and background color.
+     * @param {Object} options The options data.
+     */
     set_globals(options) {
         if (options.ambient != null) {
             const ambient = options.ambient;
@@ -88,6 +97,13 @@ class MyContents  {
         }
       }
 
+    /**
+     * Gets a texture object based on the provided texture data.
+     * @param {string} texture The texture ID.
+     * @param {number} length_s Texture length in the S direction.
+     * @param {number} length_t Texture length in the T direction.
+     * @returns {THREE.Texture} The texture object.
+    */
     getTexture(texture, length_s, length_t) {
         if(texture != null){
 
@@ -116,10 +132,20 @@ class MyContents  {
         return null;
     }
 
+    /**
+     * Loads a mipmap for a texture.
+     * @param {THREE.Texture} texture - The target texture object.
+     * @param {number} level - The mipmap level.
+     * @param {string} mipmap - The file path or URL of the mipmap image.
+    */
     loadMipmap(texture, level, mipmap) {
         
         new THREE.TextureLoader().load(
             mipmap,
+            /**
+             * Callback function when the mipmap is loaded.
+             * @param {THREE.Texture} mipmapTex - The loaded texture.
+            */
             function(mipmapTex) {
                 const canvas = document.createElement('canvas');
                 const context = canvas.getContext('2d');
@@ -134,18 +160,26 @@ class MyContents  {
                 context.drawImage(img, 0, 0);
                 
                 console.log("mipmap: ", texture.mipmaps);
-                //const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                 texture.mipmaps[level] = canvas;
                 //texture.needsUpdate = true;
             },
             undefined,
+            /**
+             * Error callback function.
+             * @param {Error} error - The error that occurred during loading.
+            */
             function(error) {
                 console.error(error);
             }
         );
         
     }
-    
+
+    /**
+     * Builds mipmaps for a texture based on the provided texture info.
+     * @param {object} textureInfo - Information about the texture and mipmaps.
+     * @param {THREE.Texture} texture - The target texture object.
+    */
     buildMipmap(textureInfo, texture) {
         texture.generateMipmaps = false;
 
@@ -163,13 +197,19 @@ class MyContents  {
             texture.needsUpdate = true;
             console.log("mipmaps: ", mipmaps);
         }
-    }   
+    }  
 
+    /**
+     * Sets materials for the scene based on the provided material data.
+     * @param {Array} materials - An array of material objects.
+    */
     set_materials(materials){ 
         for(let materials_idx in materials){
             
             const material = materials[materials_idx]
             console.log("material: ", material);
+
+            // Create a new MeshPhongMaterial using the provided material data
             const materialObj = new THREE.MeshPhongMaterial({
                 "color": new THREE.Color(material.color.r,material.color.g,material.color.b), 
                 "specular": material.specular,  
@@ -184,15 +224,21 @@ class MyContents  {
                 })
             
             console.log("materialObj: ", materialObj);
+            // Store the created material object in the application's materials array
             this.materials[materials_idx] = materialObj;
         }
         
     }
 
+    /**
+     * Sets up cameras for the scene based on the provided camera data.
+     * @param {Array} cameras - An array of camera objects.
+     * @param {number|null} id - The ID of the camera to set as active. If null, no active camera is set.
+    */
     set_cameras(cameras,id) {
         this.app.cameras = [] // reset cameras
 
-        //load das cameras todas
+        //load all cameras 
         for (let camera_idx in cameras) {
             console.log("camera ativa: " + camera_idx);
             const camera = cameras[camera_idx]
@@ -204,6 +250,7 @@ class MyContents  {
             let camera_obj;
             if (camera.type === "perspective") {
                 const angle = camera.angle;
+                // Create a new PerspectiveCamera
                 camera_obj = new THREE.PerspectiveCamera(angle,aspect,near,far);
                 camera_obj.position.set(location[0],location[1],location[2]);
                 //console.log("camera_obj: ", camera.location)
@@ -216,6 +263,7 @@ class MyContents  {
                 const right = camera.right;
                 const bottom = camera.bottom;
                 const top = camera.top;
+                // Create a new OrthographicCamera
                 camera_obj = new THREE.OrthographicCamera( left, right, top, bottom, near, far);
                 camera_obj.position.set(location[0],location[1],location[2]);
                 camera_obj.lookAt(new THREE.Vector3(target[0],target[1],target[2]));
@@ -227,25 +275,31 @@ class MyContents  {
 
         }
 
+        // Set the active camera if an ID is provided
         if(id != null){
-            this.app.setActiveCamera(id); // set active camera
+            this.app.setActiveCamera(id); 
         }
 
     }
 
+    /**
+     * Recursively sets up the scene nodes based on the provided node data.
+     * @param {string} nodeRef - The reference ID of the node to set up.
+     * @param {THREE.Group} [parent] - The parent group to which the new node will be added. If not provided, the node will be added to the root.
+     * @returns {THREE.Group} The created THREE.Group representing the node and its children.
+    */
     set_nodes(nodeRef, parent = undefined) {
-        //prox semana por o lod
-
+    
         let node = this.data.nodes[nodeRef];
-        //console.log("node: ", this.data.getNode(nodeRef));
         console.log("node: ", nodeRef)    
         let group = new THREE.Group();
-        //console.log("transformation: ", node.transformations);
-        //aplicar transformações ao grupo
+        
+        //apply group transformations
         let transformations = node['transformations'];
 
         this.set_transformations(group, transformations)
 
+        // Set material IDs for the group
         if (node.materialIds.length != 0) {
             group.materialIds = node.materialIds;
         } else if (parent != undefined) {
@@ -254,14 +308,16 @@ class MyContents  {
             group.materialIds = [];
         }
         
-
+        // Process children of the node
         node.children.forEach(child =>{
-            console.log("childAAA: ", child);
+            //console.log("childAAA: ", child);
 
             if(child.type === "node"){
+                // Recursively add child node to the group
                 group.add(this.set_nodes(child.id, group));
             }
             else if(child.type === "primitive"){
+                // Add primitive child to the group
                 const newPrimitive = this.set_primitive(child, this.materials[group.materialIds[0]]);
                 if (newPrimitive)
                     group.add(newPrimitive)
@@ -270,6 +326,7 @@ class MyContents  {
             }
 
             else if(child.type === 'lod') {
+                // Add LOD (Level of Detail) child to the group
                 let lod = new THREE.LOD();
 
                 if (child.materialIds === undefined || child.materialIds.length === 0) {
@@ -290,6 +347,7 @@ class MyContents  {
                 group.add(lod);
             }
             else if(child.type === "spotlight"){
+                // Add spotlight child to the group
                 const { id, color, position, target, angle, enabled, intensity, distance, decay, penumbra, castshadow, shadowfar, shadowmapsize } = child;
 
                 const spotlight = new THREE.SpotLight(
@@ -314,6 +372,7 @@ class MyContents  {
                 group.add(spotlight);
             }
             else if(child.type === "directionallight"){
+                // Add directional light child to the group
                 const { id, color, position, enabled, intensity, castshadow, shadowleft, shadowright, shadowbottom, shadowtop, shadowfar, shadowmapsize } = child;
 
                 const directionallight = new THREE.DirectionalLight(
@@ -340,6 +399,7 @@ class MyContents  {
                 group.add(directionallight);
 
             }else if(child.type === "pointlight"){
+                // Add point light child to the group
                 const { id, color, position, enabled, intensity, distance, decay, castshadow, shadowfar, shadowmapsize } = child;
 
                 const pointlight = new THREE.PointLight(
@@ -366,6 +426,11 @@ class MyContents  {
 
     }
 
+    /**
+     * Applies transformations to a Three.js group based on the provided transformation data.
+     * @param {THREE.Group} group - The Three.js group to apply transformations to.
+     * @param {Object} transformations - The transformation data, including translation, rotation, and scale information.
+    */
     set_transformations(group, transformations) {
         for(const transformation in transformations){
             console.log("transformation: ", transformations[transformation]);
@@ -382,22 +447,27 @@ class MyContents  {
             }else if(transformations[transformation].type === "S"){
                 const [x, y, z] = transformations[transformation].scale;
                 group.scale.set(x, y, z);
-                /*
-                group.scale.x *= x
-                group.scale.y *= y
-                group.scale.z *= z*/
+
             }
             
         }
     }
 
+    /**
+     * Creates a Three.js Mesh for a given primitive based on its subtype.
+     * @param {Object} primitive - The primitive data, including subtype and representation details.
+     * @param {THREE.Material} material - The Three.js material to apply to the created mesh.
+     * @returns {THREE.Mesh|undefined} The created Three.js Mesh or undefined if the primitive type is not supported.
+    */
     set_primitive(primitive, material){
         console.log("primitive: ", primitive);
 
         let geometry = null
 
         switch(primitive.subtype){
+            
             case "rectangle":
+                // Create a plane geometry for a rectangle primitive
                 const { xy1, xy2, parts_x, parts_y } = primitive.representations[0];
                 geometry = new THREE.PlaneGeometry(xy2[0] - xy1[0], xy2[1] - xy1[1], parts_x, parts_y);
 
@@ -405,7 +475,9 @@ class MyContents  {
                     (xy2[0] + xy1[0]) / 2, (xy2[1] + xy1[1]) / 2, 0
                 )
                 break
+            
             case "triangle":
+                // Create a geometry for a triangle primitive
                 const { xyz1, xyz2, xyz3 } = primitive.representations[0];
                 geometry = new THREE.Geometry();
                 geometry.vertices.push(new THREE.Vector3((xyz1[0], xyz1[1], xyz1[2])))
@@ -415,29 +487,36 @@ class MyContents  {
                 geometry.computeFaceNormals();
                 
                 break
+
             case "cylinder":
+                // Create a sphere geometry for a sphere primitive
                 const { top, base, height, slices, stacks, capsclose, thetastart, thetalength, distance } = primitive.representations[0];
                 console.log("cylinder rep: ", primitive.representations[0]);
                 geometry = new THREE.CylinderGeometry(top, base, height, slices, stacks, capsclose, thetastart, thetalength,distance);
                 break
+
             case "sphere":
+                // Create a sphere geometry for a sphere primitive
                 const {radius,s_slices,s_stacks,s_thetastart = 0.0,s_thetalength = 2 * Math.PI,phistart = 0.0,philength = 2 * Math.PI} = primitive.representations[0];
                 geometry = new THREE.SphereGeometry(radius, s_slices, s_stacks, s_thetastart, s_thetalength, phistart, philength);
                 break
+
             case "box":
+                // Create a box geometry for a box primitive
                 let b_xyz1 = primitive.representations[0].xyz1;
                 let b_xyz2 = primitive.representations[0].xyz2;
                 const b_parts_x = primitive.representations[0].parts_x || 1;
                 const b_parts_y = primitive.representations[0].parts_y || 1;
                 const b_parts_z = primitive.representations[0].parts_z || 1;
-                // { b_xyz1, b_xyz2, b_parts_x , b_parts_y ,b_parts_z} = primitive.representations[0];
+                
                 const b_height = Math.abs(b_xyz2[1]-b_xyz1[1])
                 const b_width = Math.abs(b_xyz2[0]-b_xyz1[0])
                 const b_depth = Math.abs(b_xyz2[2]-b_xyz1[2])
                 geometry = new THREE.BoxGeometry(b_width, b_height, b_depth, b_parts_x, b_parts_y,b_parts_z);
                 break
+
             case "nurbs":
-                //const { controlpoints, degree1, degree2, knots1, knots2, partsU, partsV } = primitive.representations[0];
+                // Create a NURBS geometry for a NURBS primitive
                 let nurb = new MyNurbsBuilder(this.app);
                 let controlPoints = []
                 for (let i = 0; i < primitive.representations[0].controlpoints.length; i++) {
@@ -453,12 +532,13 @@ class MyContents  {
 
                 geometry = nurb;
                 break
+
             case "polygon":
-                console.log("primitive.representations: ", primitive.representations);
+                // Create a polygon geometry for a polygon primitive
+                //console.log("primitive.representations: ", primitive.representations);
                 geometry = new PolygonBuilder(primitive.representations[0].radius, primitive.representations[0].color_c, primitive.representations[0].color_p, primitive.representations[0].stacks, primitive.representations[0].slices, material);
                 return geometry.mesh;
-    
-                break
+
             default:
                 break;
         }
@@ -466,17 +546,24 @@ class MyContents  {
         if (geometry)
             return new THREE.Mesh(geometry, material);
         else
-            return undefined // TODO: do not add undefined mesh to parent
+            return undefined // primitive not created
 
     }
- 
+    
+    /**
+    * Builds skyboxes based on the provided data and adds them to the Three.js scene.
+    */
     buildSkyboxs() {
         if (this.data.skyboxes) {
+            // Iterate through each skybox defined in the data
             for (let skyboxID in this.data.skyboxes) {
                 const skyboxInfo = this.data.skyboxes[skyboxID];
+
+                // Create a box geometry for the skybox based on size
                 const skyboxGeometry = new THREE.BoxGeometry(skyboxInfo['size'][0], skyboxInfo['size'][1], skyboxInfo['size'][2]);
                 
-                console.log("skyboxInfo: ", skyboxInfo);
+                // Define textures for each face of the skybox
+                //console.log("skyboxInfo: ", skyboxInfo);
                 let textures = [
                     this.data.textures[skyboxInfo['up']],
                     this.data.textures[skyboxInfo['down']],                    
@@ -487,28 +574,42 @@ class MyContents  {
                 ];
                 
                 let skyboxMaterials = [];
-                console.log("textures: ", textures);
+                //console.log("textures: ", textures);
+
+                // Iterate through each texture and create materials for the skybox
                 for (let texIdx in textures) {
                     let texture = textures[texIdx];
                     let map;
+
+                    // Check if the texture is a video
                     if (texture.isVideo) {
                         console.log("texture: ", texture);
                         let video = document.getElementById('video');
                         map = new THREE.VideoTexture(video);
                     } else {
+                        // If it's an image, load it using TextureLoader
                         map = new THREE.TextureLoader().load(texture.filepath);
                     }
-
+                    
+                    // Configure texture wrapping and repeating
                     map.wrapS = map.wrapT = THREE.RepeatWrapping;
                     map.repeat.set(1, 1);
+
+                    // Create a basic material for the skybox face using the texture
                     let material = new THREE.MeshBasicMaterial({ map: map, side: THREE.DoubleSide })
                     skyboxMaterials.push(material);
                     
                 }
 
+                // Create a mesh for the skybox using the geometry and materials
                 let mesh = new THREE.Mesh(skyboxGeometry, skyboxMaterials);
+
+                // Configure texture wrapping for the mesh
                 mesh.wrapS = mesh.wrapT = THREE.RepeatWrapping;
+
+                // Set the position of the skybox based on the provided center
                 mesh.position.set(skyboxInfo['center'][0], skyboxInfo['center'][1], skyboxInfo['center'][2]);
+
                 this.app.scene.add(mesh);
             }
         }

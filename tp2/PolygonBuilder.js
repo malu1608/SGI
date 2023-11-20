@@ -1,13 +1,27 @@
 import * as THREE from 'three';
 
+/**
+ * PolygonBuilder class creates a colored polygon mesh with specified radius, colors,
+ * stacks, slices, and material.
+ */
 class PolygonBuilder {
+
+    /**
+     * Constructs a PolygonBuilder object.
+     * @param {number} radius - The radius of the polygon.
+     * @param {THREE.Color} color_c - The center color of the polygon.
+     * @param {THREE.Color} color_p - The perimeter color of the polygon.
+     * @param {number} stacks - The number of stacks in the polygon.
+     * @param {number} slices - The number of slices in each stack of the polygon.
+     * @param {THREE.Material} material - The material for the polygon (default is a basic wireframe material).
+     */
     constructor(
         radius, 
         color_c,
         color_p,
         stacks = 32,
         slices = 32,
-        material
+        material = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true })
     ) {
         this.radius = radius;
         this.color_c = new THREE.Color(color_c.r, color_c.g, color_c.b);
@@ -26,6 +40,13 @@ class PolygonBuilder {
         this.build();
     }
 
+    /**
+     * Calculates and returns a color based on the startColor, endColor, and percentage.
+     * @param {THREE.Color} startColor - The starting color.
+     * @param {THREE.Color} endColor - The ending color.
+     * @param {number} percentage - The percentage between startColor and endColor.
+     * @returns {number[]} - The RGB values of the calculated color.
+     */
     getColor(startColor, endColor, percentage) {
         let color = [
             startColor.r + (endColor.r - startColor.r) * percentage,
@@ -36,6 +57,9 @@ class PolygonBuilder {
         return color;
     }
 
+    /**
+     * Builds the polygon by creating a BufferGeometry and adding vertices, normals, colors, indexes, and UVs.
+    */
     build() {
         console.log("Building polygon...");
         let geometry = new THREE.BufferGeometry();
@@ -71,6 +95,7 @@ class PolygonBuilder {
                      uvCenterV + uvRadius * stackPercentage * Math.sin(angle));
         }
 
+        // Cycle for other stacks
         for (let currentStackIndex = 1; currentStackIndex < this.stacks; currentStackIndex++) {
             let currentRadius = (currentStackIndex + 1) * stackRadius;
             stackPercentage = (1 + currentStackIndex) / this.stacks;

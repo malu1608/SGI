@@ -26,34 +26,30 @@
             top="-5" /> 
     </cameras> 
 
-    <skybox size="100 100 100" center="0 0 0" emissive="1.0 1.0 1.0 1.0" intensity="1.0" up="skyboxTex" down="skyboxTex" left="skyboxTex" right="skyboxTex" front="skyboxTex" back="skyboxTex"/>
+    <skybox size="100 100 100" center="0 0 0" emissive="1.0 1.0 1.0 1.0" intensity="1.0" up="./textures/pine.jpg" down="./textures/pine.jpg" left="./textures/pine.jpg" right="./textures/pine.jpg" front="./textures/pine.jpg" back="./textures/pine.jpg"/>
 
     
     <!-- bloco de texturas. Este bloco tem de existir mas pode estar vazio, se nao forem usadas texturas --> 
-    <textures>     
-        <texture id="videoTexture" isVideo="true" filepath="scenes/demo/textures/video.mp4"/>   
-        <texture id="leftWallTex" filepath="scenes/demo/textures/scratchedWall.jpg" />
-		<texture id="rightWallTex" filepath="scenes/demo/textures/bloodyWall.jpg" />
-		<texture id="floorTex" filepath="scenes/demo/textures/sand.png" />
-        <texture id="floorBumpTex" filepath="scenes/demo/textures/sandBump2.png" />
-		<texture id="tableTex" filepath="scenes/demo/textures/table.png" />
-		<texture id="crimeWeaponTex" filepath="scenes/demo/textures/bloodyPrints.jpg" />
-		<texture id="tapeTex" filepath="scenes/demo/textures/pTape.jpg" />
-		<texture id="tapeSupportTex" filepath="scenes/demo/textures/lamp.png" />
-		<texture id="pineTex" filepath="scenes/demo/textures/pine.png" />
-		<texture id="vaseTex" filepath="scenes/demo/textures/vase.png" />
-        <texture id="demo" filepath="scenes/demo/textures/caravaggio.jpg" mipmaps="true"
-            mipmap0="scenes/demo/textures/caravaggio.1024.jpg"
-            mipmap1="scenes/demo/textures/caravaggio.512.jpg"
-            mipmap2="scenes/demo/textures/caravaggio.256.jpg"
-            mipmap3="scenes/demo/textures/caravaggio.128.jpg"
-            mipmap4="scenes/demo/textures/caravaggio.64.jpg"
-            mipmap5="scenes/demo/textures/caravaggio.32.jpg"
-            mipmap6="scenes/demo/textures/caravaggio.16.jpg"
-            mipmap7="scenes/demo/textures/caravaggio.8.jpg"
-            isVideo="false"
+    <textures>        
+        <texture id="leftWallTex" filepath="scenes/t01g01/textures/scratchedWall.jpg" />
+		<texture id="rightWallTex" filepath="scenes/t01g01/textures/bloodyWall.jpg" />
+		<texture id="floorTex" filepath="scenes/t01g01/textures/test1.jpg" />
+		<texture id="tableTex" filepath="scenes/t01g01/textures/table.png" />
+		<texture id="crimeWeaponTex" filepath="scenes/t01g01/textures/bloodyPrints.jpg" />
+		<texture id="tapeTex" filepath="scenes/t01g01/textures/pTape.jpg" />
+		<texture id="tapeSupportTex" filepath="scenes/t01g01/textures/lamp.png" />
+		<texture id="pineTex" filepath="scenes/t01g01/textures/pine.png" />
+		<texture id="vaseTex" filepath="scenes/t01g01/textures/vase.png" />
+        <texture id="demo" filepath="scenes/t01g01/textures/demo.png" 
+            mipmap0="scenes/t01g01/textures/demo1024.png"
+            mipmap1="scenes/t01g01/textures/demo512.png"
+            mipmap2="scenes/t01g01/textures/demo256.png"
+            mipmap3="scenes/t01g01/textures/demo128.png"
+            mipmap4="scenes/t01g01/textures/demo64.png"
+            mipmap5="scenes/t01g01/textures/demo32.png"
+            mipmap6="scenes/t01g01/textures/demo16.png"
+            mipmap7="scenes/t01g01/textures/demo8.png"
         />
-        <texture id="skyboxTex" filepath="scenes/demo/textures/pine.png" isVideo="true" />
     </textures> 
 
     <materials> 
@@ -62,8 +58,7 @@
             color="0.8 0.8 0.8 1.0" 
             emissive="0.0 0.0 0.0 0.0" 
 			specular="0 0 0 0" 
-            shininess="10"
-            wireframe = "false" 
+            shininess="10" 
             textureref="tableTex" 
             texlength_s="1" 
             texlength_t="1" />
@@ -73,18 +68,19 @@
 			color="0.8 0.8 0.8 1.0" 
             specular="0 0 0 0" 
             shininess="0" 
-            wireframe = "false" 
-            textureref="demo" 
-            texlength_s="1" 
-            texlength_t="1" 
-            twosided = "false" />
+            textureref="leftWallTex" 
+            texlength_s="15" 
+            texlength_t="8" 
+            twosided = "true"
+            bumpref = "demo"
+            bumpscale = "0.5"
+            specularref = "demo" />
 		
 		<material id="rightWallApp" 
             emissive="0.0 0.0 0.0 1" 
             color="0.8 0.8 0.8 1.0" 
             specular="0 0 0 0" 
             shininess="0" 
-            wireframe = "false" 
             textureref="rightWallTex" 
             texlength_s="15" 
             texlength_t="8"
@@ -95,19 +91,16 @@
             color="0.8 0.8 0.8 1.0"  
             specular="0 0 0 0" 
             shininess="0" 
-            wireframe = "false" 
-            textureref="floorTex"
-            bumpref="floorBumpTex" 
-            texlength_s="1" 
-            texlength_t="1" 
+            textureref="floorTex" 
+            texlength_s="15" 
+            texlength_t="15" 
             twosided = "true" />
 		
 		<material id="crimeWeaponApp" 
             emissive="0.0 0.0 0.0 1" 
-            color="0.8 0.8 0.8 1.0"  
+           color="0.8 0.8 0.8 1.0"  
             specular="0 0 0 0" 
             shininess="0" 
-            wireframe = "false" 
             textureref="crimeWeaponTex" 
             texlength_s="1" 
             texlength_t="1" />
@@ -117,7 +110,6 @@
             color="0.8 0.8 0.8 1.0"  
             specular="0 0 0 0" 
             shininess="0" 
-            wireframe = "true" 
             textureref="tapeTex" 
             texlength_s="1" 
             texlength_t="0.4" 
@@ -128,7 +120,6 @@
             color="0.8 0.8 0.8 1.0"  
             specular="0 0 0 0" 
             shininess="0" 
-            wireframe = "true" 
             textureref="tapeSupportTex" 
             texlength_s="1" 
             texlength_t="1" />
@@ -148,7 +139,6 @@
             color="0.8 0.8 0.8 1.0"  
             specular="0 0 0 0" 
             shininess="0" 
-            wireframe = "true" 
             textureref="vaseTex" 
             texlength_s="1" 
             texlength_t="1"
@@ -633,10 +623,9 @@
                 <primitive>
                     <box xyz1="-0.5 -0.5 -0.5" xyz2="0.5 0.5 0.5" />
                 </primitive>
-                <!--
                 <primitive>
                     <polygon radius="2.0" slices="12" stacks="3" color_c="1 0 0 1" color_p="1 1 0 1" />
-                </primitive>-->
+                </primitive>
 
 
 
