@@ -1,7 +1,5 @@
 import * as THREE from 'three';
 
-import { MyAxis } from './MyAxis.js';
-
 import { NURBSSurface } from 'three/addons/curves/NURBSSurface.js';
 
 import { ParametricGeometry } from 'three/addons/geometries/ParametricGeometry.js';

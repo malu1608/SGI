@@ -21,7 +21,7 @@ class MyContents  {
         this.lights = {}
         //this.materials['tableApp'] a key tableApp leva me diretamente ao material_obj
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
-		this.reader.open("scenes/farm/farm.xml");		
+		this.reader.open("scenes/demo/demo.xml");		
     }
 
     /**
@@ -55,7 +55,6 @@ class MyContents  {
 
         this.object = this.set_nodes(data.rootId);
         this.app.scene.add(this.object);
-        //this.set_lods(data.lods);
 
     }
 
@@ -118,6 +117,7 @@ class MyContents  {
     }
 
     loadMipmap(texture, level, mipmap) {
+        
         new THREE.TextureLoader().load(
             mipmap,
             function(mipmapTex) {
@@ -125,12 +125,14 @@ class MyContents  {
                 const context = canvas.getContext('2d');
                 context.scale(1, 1);
 
+                
                 const img = mipmapTex.image;
-
+                console.log("IMG: ", img.width, mipmap);
                 canvas.width = img.width;
                 canvas.height = img.height;
 
                 context.drawImage(img, 0, 0);
+                
                 console.log("mipmap: ", texture.mipmaps);
                 //const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
                 texture.mipmaps[level] = canvas;
@@ -141,6 +143,7 @@ class MyContents  {
                 console.error(error);
             }
         );
+        
     }
     
     buildMipmap(textureInfo, texture) {
@@ -157,6 +160,7 @@ class MyContents  {
                     this.loadMipmap(texture, level, mipmaps[level]);
                 }
             }
+            texture.needsUpdate = true;
             console.log("mipmaps: ", mipmaps);
         }
     }   
@@ -409,7 +413,7 @@ class MyContents  {
                 geometry.vertices.push(new THREE.Vector3(xyz3[0], xyz3[1], xyz3[2]));
                 geometry.faces.push(new THREE.Face3( 0, 1, 2 ) );
                 geometry.computeFaceNormals();
-                //triangle.computeVertexNormals(); prreciso?
+                
                 break
             case "cylinder":
                 const { top, base, height, slices, stacks, capsclose, thetastart, thetalength, distance } = primitive.representations[0];
@@ -448,19 +452,12 @@ class MyContents  {
                 primitive.representations[0].parts_u, primitive.representations[0].parts_v)
 
                 geometry = nurb;
+                break
             case "polygon":
-                
+                console.log("primitive.representations: ", primitive.representations);
                 geometry = new PolygonBuilder(primitive.representations[0].radius, primitive.representations[0].color_c, primitive.representations[0].color_p, primitive.representations[0].stacks, primitive.representations[0].slices, material);
                 return geometry.mesh;
-                /*
-                const {radius_p,stacks_p,slices_p,color_c,color_p} = primitive.representations[0];
-                geometry = new THREE.Geometry();
-                for (let i = 0; i < points.length; i++) {
-                    console.log()
-                    geometry.vertices.push(new THREE.Vector3(points[i].xx, points[i].yy, points[i].zz))
-                }
-                geometry.faces.push(new THREE.Face3( 0, 1, 2 ) );
-                geometry.computeFaceNormals();*/
+    
                 break
             default:
                 break;
