@@ -106,28 +106,44 @@ class MyContents  {
     */
     getTexture(texture, length_s, length_t) {
         if(texture != null){
+            const textureInfo = this.data.textures[texture];
+            let map = null;
 
-            if(texture.isVideo){
-                let video = document.getElementById('video');
-                let map = new THREE.VideoTexture(video);
-                map.generateMipmaps = false;
-                map.wrapS = map.wrapT = THREE.RepeatWrapping;
-                map.repeat.set((geometryData.xy2[0] - geometryData.xy1[0]) / material.texlength_s, (geometryData.xy2[1] - geometryData.xy1[1]) / material.texlength_t);
-                material2.map = map;
+            if (textureInfo.isVideo) {
+                let video = document.createElement('video');
+                video.id = 'video';
+                video.playsinline = true;
+                video.setAttribute("webkit-playsinline", ""); // Webkit specific attribute
+                video.muted = true;
+                video.loop = true;
+                video.autoplay = true;
+                video.width = 640;
+                video.height = 360;
+                video.src = textureInfo.filepath;
+                video.style.opacity = "0%"
+                video.style.position = "absolute"
+                video.style.top="0"
+
+                document.body.appendChild(video); //adiciona video ao html
+                console.log("doc body: ", document.body);
+
+                const newTexture = new THREE.VideoTexture(video);
+                console.log("newTexture: ", newTexture);
+
+                return newTexture;
+
+            } else {
+                map = new THREE.TextureLoader().load(textureInfo.filepath);
             }
-            console.log("texture: ", texture);
-            const texture_obj = new THREE.TextureLoader().load(this.data.textures[texture].filepath);
-            texture_obj.isVideo = this.data.textures[texture].isVideo;
-            texture_obj.magFilter = THREE.LinearFilter;
-            texture_obj.minFilter = THREE.LinearMipMapLinearFilter;
-            texture_obj.anisotropy = this.data.textures[texture].anisotropy;
-            if(texture_obj.mipmaps){
-                this.buildMipmap(this.data.textures[texture],texture_obj);
+
+            if(!textureInfo.mipmaps){
+                this.buildMipmap(textureInfo, map);
             }
-            texture_obj.wrapS = THREE.RepeatWrapping;
-            texture_obj.wrapT = THREE.RepeatWrapping;
-            texture_obj.repeat.set(length_s, length_t); // TODO: check if this is correct
-            return texture_obj;
+
+            map.wrapS = map.wrapT = THREE.RepeatWrapping;
+            map.repeat.set(length_s, length_t);
+            
+            return map;
         }
         return null;
     }
@@ -207,6 +223,7 @@ class MyContents  {
         for(let materials_idx in materials){
             
             const material = materials[materials_idx]
+            
             console.log("material: ", material);
 
             // Create a new MeshPhongMaterial using the provided material data
@@ -221,7 +238,7 @@ class MyContents  {
                 "map": this.getTexture(material.textureref,material.texlength_s,material.texlength_t),
                 "flatShading": (material.shading === 'flat'),
                 "bumpMap": (material.bumpref) ? new THREE.TextureLoader().load(this.data.textures[material.bumpref].filepath) : null,
-                })
+            })
             
             console.log("materialObj: ", materialObj);
             // Store the created material object in the application's materials array
@@ -459,13 +476,13 @@ class MyContents  {
      * @param {THREE.Material} material - The Three.js material to apply to the created mesh.
      * @returns {THREE.Mesh|undefined} The created Three.js Mesh or undefined if the primitive type is not supported.
     */
-    set_primitive(primitive, material){
+    set_primitive(primitive, material, texture){
         console.log("primitive: ", primitive);
 
         let geometry = null
-
         switch(primitive.subtype){
             
+
             case "rectangle":
                 // Create a plane geometry for a rectangle primitive
                 const { xy1, xy2, parts_x, parts_y } = primitive.representations[0];
@@ -574,31 +591,18 @@ class MyContents  {
                 ];
                 
                 let skyboxMaterials = [];
-                //console.log("textures: ", textures);
 
                 // Iterate through each texture and create materials for the skybox
                 for (let texIdx in textures) {
                     let texture = textures[texIdx];
                     let map;
+                    if(texture){
+                        
+                        // Create a basic material for the skybox face using the texture
+                        let material = new THREE.MeshBasicMaterial({ map: this.getTexture(texture.id), side: THREE.DoubleSide })
 
-                    // Check if the texture is a video
-                    if (texture.isVideo) {
-                        console.log("texture: ", texture);
-                        let video = document.getElementById('video');
-                        map = new THREE.VideoTexture(video);
-                    } else {
-                        // If it's an image, load it using TextureLoader
-                        map = new THREE.TextureLoader().load(texture.filepath);
+                        skyboxMaterials.push(material);
                     }
-                    
-                    // Configure texture wrapping and repeating
-                    map.wrapS = map.wrapT = THREE.RepeatWrapping;
-                    map.repeat.set(1, 1);
-
-                    // Create a basic material for the skybox face using the texture
-                    let material = new THREE.MeshBasicMaterial({ map: map, side: THREE.DoubleSide })
-                    skyboxMaterials.push(material);
-                    
                 }
 
                 // Create a mesh for the skybox using the geometry and materials

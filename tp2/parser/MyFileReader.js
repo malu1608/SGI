@@ -224,7 +224,15 @@ class MyFileReader  {
 		for (let i=0; i<4; i++) {
 			rgba.push(parseFloat(temp[i]));
 		}	
-		return new THREE.Color(rgba[0], rgba[1], rgba[2], rgba[3]);
+		let color = new THREE.Color(rgba[0], rgba[1], rgba[2])
+		// NOTE: 20231117 this is injected in the object because students are 
+		// using it for transparency.
+		// the a has no effect in the threejs platform
+		// TODO: to be removed in 2024-2025
+		if (rgba[3] !== null) {
+			color.a = rgba[3]
+		}
+		return color
 	}
 
 	/**

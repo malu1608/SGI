@@ -1,11 +1,11 @@
 # SGI 2023/2024 - TP2
 
-## Group: T0xG0y
+## Group: T06G10
 
 | Name             | Number    | E-Mail             |
 | ---------------- | --------- | ------------------ |
-| Catarina         | 201901010 | ...                |
-| Jane Doe         | 201901011 | ...                |
+| Catarina Gonçalves | 201901010 | up201901010@fe.up.pt                |
+| Luísa Salvador   | 202006471 | up202006471@fe.up.pt                |
 
 ----
 ## Project information

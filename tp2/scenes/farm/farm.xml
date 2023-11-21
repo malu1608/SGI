@@ -26,7 +26,7 @@
    <skybox size="100 100 100" center="0 0 0" emissive="0.8 0.8 0.8 1.0" intensity="0.7" up="skyboxTex" down="skyboxTex" left="skyboxTex" right="floorTex" front="skyboxTex" back="skyboxTex"/>
 
     <textures>        
-        <texture id="videoTexture" isVideo="false" filepath="scenes/farm/textures/video.mp4"/>  
+        <texture id="videoTexture" isVideo="true" filepath="scenes/farm/videos/oceans.mp4"/>  
 		<texture id="floorTex" filepath="scenes/farm/textures/dirt.png" />
         <texture id="wallTex" filepath="scenes/farm/textures/wall.png" />   
 
@@ -40,7 +40,7 @@
         <texture id="goatBodyTex" filepath="scenes/farm/textures/goatBody.png" />
         <texture id="goatHornTex" filepath="scenes/farm/textures/goatHorn.png" />   
         
-        <texture id="skyboxTex" filepath="scenes/farm/textures/video.mp4" isVideo="true" />
+        <texture id="skyboxTex" filepath="scenes/farm/videos/oceans.mp4" isVideo="true" />
     </textures> 
     
     <materials> 
