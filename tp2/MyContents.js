@@ -560,10 +560,15 @@ class MyContents  {
                 break;
         }
 
-        if (geometry)
-            return new THREE.Mesh(geometry, material);
-        else
-            return undefined // primitive not created
+        if (geometry) {
+            let mesh = new THREE.Mesh(geometry, material);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+            return mesh;
+        }
+        else {
+            return undefined; // primitive not created
+        }
 
     }
     
