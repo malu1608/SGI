@@ -14,12 +14,14 @@
 
 - Our room contains all the features requested. Furthermore, we added extra objects such as the door, the chairs, the carpet, the shelves,...
 - Cameras fully implemeted: Perspective1, Perspective2, Left, Right, Top, Front and Back.
-- Illumination fully implemented: spotLight coming from the window, spotLight illuminating the cake, pointLight coming from the ceiling
+- Illumination fully implemented: spotLight coming from the window, spotLight illuminating the cake, pointLight coming from the ceiling.
 
 -----
 
-### [TP2 - ...](tp2)
-- (items briefly describing main strong points)
+### [TP2 - XML Scene](tp2)
+- Our scene contains all the features requested. We worked on our creativity to create detailed animals, a water fountain, a pond with water lilies,...
+- We have LODs with 2 representations, skybox with video texture, bump textures on the path with sand, mipmaps on grass, wireframes on hay, buffer geometry with the polygon.
+- Our interface has five different cameras and an option to pause and control the speed of the skybox video.
 
 ----
 

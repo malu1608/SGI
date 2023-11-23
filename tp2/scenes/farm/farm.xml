@@ -832,7 +832,7 @@
         <node id="barnTop">
             <transforms>
                 <scale value3="1.2 1 0.5" />
-                <translate value3="0 17.7 0" />
+                <translate value3="0 18.7 0" />
                 <rotate value3="-1.5707 0 0" />
             </transforms>
 
@@ -847,14 +847,14 @@
 
         <node id="barnBottom">
             <transforms>
-                <translate value3="0 5 0" />
+                <translate value3="0 8 0" />
             </transforms>
 
             <materialref id="barnFrontApp" />
 
             <children>
                 <primitive>
-                    <box xyz1="0 0 0" xyz2="20 20 30" />
+                    <box xyz1="0 0 0" xyz2="20 16 30" />
                 </primitive> 
             </children>
         </node>
