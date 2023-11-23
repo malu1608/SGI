@@ -99,7 +99,7 @@ class PolygonBuilder {
         for (let currentStackIndex = 1; currentStackIndex < this.stacks; currentStackIndex++) {
             let currentRadius = (currentStackIndex + 1) * stackRadius;
             stackPercentage = (1 + currentStackIndex) / this.stacks;
-            console.log("currentRadius: ", currentRadius);
+            // console.log("currentRadius: ", currentRadius);
             stackColor = this.getColor(this.color_c, this.color_p, stackPercentage);
 
             for (let currentSliceIndex = 0; currentSliceIndex < this.slices; currentSliceIndex++) {

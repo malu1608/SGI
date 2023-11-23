@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-16" standalone="yes"?>
 <yaf> 	
-    <globals background="0 0 0 1" ambient="0.2 0.2 0.2 1" />
+    <globals background="0 0 0 1" ambient="0.5 0.5 0.5 1" />
 
     <fog color="1.0 1.0 1.0 1.0" near="1000.0" far="10000.0" />
 
@@ -281,9 +281,9 @@
 			
     </materials> 
 
-    <graph rootid="scene">
+    <graph rootid="scene" >
 
-        <node id="scene">
+        <node id="scene" castshadows = "true" receiveshadows = "true">
             <children>
                 <noderef id="floor" />
                 <lodref id="pigLOD" />
@@ -300,68 +300,14 @@
                 <noderef id="fences" />
 
                 <pointlight id="light1" enabled="true" 
-                    color="0.5 0.6 0.8 1" 
-                    intensity="1"
+                    color="1 1 1 1" 
+                    intensity="3"
                     distance="1000"
-                    decay="0"
-                    castshadow="false"
-                    position="33.75 37.3 33.75" 
-                /> 
-
-                <pointlight id="light2" enabled="true" 
-                    color="0.5 0.6 0.8 1" 
-                    intensity="1.0"
-                    distance="1000"
-                    decay="2.0"
-                    castshadow="false"
-                    position="11.25 7.3 3.75"
-                /> 
-
-                <pointlight id="light3" enabled="true" 
-                    color="0.5 0.6 0.8 1" 
-                    intensity="1.0"
-                    distance="1000"
-                    decay="2.0"
-                    castshadow="false"
-                    position="11.25 7.3 3.75"
-                /> 
-
-                <spotlight id="light4" enabled="true" 
-                    color="1.0 1.0 1.0 1" 
-                    intensity="1.0"
-                    distance="1000"
-                    decay="2.0"
+                    decay="0.1"
                     castshadow="true"
-                    position="2 2 4" 
-                    target="0 0 0"
-                    penumbra="1.0"
-                    angle="10.0" 
+                    position="100 60 100" 
                 /> 
-
-                <directionallight id="light5" enabled="true" 
-                    color="1.0 1.0 1.0 1" 
-                    intensity="1.0"
-                    castshadow="true"
-                    position="2 2 4" 
-                />
-
-                <pointlight id="light6" enabled="true" 
-                    color="0.5 0.6 0.8 1" 
-                    intensity="1"
-                    distance="1000"
-                    decay="0"
-                    castshadow="false"
-                    position="-33.75 37.3 33.75" 
-                /> 
-
-                <pointlight id="light7" enabled="true" 
-                    color="0.5 0.6 0.8 1" 
-                    intensity="1"
-                    distance="1000"
-                    decay="0"
-                    castshadow="false"
-                    position="-33.75 37.3 -33.75" 
-                /> 
+                   
             </children>
         </node>
         
@@ -1237,7 +1183,7 @@
 
         <!-- PIGS -->
 
-        <node id="pigs">
+        <node id="pigs" >
             <transforms>
                 <translate value3="0 0 0" />
             </transforms>
@@ -1464,7 +1410,7 @@
 
         <!-- GOATS -->
 
-        <node id="goats">
+        <node id="goats" >
             <transforms>
                 <translate value3="0 0 0" />
             </transforms>

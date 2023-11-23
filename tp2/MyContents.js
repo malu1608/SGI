@@ -66,9 +66,9 @@ class MyContents  {
             const far = fog.far;
 
             this.app.scene.fog = new THREE.Fog(new THREE.Color(color.r,color.g,color.b),near,far)
-            console.log("a cor é "+ color.r + " " + color.g + " " + color.b)
-            console.log("near: " + near )
-            console.log("near: " + far)
+            // console.log("a cor é "+ color.r + " " + color.g + " " + color.b)
+            // console.log("near: " + near )
+            // console.log("near: " + far)
         }
     }
 
@@ -124,10 +124,10 @@ class MyContents  {
                 video.style.top="0"
 
                 document.body.appendChild(video); // add video to html
-                console.log("doc body: ", document.body);
+                // console.log("doc body: ", document.body);
 
                 const newTexture = new THREE.VideoTexture(video);
-                console.log("newTexture: ", newTexture);
+                // console.log("newTexture: ", newTexture);
 
                 this.videos.push(video);
 
@@ -171,13 +171,13 @@ class MyContents  {
                 context.scale(1, 1);
 
                 const img = mipmapTex.image;
-                console.log("IMG: ", img.width, mipmap);
+                // console.log("IMG: ", img.width, mipmap);
                 canvas.width = img.width;
                 canvas.height = img.height;
 
                 context.drawImage(img, 0, 0);
                 
-                console.log("mipmap: ", texture.mipmaps);
+                // console.log("mipmap: ", texture.mipmaps);
                 texture.mipmaps[level] = canvas;
                 //texture.needsUpdate = true;
             },
@@ -213,7 +213,7 @@ class MyContents  {
                 }
             }
             texture.needsUpdate = true;
-            console.log("mipmaps: ", mipmaps);
+            // console.log("mipmaps: ", mipmaps);
         }
     }  
 
@@ -226,7 +226,7 @@ class MyContents  {
             
             const material = materials[materials_idx]
             
-            console.log("material: ", material);
+            // console.log("material: ", material);
 
             // Create a new MeshPhongMaterial using the provided material data
             const materialObj = new THREE.MeshPhongMaterial({
@@ -242,7 +242,7 @@ class MyContents  {
                 "bumpMap": (material.bumpref) ? new THREE.TextureLoader().load(this.data.textures[material.bumpref].filepath) : null,
             })
             
-            console.log("materialObj: ", materialObj);
+            // console.log("materialObj: ", materialObj);
             // Store the created material object in the application's materials array
             this.materials[materials_idx] = materialObj;
         }
@@ -259,7 +259,7 @@ class MyContents  {
 
         // load all cameras 
         for (let camera_idx in cameras) {
-            console.log("camera ativa: " + camera_idx);
+            // console.log("camera ativa: " + camera_idx);
             const camera = cameras[camera_idx]
             const near = camera.near;
             const far = camera.far;
@@ -312,13 +312,19 @@ class MyContents  {
     set_nodes(nodeRef, parent = undefined) {
     
         let node = this.data.nodes[nodeRef];
-        console.log("node: ", nodeRef)    
+        if(node.id === "pigs"){
+            console.log("node: ")    
+            console.log(node);
+        }
+        
         let group = new THREE.Group();
         
         // apply group transformations
         let transformations = node['transformations'];
 
         this.set_transformations(group, transformations)
+
+        
 
         // Set material IDs for the group
         if (node.materialIds.length != 0) {
@@ -327,6 +333,34 @@ class MyContents  {
             group.materialIds = parent.materialIds;
         } else {
             group.materialIds = [];
+        }
+        // console.log("parent:")
+        // console.log(parent)
+
+        
+
+        let parentCastShadow
+        let parentReceiveShadow
+
+        if (parent==undefined) {
+            parentCastShadow = false;
+            parentReceiveShadow = false;
+        }
+        else {
+            parentCastShadow = parent.castShadow;
+            parentReceiveShadow = parent.receiveShadow;
+        }
+
+        if (node.castShadows || parentCastShadow ) {
+            group.castShadow = true
+        }
+        if (node.receiveShadows || parentReceiveShadow) {
+            group.receiveShadow = true
+        }
+
+        if(node.id === "pigs"){
+            console.log("group: ")    
+            console.log(group);
         }
         
         // Process children of the node
@@ -340,7 +374,7 @@ class MyContents  {
             else if(child.type === "primitive"){
                 // Add primitive child to the group
                 let material = this.materials[group.materialIds[0]];
-                const newPrimitive = this.set_primitive(child, material,material.map);
+                const newPrimitive = this.set_primitive(child, material,group.castShadow,group.receiveShadow);
                 if (newPrimitive)
                     group.add(newPrimitive)
                 else
@@ -359,7 +393,7 @@ class MyContents  {
                     let grandChild = child.children[i];
                     if (grandChild.type === "lodnoderef") {
                         let grandChildMaterial = grandChild.materialIds;
-                        console.log("grandChild.node: ", grandChild.node);
+                        // console.log("grandChild.node: ", grandChild.node);
                         let grandChildMesh = this.set_nodes(grandChild.node.id, grandChildMaterial);
 
                         lod.addLevel(grandChildMesh, grandChild.mindist);
@@ -457,7 +491,7 @@ class MyContents  {
 
         // Apply transformations to the group
         for(const transformation in transformations){
-            console.log("transformation: ", transformations[transformation]);
+            // console.log("transformation: ", transformations[transformation]);
             if(transformations[transformation].type === "T" ){
                 const [x, y, z] = transformations[transformation].translate;
                 group.translateX(x);
@@ -483,12 +517,17 @@ class MyContents  {
      * Creates a Three.js Mesh for a given primitive based on its subtype.
      * @param {Object} primitive - The primitive data, including subtype and representation details.
      * @param {THREE.Material} material - The Three.js material to apply to the created mesh.
+     * @param {boolean} castShadow - Whether the mesh should cast shadows.
+     * @param {boolean} receiveShadow - Whether the mesh should receive shadows.
      * @returns {THREE.Mesh|undefined} The created Three.js Mesh or undefined if the primitive type is not supported.
     */
-    set_primitive(primitive, material, texture){
-        console.log("primitive: ", primitive);
+    set_primitive(primitive, material,castShadow,receiveShadow){
+        // console.log("primitive: ", primitive);
 
         let geometry = null
+
+        let texture = material.map;
+
         switch(primitive.subtype){
 
             case "rectangle":
@@ -519,7 +558,7 @@ class MyContents  {
             case "cylinder":
                 // Create a sphere geometry for a sphere primitive
                 const { top, base, height, slices, stacks, capsclose, thetastart, thetalength, distance } = primitive.representations[0];
-                console.log("cylinder rep: ", primitive.representations[0]);
+                // console.log("cylinder rep: ", primitive.representations[0]);
                 geometry = new THREE.CylinderGeometry(top, base, height, slices, stacks, capsclose, thetastart, thetalength,distance);
                 break
 
@@ -577,10 +616,16 @@ class MyContents  {
                 break;
         }
 
-        if (geometry)
-            return new THREE.Mesh(geometry, material);
-        else
-            return undefined // primitive not created
+        if (geometry) {
+            let mesh = new THREE.Mesh(geometry, material);
+            mesh.castShadow = castShadow;
+            mesh.receiveShadow = receiveShadow;
+            return mesh;
+        }
+        else {
+            return undefined; // primitive not created
+        }
+
 
     }
     
