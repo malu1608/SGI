@@ -29,8 +29,27 @@ class MyGuiInterface  {
      * Initialize the gui interface
      */
     init() {
-        const cameraFolder = this.datgui.addFolder('Camera')
-        cameraFolder.add(this.app, 'targetName', ['Video Texture', 'LOD', 'MipMap', 'Bump Texture'] ).name("Target").onChange( (target) => { this.app.controls.target.set(this.app.targets[target].x, this.app.targets[target].y, this.app.targets[target].z);  this.app.controls.update();} );
+        // interface with cameras
+        const cameraFolder = this.datgui.addFolder('Cameras')
+        const cameras = this.contents.app.cameras
+        cameraFolder.add(this.app, 'activeCameraName', Object.values(cameras).map(camera => camera.name)).name("active camera");
+
+        cameras.forEach((camera, index) => {
+            this.app.cameras[camera.name] = camera
+            cameraFolder.open();
+        });
+
+        // interface with videos
+        const videos = this.contents.videos;
+        const videosFolder = this.datgui.addFolder('Videos');
+        videosFolder.close();
+        videos.forEach((video, index) => {
+            const videoFolder = videosFolder.addFolder(`video  ${index}`);
+            videoFolder.add(video, 'play').name('Play');
+            videoFolder.add(video, 'pause').name('Pause');
+            videoFolder.add(video, 'playbackRate', 0, 2).name('Speed');
+            videoFolder.close(); 
+        });
     }
 }
 

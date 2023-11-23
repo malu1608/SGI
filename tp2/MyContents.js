@@ -18,8 +18,8 @@ class MyContents  {
         this.data = null
         this.materials = new Map();
         this.object = null;
-        this.lights = {}
-        //this.materials['tableApp'] a key tableApp leva me diretamente ao material_obj
+        this.lights = {};
+        this.videos = [];
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
 		this.reader.open("scenes/farm/farm.xml");		
     }
@@ -42,19 +42,15 @@ class MyContents  {
      */
     onSceneLoaded(data) {
         console.info("scene data loaded " + data + ". visit MySceneData javascript class to check contents for each data item.")
-        this.onAfterSceneLoadedAndBeforeRender(data);
-
+        
         this.set_globals(data.options);
         this.set_fog(data.getFog());
-        this.set_materials(data.materials);
-        this.set_cameras(data.cameras,data.activeCameraId);
-
+        
         if (data.nodes['scene'].materialIds.length === 0) {
             data.nodes['scene'].materialIds.push("default");
         }
 
-        this.object = this.set_nodes(data.rootId);
-        this.app.scene.add(this.object);
+        this.onAfterSceneLoadedAndBeforeRender(data);
 
     }
 
@@ -81,6 +77,7 @@ class MyContents  {
      * @param {Object} options The options data.
      */
     set_globals(options) {
+        // Set ambient light
         if (options.ambient != null) {
             const ambient = options.ambient;
             const ambientColor = new THREE.Color(ambient.r, ambient.g, ambient.b);
@@ -88,7 +85,8 @@ class MyContents  {
             this.app.scene.add(light);
             console.log("Ambient Light: " + ambient.r + " " + ambient.g + " " + ambient.b);
         }
-      
+        
+        // Set background color
         if (options.background != null) {
            const background = options.background;
            const backgroundColor = new THREE.Color(background.r,background.g,background.b)
@@ -110,6 +108,7 @@ class MyContents  {
             let map = null;
 
             if (textureInfo.isVideo) {
+                // Create a video element
                 let video = document.createElement('video');
                 video.id = 'video';
                 video.playsinline = true;
@@ -124,11 +123,13 @@ class MyContents  {
                 video.style.position = "absolute"
                 video.style.top="0"
 
-                document.body.appendChild(video); //adiciona video ao html
+                document.body.appendChild(video); // add video to html
                 console.log("doc body: ", document.body);
 
                 const newTexture = new THREE.VideoTexture(video);
                 console.log("newTexture: ", newTexture);
+
+                this.videos.push(video);
 
                 return newTexture;
 
@@ -136,10 +137,12 @@ class MyContents  {
                 map = new THREE.TextureLoader().load(textureInfo.filepath);
             }
 
-            if(!textureInfo.mipmaps){
+            // Build mipmaps for the texture
+            if(textureInfo.mipmaps){
                 this.buildMipmap(textureInfo, map);
             }
 
+            // Configure texture wrapping
             map.wrapS = map.wrapT = THREE.RepeatWrapping;
             map.repeat.set(length_s, length_t);
             
@@ -167,7 +170,6 @@ class MyContents  {
                 const context = canvas.getContext('2d');
                 context.scale(1, 1);
 
-                
                 const img = mipmapTex.image;
                 console.log("IMG: ", img.width, mipmap);
                 canvas.width = img.width;
@@ -255,7 +257,7 @@ class MyContents  {
     set_cameras(cameras,id) {
         this.app.cameras = [] // reset cameras
 
-        //load all cameras 
+        // load all cameras 
         for (let camera_idx in cameras) {
             console.log("camera ativa: " + camera_idx);
             const camera = cameras[camera_idx]
@@ -267,12 +269,12 @@ class MyContents  {
             let camera_obj;
             if (camera.type === "perspective") {
                 const angle = camera.angle;
+
                 // Create a new PerspectiveCamera
                 camera_obj = new THREE.PerspectiveCamera(angle,aspect,near,far);
+                camera_obj.name = camera.id;
                 camera_obj.position.set(location[0],location[1],location[2]);
-                //console.log("camera_obj: ", camera.location)
                 camera_obj.lookAt(new THREE.Vector3(target[0],target[1],target[2]));
-                //console.log("camera_obj: ", camera_obj.position['x']);
                 this.app.cameras[camera_idx] = camera_obj;
                 //console.log("perspective values : " + angle + " " + aspect + " " + near + " " + far+ " "+ target + " " + location + " "+  camera_obj.position['x'] + " " + camera_obj.position['y'] + " " + camera_obj.position['z']);
             } else if (camera.type === "orthogonal") {
@@ -280,8 +282,10 @@ class MyContents  {
                 const right = camera.right;
                 const bottom = camera.bottom;
                 const top = camera.top;
+
                 // Create a new OrthographicCamera
                 camera_obj = new THREE.OrthographicCamera( left, right, top, bottom, near, far);
+                camera_obj.name = camera.id;
                 camera_obj.position.set(location[0],location[1],location[2]);
                 camera_obj.lookAt(new THREE.Vector3(target[0],target[1],target[2]));
                 //console.log("orthogonal values : " + left + " " + right + " " + top + " " + bottom + " " + near + " " + far);
@@ -311,7 +315,7 @@ class MyContents  {
         console.log("node: ", nodeRef)    
         let group = new THREE.Group();
         
-        //apply group transformations
+        // apply group transformations
         let transformations = node['transformations'];
 
         this.set_transformations(group, transformations)
@@ -335,7 +339,8 @@ class MyContents  {
             }
             else if(child.type === "primitive"){
                 // Add primitive child to the group
-                const newPrimitive = this.set_primitive(child, this.materials[group.materialIds[0]]);
+                let material = this.materials[group.materialIds[0]];
+                const newPrimitive = this.set_primitive(child, material,material.map);
                 if (newPrimitive)
                     group.add(newPrimitive)
                 else
@@ -449,6 +454,8 @@ class MyContents  {
      * @param {Object} transformations - The transformation data, including translation, rotation, and scale information.
     */
     set_transformations(group, transformations) {
+
+        // Apply transformations to the group
         for(const transformation in transformations){
             console.log("transformation: ", transformations[transformation]);
             if(transformations[transformation].type === "T" ){
@@ -456,12 +463,14 @@ class MyContents  {
                 group.translateX(x);
                 group.translateY(y);
                 group.translateZ(z);
-            }else if(transformations[transformation].type === "R"){
+            }
+            else if(transformations[transformation].type === "R"){
                 const [x, y, z] = transformations[transformation].rotation;
-                group.rotateX(x * Math.PI / 180);
-                group.rotateY(y * Math.PI / 180);
-                group.rotateZ(z * Math.PI / 180);
-            }else if(transformations[transformation].type === "S"){
+                group.rotateX(x);
+                group.rotateY(y);
+                group.rotateZ(z);
+            }
+            else if(transformations[transformation].type === "S"){
                 const [x, y, z] = transformations[transformation].scale;
                 group.scale.set(x, y, z);
 
@@ -481,16 +490,18 @@ class MyContents  {
 
         let geometry = null
         switch(primitive.subtype){
-            
 
             case "rectangle":
+                if (texture != null) {
+                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                    texture.repeat.set((primitive.representations[0].xy2[0] - primitive.representations[0].xy1[0]) / material.map.repeat.x, (primitive.representations[0].xy2[1] - primitive.representations[0].xy1[1]) / material.map.repeat.y);
+                    material.map = texture;
+                }
+
                 // Create a plane geometry for a rectangle primitive
                 const { xy1, xy2, parts_x, parts_y } = primitive.representations[0];
                 geometry = new THREE.PlaneGeometry(xy2[0] - xy1[0], xy2[1] - xy1[1], parts_x, parts_y);
 
-                geometry.translate(
-                    (xy2[0] + xy1[0]) / 2, (xy2[1] + xy1[1]) / 2, 0
-                )
                 break
             
             case "triangle":
@@ -533,23 +544,29 @@ class MyContents  {
                 break
 
             case "nurbs":
-                // Create a NURBS geometry for a NURBS primitive
-                let nurb = new MyNurbsBuilder(this.app);
-                let controlPoints = []
-                for (let i = 0; i < primitive.representations[0].controlpoints.length; i++) {
-                    let points = [primitive.representations[0].controlpoints[i].xx,
-                    primitive.representations[0].controlpoints[i].yy,
-                    primitive.representations[0].controlpoints[i].zz, 1]
-                    controlPoints.push(points)
+                // Create a nurbs geometry for a nurbs primitive
+                let points = []
+                let count_v = 0
+                let count_u = 0
+                let temp = []
+                let representations = primitive.representations[0]
+                for (const controlpoint of representations.controlpoints) {
+                    temp.push(Object.values(controlpoint).slice(0, -1))
+                    count_v++
+                    if (count_v == representations.degree_v + 1) {
+                        points.push(temp)
+                        temp = []
+                        count_v = 0
+                        count_u++
+                    }
+                    if (count_u == representations.degree_u + 1) {
+                        break
+                    }
                 }
 
-                nurb = nurb.build(controlPoints,
-                primitive.representations[0].degree_u, primitive.representations[0].degree_v,
-                primitive.representations[0].parts_u, primitive.representations[0].parts_v)
-
-                geometry = nurb;
-                break
-
+                const builder = new MyNurbsBuilder(this.app)
+                geometry = builder.build(points, representations.degree_u, representations.degree_v, representations.parts_u, representations.parts_v)
+                break;
             case "polygon":
                 // Create a polygon geometry for a polygon primitive
                 //console.log("primitive.representations: ", primitive.representations);
@@ -560,15 +577,10 @@ class MyContents  {
                 break;
         }
 
-        if (geometry) {
-            let mesh = new THREE.Mesh(geometry, material);
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-            return mesh;
-        }
-        else {
-            return undefined; // primitive not created
-        }
+        if (geometry)
+            return new THREE.Mesh(geometry, material);
+        else
+            return undefined // primitive not created
 
     }
     
@@ -629,71 +641,16 @@ class MyContents  {
     }
 
     onAfterSceneLoadedAndBeforeRender(data) {
+        // called after the scene is loaded and before the first render
         this.data = data;
+
         this.buildSkyboxs();
-        // refer to descriptors in class MySceneData.js
-        // to see the data structure for each item
 
-        /*
-        this.output(data.options)
-        console.log("textures:")
-        for (var key in data.textures) {
-            let texture = data.textures[key]
-            this.output(texture, 1)
-        }
+        this.set_materials(data.materials);
+        this.set_cameras(data.cameras,data.activeCameraId);
 
-        console.log("materials:")
-        for (var key in data.materials) {
-            let material = data.materials[key]
-            this.output(material, 1)
-        }
-
-        console.log("cameras:")
-        for (var key in data.cameras) {
-            let camera = data.cameras[key]
-            this.output(camera, 1)
-        }
-
-        console.log("nodes:")
-        for (var key in data.nodes) {
-            console.log(data.getNode(key))
-            
-            let node = data.nodes[key]
-            this.output(node, 1)
-            if (node.loaded === false) {
-                console.error("" + new Array(2 * 4).join(' ') + " not loaded. Possibly refered as a node child but not defined in scene.")
-            }
-            for (let i=0; i< node.children.length; i++) {
-                let child = node.children[i]
-                if (child.type === "primitive") {
-                    console.log("" + new Array(2 * 4).join(' ') + " - " + child.type + " with "  + child.representations.length + " " + child.subtype + " representation(s)")
-                    if (child.subtype === "nurbs") {
-                        console.log("" + new Array(3 * 4).join(' ') + " - " + child.representations[0].controlpoints.length + " control points")
-                    }
-                }
-                else
-                if (child.type === "lodref") {
-                    console.log("" + new Array(2 * 4).join(' ') + " - " + child.type + ", id "  + child.id)                    
-                }
-                else {
-                    this.output(child, 2)
-                }
-            }
-            
-        }
-
-        console.log("lods:")
-        for (var key in data.lods) {
-            let lod = data.lods[key]
-            this.output(lod, 1)
-            if (lod.loaded === false) {
-                console.error("" + new Array(2 * 4).join(' ') + " not loaded. Possibly refered as a node child but not defined in scene.")
-            }
-            for (let i=0; i< lod.children.length; i++) {
-                let child = lod.children[i]
-                console.log("" + new Array(2 * 4).join(' ') + " - " + child.type + " "  + child.node.id + ", min distance: " + child.mindist)
-            }
-        }*/
+        this.object = this.set_nodes(data.rootId);
+        this.app.scene.add(this.object);
     }
 
     update() {
