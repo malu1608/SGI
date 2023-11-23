@@ -55,6 +55,7 @@ class MyApp   {
         // Configure renderer size
         this.renderer.setSize( window.innerWidth, window.innerHeight );
 
+        // Shadows
         this.renderer.shadowMap.enabled = true;
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 
