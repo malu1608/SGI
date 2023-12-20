@@ -67,9 +67,6 @@ class MyContents  {
             const far = fog.far;
 
             this.app.scene.fog = new THREE.Fog(new THREE.Color(color.r,color.g,color.b),near,far)
-            // console.log("a cor é "+ color.r + " " + color.g + " " + color.b)
-            // console.log("near: " + near )
-            // console.log("near: " + far)
         }
     }
 
@@ -125,11 +122,8 @@ class MyContents  {
                 video.style.top="0"
 
                 document.body.appendChild(video); // add video to html
-                // console.log("doc body: ", document.body);
 
                 const newTexture = new THREE.VideoTexture(video);
-                // console.log("newTexture: ", newTexture);
-
                 this.videos.push(video);
 
                 return newTexture;
@@ -172,15 +166,12 @@ class MyContents  {
                 context.scale(1, 1);
 
                 const img = mipmapTex.image;
-                // console.log("IMG: ", img.width, mipmap);
                 canvas.width = img.width;
                 canvas.height = img.height;
 
                 context.drawImage(img, 0, 0);
                 
-                // console.log("mipmap: ", texture.mipmaps);
                 texture.mipmaps[level] = canvas;
-                //texture.needsUpdate = true;
             },
             undefined,
             /**
@@ -214,7 +205,6 @@ class MyContents  {
                 }
             }
             texture.needsUpdate = true;
-            // console.log("mipmaps: ", mipmaps);
         }
     }  
 
@@ -225,9 +215,7 @@ class MyContents  {
     set_materials(materials){ 
         for(let materials_idx in materials){
             
-            const material = materials[materials_idx]
-            
-            // console.log("material: ", material);
+            const material = materials[materials_idx];
 
             // Create a new MeshPhongMaterial using the provided material data
             const materialObj = new THREE.MeshPhongMaterial({
@@ -243,7 +231,6 @@ class MyContents  {
                 "bumpMap": (material.bumpref) ? new THREE.TextureLoader().load(this.data.textures[material.bumpref].filepath) : null,
             })
             
-            // console.log("materialObj: ", materialObj);
             // Store the created material object in the application's materials array
             this.materials[materials_idx] = materialObj;
         }
@@ -260,7 +247,6 @@ class MyContents  {
 
         // load all cameras 
         for (let camera_idx in cameras) {
-            // console.log("camera ativa: " + camera_idx);
             const camera = cameras[camera_idx]
             const near = camera.near;
             const far = camera.far;
@@ -276,9 +262,9 @@ class MyContents  {
                 camera_obj.name = camera.id;
                 camera_obj.position.set(location[0],location[1],location[2]);
                 camera_obj.lookAt(new THREE.Vector3(target[0],target[1],target[2]));
-                this.app.cameras[camera_idx] = camera_obj;
-                //console.log("perspective values : " + angle + " " + aspect + " " + near + " " + far+ " "+ target + " " + location + " "+  camera_obj.position['x'] + " " + camera_obj.position['y'] + " " + camera_obj.position['z']);
-            } else if (camera.type === "orthogonal") {
+                this.app.cameras[camera_idx] = camera_obj;  
+            } 
+            else if (camera.type === "orthogonal") {
                 const left = camera.left;
                 const right = camera.right;
                 const bottom = camera.bottom;
@@ -289,9 +275,9 @@ class MyContents  {
                 camera_obj.name = camera.id;
                 camera_obj.position.set(location[0],location[1],location[2]);
                 camera_obj.lookAt(new THREE.Vector3(target[0],target[1],target[2]));
-                //console.log("orthogonal values : " + left + " " + right + " " + top + " " + bottom + " " + near + " " + far);
                 this.app.cameras[camera_idx] = camera_obj;
-            }else{
+            }
+            else{
                 console.log("camera type not recognized");
             }
 
@@ -335,10 +321,6 @@ class MyContents  {
         } else {
             group.materialIds = [];
         }
-        // console.log("parent:")
-        // console.log(parent)
-
-        
 
         let parentCastShadow
         let parentReceiveShadow
@@ -366,8 +348,6 @@ class MyContents  {
         
         // Process children of the node
         node.children.forEach(child =>{
-            //console.log("childAAA: ", child);
-
             if(child.type === "node"){
                 // Recursively add child node to the group
                 group.add(this.set_nodes(child.id, group));
@@ -394,7 +374,6 @@ class MyContents  {
                     let grandChild = child.children[i];
                     if (grandChild.type === "lodnoderef") {
                         let grandChildMaterial = grandChild.materialIds;
-                        // console.log("grandChild.node: ", grandChild.node);
                         let grandChildMesh = this.set_nodes(grandChild.node.id, grandChildMaterial);
 
                         lod.addLevel(grandChildMesh, grandChild.mindist);
@@ -410,15 +389,14 @@ class MyContents  {
                 const spotlight = new THREE.SpotLight(
                     new THREE.Color(color.x, color.y, color.z),
                     intensity, distance, angle, penumbra, decay);
-                //console.log("spotlight: ", spotlight);
+
                 spotlight.position.set(position[0], position[1], position[2]);
-
                 spotlight.target.position.set(target[0], target[1], target[2]);
-
                 spotlight.castShadow = castshadow;
                 spotlight.shadow.mapSize.width = shadowmapsize;
                 spotlight.shadow.mapSize.height = shadowmapsize;
                 spotlight.shadow.camera.far = shadowfar;
+
                 if (enabled) {
                     spotlight.visible = true;
                 } else {
@@ -492,7 +470,6 @@ class MyContents  {
 
         // Apply transformations to the group
         for(const transformation in transformations){
-            // console.log("transformation: ", transformations[transformation]);
             if(transformations[transformation].type === "T" ){
                 const [x, y, z] = transformations[transformation].translate;
                 group.translateX(x);
@@ -523,10 +500,7 @@ class MyContents  {
      * @returns {THREE.Mesh|undefined} The created Three.js Mesh or undefined if the primitive type is not supported.
     */
     set_primitive(primitive, material,castShadow,receiveShadow){
-        // console.log("primitive: ", primitive);
-
         let geometry = null
-
         let texture = material.map;
 
         switch(primitive.subtype){
@@ -557,7 +531,6 @@ class MyContents  {
             case "cylinder":
                 // Create a sphere geometry for a cylinder primitive
                 const { top, base, height, slices, stacks, capsclose, thetastart, thetalength, distance } = primitive.representations[0];
-                // console.log("cylinder rep: ", primitive.representations[0]);
                 geometry = new THREE.CylinderGeometry(top, base, height, slices, stacks, capsclose, thetastart, thetalength,distance);
                 break;
 
@@ -609,7 +582,6 @@ class MyContents  {
             case "track":
                 // Create a track geometry for a track primitive
                 let trackRepresentations = primitive.representations[0];
-                console.log("trackRepresentations: ", trackRepresentations)
                 const trackBuilder = new MyTrackBuilder(trackRepresentations.controlpoints, trackRepresentations.segments);
                 geometry = trackBuilder.build();
                 break;
@@ -650,7 +622,6 @@ class MyContents  {
                 const skyboxGeometry = new THREE.BoxGeometry(skyboxInfo['size'][0], skyboxInfo['size'][1], skyboxInfo['size'][2]);
                 
                 // Define textures for each face of the skybox
-                //console.log("skyboxInfo: ", skyboxInfo);
                 let textures = [
                     this.data.textures[skyboxInfo['up']],
                     this.data.textures[skyboxInfo['down']],                    

@@ -2,13 +2,14 @@ import * as THREE from 'three';
 
 class MyTrackBuilder {
     constructor(controlPoints, numSegments) {
+        // Convert the control points to Vector3
         this.controlPoints = controlPoints.map(point => new THREE.Vector3(point.xx, point.yy, point.zz));
         this.numSegments = numSegments;
         this.path = this.createPath();
     }
 
     createPath() {
-        return new THREE.CatmullRomCurve3(this.controlPoints, true);
+        return new THREE.CatmullRomCurve3(this.controlPoints, true); // true => closed curve
     }
 
     build() {
