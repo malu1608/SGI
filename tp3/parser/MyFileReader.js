@@ -1,26 +1,5 @@
 import * as THREE from 'three';
 import { MySceneData } from './MySceneData.js';
-/**
- *  This class contains the XML parser
- *  Credits: Alexandre Valle (alexandre.valle@fe.up.pt)
- *  Version: 2023-10-13
- * 
- *  DO NOT CHANGE THIS FILE. IT WILL BE MODIFIED OR REPLACED DURING EVALUATION
- * 
- *  1. in a given class file MyWhateverNameClass.js in the constructor call:
- * 
- *  this.reader = new MyFileReader(app, this, this.onSceneLoaded);
- *  this.reader.open("scenes/<path to xml file>.xml");	
- * 
- *  The last argumet in the constructor is a method that is called when the xml file is loaded and parsed (see step 2).
- * 
- *  2. in the MyWhateverNameClass.js class, add a method with signature: 
- *     onSceneLoaded(data) {
- *     }
- * 
- *  This method is called once the xml file is loaded and parsed successfully. The data argument is the entire scene data object. 
- * 
- */
 
 class MyFileReader  {
 

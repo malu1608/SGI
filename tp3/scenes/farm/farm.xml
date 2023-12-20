@@ -81,6 +81,8 @@
         <texture id="woodTex" filepath="scenes/farm/textures/wood.png" />      
         <texture id="nenufarTex" filepath="scenes/farm/textures/nenufar.png" />
 
+        <texture id="trackTex" filepath="scenes/farm/textures/track.png" />
+
         <texture id="skyboxTex" filepath="scenes/farm/videos/video.mp4" isVideo="true" />
         <texture id="skyTex" filepath="scenes/farm/textures/sky.png" />
     </textures> 
@@ -258,12 +260,20 @@
             texlength_s="1" 
             texlength_t="1" />
         
+        <material id="trackApp"
+            color="0.5 0.5 0.5 1.0"
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0"
+            shininess="0"
+            textureref="trackTex"
+            texlength_s="50"
+            texlength_t="5" />
+        
         <material id="default"
             color="0.5 0.5 0.5 1.0"
             emissive="0.0 0.0 0.0 0.0"
             specular="0.2 0.2 0.2 1.0"
-            shininess="30"
-        />
+            shininess="30" />
 			
     </materials> 
 
@@ -298,17 +308,19 @@
         <!-- TRACK -->
         <node id="track">
             <transforms>
-                <translate value3="0 0.1 0" />
-                <scale value3="1 0.1 1" />
+                <translate value3="-145 0.1 -150" />
+                <scale value3="0.5 0.05 0.5" />
             </transforms>
-            <materialref id="default" />
+            <materialref id="trackApp" />
             <children>
                 <primitive>
-                    <track segments="32">
-                        <controlpoint xx="20" yy="0" zz="20" />
-                        <controlpoint xx="20" yy="0" zz="-20" />
-                        <controlpoint xx="-20" yy="0" zz="-20" />
-                        <controlpoint xx="-20" yy="0" zz="20" />
+                    <track segments="300">
+                        <controlpoint xx="467" yy="0" zz="539" />
+                        <controlpoint xx="333" yy="0" zz="468" />
+                        <controlpoint xx="232" yy="0" zz="467" />
+                        <controlpoint xx="89" yy="0" zz="544" />
+                        <controlpoint xx="112" yy="0" zz="118" />
+                        <controlpoint xx="497" yy="0" zz="132" />
                     </track>
                 </primitive>
             </children>
@@ -525,7 +537,7 @@
 
         <node id="drinking">
             <transforms>
-                <translate value3="-15 0 40" />
+                <translate value3="-15 0 30" />
             </transforms>
             <materialref id="woodApp" />
             <children>
@@ -636,7 +648,7 @@
         <!-- LAKE -->
         <node id="waterLake">
             <transforms>
-                <translate value3="-20 0.4 15" />
+                <translate value3="-30 0.4 5" />
             </transforms>
             <materialref id="waterApp" />
             <children>
@@ -740,7 +752,7 @@
 
         <node id="fence1">
             <transforms>
-                <translate value3="75 0 -10" />
+                <translate value3="75 0 -40" />
             </transforms>
             <children>
                 <noderef id="fence" />
@@ -749,7 +761,7 @@
 
         <node id="fence2">
             <transforms>
-                <translate value3="75 0 0" />
+                <translate value3="75 0 -30" />
             </transforms>
             <children>
                 <noderef id="fence" />
@@ -758,7 +770,7 @@
 
         <node id="fence3">
             <transforms>
-                <translate value3="75 0 10" />
+                <translate value3="75 0 -20" />
             </transforms>
             <children>
                 <noderef id="fence" />
@@ -767,7 +779,7 @@
 
         <node id="fence4">
             <transforms>
-                <translate value3="75 0 20" />
+                <translate value3="75 0 -10" />
             </transforms>
             <children>
                 <noderef id="fence" />
@@ -776,7 +788,7 @@
 
         <node id="fence5">
             <transforms>
-                <translate value3="75 0 30" />
+                <translate value3="75 0 0" />
             </transforms>
             <children>
                 <noderef id="fence" />
@@ -785,7 +797,7 @@
 
         <node id="fence6">
             <transforms>
-                <translate value3="75 0 40" />
+                <translate value3="75 0 10" />
             </transforms>
             <children>
                 <noderef id="fence" />
@@ -794,7 +806,7 @@
 
         <node id="fence7">
             <transforms>
-                <translate value3="75 0 50" />
+                <translate value3="75 0 20" />
             </transforms>
             <children>
                 <noderef id="fence" />
@@ -803,7 +815,7 @@
 
         <node id="fence8">
             <transforms>
-                <translate value3="75 0 60" />
+                <translate value3="75 0 30" />
             </transforms>
             <children>
                 <noderef id="fence" />
@@ -812,7 +824,7 @@
 
         <node id="fence9">
             <transforms>
-                <translate value3="75 0 70" />
+                <translate value3="75 0 40" />
             </transforms>
             <children>
                 <noderef id="fence" />
@@ -821,7 +833,7 @@
 
         <node id="fence10">
             <transforms>
-                <translate value3="62 0 82" />
+                <translate value3="62 0 52" />
                 <rotate value3="0 1.57 0" />
             </transforms>
             <children>
@@ -831,7 +843,7 @@
 
         <node id="fence11">
             <transforms>
-                <translate value3="52 0 82" />
+                <translate value3="52 0 52" />
                 <rotate value3="0 1.57 0" />
             </transforms>
             <children>
@@ -841,7 +853,7 @@
 
         <node id="fence12">
             <transforms>
-                <translate value3="42 0 82" />
+                <translate value3="42 0 52" />
                 <rotate value3="0 1.57 0" />
             </transforms>
             <children>
@@ -851,7 +863,7 @@
 
         <node id="fence13">
             <transforms>
-                <translate value3="32 0 82" />
+                <translate value3="32 0 52" />
                 <rotate value3="0 1.57 0" />
             </transforms>
             <children>
@@ -861,7 +873,7 @@
 
         <node id="fence14">
             <transforms>
-                <translate value3="22 0 82" />
+                <translate value3="22 0 52" />
                 <rotate value3="0 1.57 0" />
             </transforms>
             <children>
@@ -871,7 +883,7 @@
 
         <node id="fence15">
             <transforms>
-                <translate value3="-10 0 82" />
+                <translate value3="-10 0 52" />
                 <rotate value3="0 1.57 0" />
             </transforms>
             <children>
@@ -881,7 +893,7 @@
 
         <node id="fence16">
             <transforms>
-                <translate value3="-20 0 82" />
+                <translate value3="-20 0 52" />
                 <rotate value3="0 1.57 0" />
             </transforms>
             <children>
@@ -891,7 +903,7 @@
 
         <node id="fence17">
             <transforms>
-                <translate value3="-30 0 82" />
+                <translate value3="-30 0 52" />
                 <rotate value3="0 1.57 0" />
             </transforms>
             <children>
@@ -901,7 +913,7 @@
 
         <node id="fence18">
             <transforms>
-                <translate value3="-40 0 82" />
+                <translate value3="-40 0 52" />
                 <rotate value3="0 1.57 0" />
             </transforms>
             <children>
@@ -911,7 +923,7 @@
 
         <node id="fence19">
             <transforms>
-                <translate value3="-50 0 82" />
+                <translate value3="-50 0 52" />
                 <rotate value3="0 1.57 0" />
             </transforms>
             <children>
@@ -921,7 +933,7 @@
 
         <node id="fence20">
             <transforms>
-                <translate value3="-60 0 82" />
+                <translate value3="-60 0 52" />
                 <rotate value3="0 1.57 0" />
             </transforms>
             <children>
@@ -931,7 +943,7 @@
 
         <node id="fence21">
             <transforms>
-                <translate value3="-70 0 82" />
+                <translate value3="-70 0 52" />
                 <rotate value3="0 1.57 0" />
             </transforms>
             <children>
@@ -941,7 +953,7 @@
 
         <node id="fence22">
             <transforms>
-                <translate value3="-70 0 70" />
+                <translate value3="-70 0 40" />
             </transforms>
             <children>
                 <noderef id="fence"/>
@@ -950,7 +962,7 @@
 
         <node id="fence23">
             <transforms>
-                <translate value3="-70 0 60" />
+                <translate value3="-70 0 30" />
             </transforms>
             <children>
                 <noderef id="fence"/>
@@ -959,7 +971,7 @@
 
         <node id="fence24">
             <transforms>
-                <translate value3="-70 0 50" />
+                <translate value3="-70 0 20" />
             </transforms>
             <children>
                 <noderef id="fence"/>
@@ -968,7 +980,7 @@
 
         <node id="fence25">
             <transforms>
-                <translate value3="-70 0 40" />
+                <translate value3="-70 0 10" />
             </transforms>
             <children>
                 <noderef id="fence"/>
@@ -1062,7 +1074,7 @@
 
         <node id="polygon">
             <transforms>
-                <translate value3="-20 0.9 15" />
+                <translate value3="-25 0.9 15" />
                 <rotate value3="-1.57 0 0" />
             </transforms>
             <children>
@@ -1097,7 +1109,7 @@
 
         <node id="pig1">
             <transforms>
-                <translate value3="-7.6 0 43" />
+                <translate value3="-7.6 0 33" />
                 <rotate value3="0 4.71 0" />
             </transforms>
             <children>
@@ -1324,7 +1336,7 @@
 
         <node id="goat1">
             <transforms>
-                <translate value3="-18 0 35" />
+                <translate value3="-18 0 25" />
                 <rotate value3="0 1.57 0" />
             </transforms>
             <children>
@@ -1594,17 +1606,15 @@
             </transforms>
             <children>
                 <noderef id="tree1" />
-                <noderef id="tree2" />
+                <noderef id="tree2" /> 
                 <noderef id="tree3" />
                 <noderef id="tree4" />
                 <noderef id="tree5" />
                 <noderef id="tree6" />
-                <noderef id="tree7" />
                 <noderef id="tree8" />
                 <noderef id="tree9" />
-                <noderef id="tree10" />
-                <noderef id="tree11" />
-                <noderef id="tree12" />
+                <noderef id="tree10" /> 
+                <noderef id="tree11" /> 
             </children>
         </node>
 
@@ -1628,7 +1638,7 @@
 
         <node id="tree3">
             <transforms>
-                <translate value3="-90 0 -70" />
+                <translate value3="-50 0 -60" />
             </transforms>
             <children>
                 <noderef id="tree" />
@@ -1637,7 +1647,7 @@
 
         <node id="tree4">
             <transforms>
-                <translate value3="-85 0 -90" />
+                <translate value3="-85 0 -70" />
             </transforms>
             <children>
                 <noderef id="tree" />
@@ -1646,7 +1656,7 @@
 
         <node id="tree5">
             <transforms>
-                <translate value3="-60 0 -90" />
+                <translate value3="-65 0 -80" />
             </transforms>
             <children>
                 <noderef id="tree" />
@@ -1655,16 +1665,7 @@
 
         <node id="tree6">
             <transforms>
-                <translate value3="-40 0 -90" />
-            </transforms>
-            <children>
-                <noderef id="tree" />
-            </children>
-        </node>
-
-        <node id="tree7">
-            <transforms>
-                <translate value3="-95 0 -30" />
+                <translate value3="-40 0 -80" />
             </transforms>
             <children>
                 <noderef id="tree" />
@@ -1673,7 +1674,7 @@
 
         <node id="tree8">
             <transforms>
-                <translate value3="-90 0 -10" />
+                <translate value3="-90 0 -25" />
             </transforms>
             <children>
                 <noderef id="tree" />
@@ -1691,7 +1692,7 @@
 
         <node id="tree10">
             <transforms>
-                <translate value3="20 0 -100" />
+                <translate value3="15 0 -85" />
             </transforms>
             <children>
                 <noderef id="tree" />
@@ -1700,22 +1701,12 @@
 
         <node id="tree11">
             <transforms>
-                <translate value3="40 0 -90" />
+                <translate value3="30 0 -70" />
             </transforms>
             <children>
                 <noderef id="tree" />
             </children>
         </node>
-
-        <node id="tree12">
-            <transforms>
-                <translate value3="60 0 -80" />
-            </transforms>
-            <children>
-                <noderef id="tree" />
-            </children>
-        </node>
-
 
         <node id="tree">
             <transforms>

@@ -16,8 +16,8 @@ class MyTrackBuilder {
         const tubeGeometry = new THREE.TubeGeometry(
         this.path,
         this.numSegments,
-        8, // Width of the tube
-        3, // Radius segments
+        22, // Width of the tube
+        20, // Radius segments
         false // Closed tube (true) or not (false)
         );
 
