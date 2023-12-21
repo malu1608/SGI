@@ -4,6 +4,9 @@ import { MyFileReader } from './parser/MyFileReader.js';
 import { MyNurbsBuilder } from './MyNurbsBuilder.js';
 import { PolygonBuilder } from './PolygonBuilder.js';
 import { MyTrackBuilder } from './MyTrackBuilder.js';
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
+
 /**
  *  This class contains the contents of out application
  */
@@ -308,10 +311,8 @@ class MyContents  {
         
         // apply group transformations
         let transformations = node['transformations'];
-
         this.set_transformations(group, transformations)
 
-        
 
         // Set material IDs for the group
         if (node.materialIds.length != 0) {
@@ -347,21 +348,59 @@ class MyContents  {
         }
         
         // Process children of the node
-        node.children.forEach(child =>{
+        node.children.forEach(async child =>{
             if(child.type === "node"){
                 // Recursively add child node to the group
                 group.add(this.set_nodes(child.id, group));
             }
-            else if(child.type === "primitive"){
+            else if (child.type === "primitive") {
                 // Add primitive child to the group
                 let material = this.materials[group.materialIds[0]];
-                const newPrimitive = this.set_primitive(child, material,group.castShadow,group.receiveShadow);
-                if (newPrimitive)
-                    group.add(newPrimitive)
-                else
-                    console.warn("primitive not created. Check if the subtype", child.subtype, "is supported by the application.")
-            }
+                let newPrimitive = null;
+            
+                if (child.subtype === "model3d") {
+                    // Use OBJLoader asynchronously
+                    const objLoader = new OBJLoader();
+                    const modelPath = child.representations[0].filepath;
 
+                    // Load the material in jpg format, load the texture separately
+                    const textureLoader = new THREE.TextureLoader();
+                    const texturePath = child.representations[0].texture;
+                    const texture = textureLoader.load(texturePath);
+            
+                    // Load the model
+                    objLoader.load(modelPath, function (obj) {
+                        obj.traverse(function (child) {
+                            if (child instanceof THREE.Mesh) {
+                                // Apply the texture to the material
+                                const newMaterial = new THREE.MeshPhongMaterial({ map: texture });
+                                child.material = newMaterial;
+                                child.castShadow = group.castShadow;
+                                child.receiveShadow = group.receiveShadow;
+                            }
+                        });
+            
+                        newPrimitive = obj;
+            
+                        // Add the loaded mesh to the group
+                        if (newPrimitive) {
+                            group.add(newPrimitive);
+                        // Continue with the next steps or callback
+                        } else {
+                            console.warn("Primitive not created. Check if the subtype", child.subtype, "is supported by the application.");
+                        }
+                    });
+                } else {
+                    newPrimitive = this.set_primitive(child, material, group.castShadow, group.receiveShadow);
+            
+                    if (newPrimitive) {
+                        group.add(newPrimitive);
+                    } else {
+                        console.warn("Primitive not created. Check if the subtype", child.subtype, "is supported by the application.");
+                    }
+                }
+            }
+            
             else if(child.type === 'lod') {
                 // Add LOD (Level of Detail) child to the group
                 let lod = new THREE.LOD();
@@ -382,6 +421,7 @@ class MyContents  {
 
                 group.add(lod);
             }
+
             else if(child.type === "spotlight"){
                 // Add spotlight child to the group
                 const { id, color, position, target, angle, enabled, intensity, distance, decay, penumbra, castshadow, shadowfar, shadowmapsize } = child;
@@ -432,8 +472,8 @@ class MyContents  {
 
                 this.lights[id] = directionallight;
                 group.add(directionallight);
-
-            }else if(child.type === "pointlight"){
+            }
+            else if(child.type === "pointlight"){
                 // Add point light child to the group
                 const { id, color, position, enabled, intensity, distance, decay, castshadow, shadowfar, shadowmapsize } = child;
 
@@ -585,7 +625,7 @@ class MyContents  {
                 const trackBuilder = new MyTrackBuilder(trackRepresentations.controlpoints, trackRepresentations.segments);
                 geometry = trackBuilder.build();
                 break;
-            
+
             case "polygon":
                 // Create a polygon geometry for a polygon primitive
                 geometry = new PolygonBuilder(primitive.representations[0].radius, primitive.representations[0].color_c, primitive.representations[0].color_p, primitive.representations[0].stacks, primitive.representations[0].slices, material);

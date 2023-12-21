@@ -292,6 +292,7 @@
                 <noderef id="goats" />
                 <noderef id="fences" />
                 <noderef id="track" />
+                <noderef id="tractors" />
 
                 <pointlight id="light1" enabled="true" 
                     color="1 1 1 1" 
@@ -302,6 +303,82 @@
                     position="100 60 100" 
                 /> 
                    
+            </children>
+        </node>
+
+        <!-- TRACTORS -->
+        <node id="tractors">
+            <children>
+                <noderef id="tractor1" />
+                <noderef id="tractor2" />
+                <noderef id="tractor3" />
+                <noderef id="tractor4" />
+                <noderef id="tractor5" />
+            </children>
+        </node>
+
+        <node id="tractor1">
+            <transforms>
+                <translate value3="-40 5.7 78" />
+                <scale value3="0.1 0.12 0.1" />
+                <rotate value3="0 -1.57 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor1.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="tractor2">
+            <transforms>
+                <translate value3="-20 5.7 78" />
+                <scale value3="0.1 0.12 0.1" />
+                <rotate value3="0 -1.57 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor2.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="tractor3">
+            <transforms>
+                <translate value3="0 5.7 78" />
+                <scale value3="0.1 0.12 0.1" />
+                <rotate value3="0 -1.57 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor3.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="tractor4">
+            <transforms>
+                <translate value3="20 5.7 78" />
+                <scale value3="0.1 0.12 0.1" />
+                <rotate value3="0 -1.57 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor4.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="tractor5">
+            <transforms>
+                <translate value3="40 5.7 78" />
+                <scale value3="0.1 0.12 0.1" />
+                <rotate value3="0 -1.57 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor5.png"/>
+                </primitive>
             </children>
         </node>
 
@@ -325,7 +402,6 @@
                 </primitive>
             </children>
         </node>
-
         
         <!-- NENUFARS -->
         <node id="nenufars">
