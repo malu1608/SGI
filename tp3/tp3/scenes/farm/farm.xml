@@ -1,0 +1,1909 @@
+<?xml version="1.0" encoding="UTF-16" standalone="yes"?>
+<yaf> 	
+    <globals background="0 0 0 1" ambient="0.5 0.5 0.5 1" />
+
+    <fog color="1.0 1.0 1.0 1.0" near="1000.0" far="10000.0" />
+
+    <!-- CAMERAS -->
+    <cameras initial="Main" > 
+        <perspective id="Main" 
+            angle="80" 
+            near="0.1" 
+            far="10000" 
+            location="50 30 50" 
+            target="0 0.0 0" /> 
+
+        <perspective id="Lake" 
+            angle="80" 
+            near="0.1" 
+            far="10000" 
+            location="-40 20 30" 
+            target="0 0.0 0" /> 
+
+        <perspective id="Hay" 
+            angle="60" 
+            near="0.1" 
+            far="10000" 
+            location="80 20 -40" 
+            target="0 0.0 0" /> 
+        
+        <orthogonal id="Animals" 
+            near="0.1" 
+            far="1000" 
+            location="-40 20 30" 
+            target="0.0 15 0.0" 
+            left="-5" 
+            right="5" 
+            bottom="-5" 
+            top="5" /> 
+    </cameras> 
+
+    <!-- SKYBOX -->
+   <skybox size="1000 1000 1000" center="0 100 0" emissive="0.5 0.5 0.5 1.0" intensity="0.5" up="skyboxTex" down="skyboxTex" left="skyTex" right="floorTex" front="skyboxTex" back="skyboxTex"/>
+
+    <!-- TEXTURES -->
+    <textures>        
+        <texture id="videoTexture" isVideo="true" filepath="scenes/farm/videos/video.mp4"/>  
+		<texture id="floorTex" filepath="scenes/farm/textures/grass.png"
+            mipmap0="scenes/farm/textures/grass.1024.png"
+            mipmap1="scenes/farm/textures/grass.512.png"
+            mipmap2="scenes/farm/textures/grass.256.png"
+            mipmap3="scenes/farm/textures/grass.128.png"
+        />
+        <texture id="wallTex" filepath="scenes/farm/textures/wall.png" />   
+
+        <texture id="pigHeadTex" filepath="scenes/farm/textures/pigHead.png" />
+        <texture id="pigBodyTex" filepath="scenes/farm/textures/pigBody.png" />
+        <texture id="pigNoseTex" filepath="scenes/farm/textures/pigNose.png" />
+
+        <texture id="goatHeadTex" filepath="scenes/farm/textures/goatHead.png" />
+        <texture id="goatHeadTex2" filepath="scenes/farm/textures/goatHead2.png" />
+        <texture id="goatHeadTex3" filepath="scenes/farm/textures/goatHead3.png" />
+        <texture id="goatBodyTex" filepath="scenes/farm/textures/goatBody.png" />
+        <texture id="goatHornTex" filepath="scenes/farm/textures/goatHorn.png" />   
+
+        <texture id="treeBottomTex" filepath="scenes/farm/textures/treeBottom.png" />   
+        <texture id="treeTopTex" filepath="scenes/farm/textures/treeTop.png" />
+
+        <texture id="barnFrontTex" filepath="scenes/farm/textures/barnFront.png" />
+        <texture id="barnSideTex" filepath="scenes/farm/textures/barnSide.png" />
+
+        <texture id="hayTex" filepath="scenes/farm/textures/hay.jpg" />
+
+        <texture id="waterTex" filepath="scenes/farm/textures/water.png" />
+        <texture id="woodTex" filepath="scenes/farm/textures/wood.png" />      
+        <texture id="nenufarTex" filepath="scenes/farm/textures/nenufar.png" />
+
+        <texture id="trackTex" filepath="scenes/farm/textures/track.png" />
+        <texture id="parkTex" filepath="scenes/farm/textures/park.png" />
+
+        <texture id="skyboxTex" filepath="scenes/farm/videos/video.mp4" isVideo="true" />
+        <texture id="skyTex" filepath="scenes/farm/textures/sky.png" />
+    </textures> 
+    
+    <!-- MATERIALS -->
+    <materials> 
+		<material id="leftWallApp" 
+            emissive="0.0 0.0 0.0 1" 
+			color="0.8 0.8 0.8 1.0" 
+            specular="0 0 0 0" 
+            shininess="0" 
+            textureref="wallTex" 
+            texlength_s="1" 
+            texlength_t="1" />
+		
+		<material id="floorApp" 
+            emissive="0.0 0.0 0.0 1" 
+            color="0.8 0.8 0.8 1.0"
+            specular="0 0 0 0" 
+            shininess="0" 
+            textureref="floorTex" 
+            texlength_s="40" 
+            texlength_t="40" />
+
+        <material id="pigFaceMaterial"
+            color="0.9 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="pigHeadTex"
+            texlength_s="1" 
+            texlength_t="1" />
+
+        <material id="pigNoseMaterial"
+            color="0.9 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="pigNoseTex"
+            texlength_s="1" 
+            texlength_t="1"  />
+
+        <material id="pigMaterial"
+            color="0.9 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="pigBodyTex"
+            texlength_s="1" 
+            texlength_t="1" />
+
+        <material id="goatHeadMaterial"
+            color="0.9 0.89 0.86 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30"
+            texlength_s="1" 
+            texlength_t="1" />
+
+        <material id="goatMaterial"
+            color="0.5 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="goatBodyTex"
+            texlength_s="1" 
+            texlength_t="1"  />
+
+        <material id="goatFaceMaterial"
+            color="0.5 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="goatHeadTex"
+            texlength_s="1" 
+            texlength_t="1" />
+
+        <material id="goatFaceMaterial2"
+            color="0.5 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="goatHeadTex2"
+            texlength_s="1" 
+            texlength_t="1"  />
+
+        <material id="goatFaceMaterial3"
+            color="0.5 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="goatHeadTex3"
+            texlength_s="1" 
+            texlength_t="1" />
+
+        <material id="goatHornMaterial"
+            color="0.5 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="goatHornTex"
+            texlength_s="1" 
+            texlength_t="1" />
+
+        <material id="treeBottomMaterial"
+            color="0.5 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0" 
+            shininess="30" 
+            textureref="treeBottomTex"
+            texlength_s="1" 
+            texlength_t="1" />
+
+        <material id="treeTopMaterial"
+            color="0.5 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0 0 0 1.0" 
+            shininess="30" 
+            textureref="treeTopTex"
+            texlength_s="1" 
+            texlength_t="1" />
+
+        <material id="waterApp"
+            color="0.5 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.0 0.0 0.0 0.0" 
+            shininess="30" 
+            textureref="waterTex"
+            texlength_s="1" 
+            texlength_t="1" />
+
+        <material id="woodApp"
+            color="0.5 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 1.0"
+            specular="0.0 0.0 0.0 0.0" 
+            shininess="30" 
+            textureref="woodTex"
+            texlength_s="1" 
+            texlength_t="1" />
+
+        <material id="hayApp"
+            color="1 1 0 1.0" 
+            emissive="0.0 0.0 0.0 0.2"
+            specular="0.0 0.0 0.0 0.0" 
+            shininess="30" 
+            textureref="hayTex"
+            texlength_s="1" 
+            texlength_t="1"
+            wireframe="true" />
+
+        <material id="barnFrontApp"
+            color="0.5 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 1.0"
+            specular="0.0 0.0 0.0 0.0" 
+            shininess="30" 
+            textureref="barnFrontTex"
+            texlength_s="1" 
+            texlength_t="1" />  
+        
+        <material id="barnSideApp"
+            color="0.5 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 1.0"
+            specular="0.0 0.0 0.0 0.0" 
+            shininess="30" 
+            textureref="barnSideTex"
+            texlength_s="1" 
+            texlength_t="1" />
+
+        <material id="nenufarApp"
+            color="0.5 0.5 0.5 1.0" 
+            emissive="0.0 0.0 0.0 1.0"
+            specular="0.0 0.0 0.0 0.0" 
+            shininess="30" 
+            textureref="nenufarTex"
+            texlength_s="1" 
+            texlength_t="1" />
+        
+        <material id="trackApp"
+            color="0.5 0.5 0.5 1.0"
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0"
+            shininess="0"
+            textureref="trackTex"
+            texlength_s="50"
+            texlength_t="5" />
+        
+        <material id="parkApp"
+            color="0.5 0.5 0.5 1.0"
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0"
+            shininess="0"
+            textureref="parkTex"
+            texlength_s="1"
+            texlength_t="1" />
+        
+        <material id="default"
+            color="0.5 0.5 0.5 1.0"
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0"
+            shininess="30" />
+			
+    </materials> 
+
+    <graph rootid="scene" >
+
+        <node id="scene" castshadows = "true" receiveshadows = "true">
+            <children>
+                <noderef id="floor" />
+                <noderef id="polygon" />
+                <noderef id="trees" />
+                <noderef id="barn" />
+                <noderef id="waterLake" />
+                <noderef id="hayBurdens"/>
+                <noderef id="pigs" />
+                <noderef id="goats" />
+                <noderef id="fences" />
+                <noderef id="track" />
+                <noderef id="tractors" />
+                <noderef id="park" />
+                <noderef id="wood" />
+                <noderef id="wheelbarrow" />
+                <noderef id="horse" />
+                <noderef id="ducks" />
+                <noderef id="woman" />
+
+                <pointlight id="light1" enabled="true" 
+                    color="1 1 1 1" 
+                    intensity="3"
+                    distance="1000"
+                    decay="0.1"
+                    castshadow="true"
+                    position="100 60 100" 
+                /> 
+                   
+            </children>
+        </node>
+
+        <!-- WOMAN -->
+        <node id="woman">
+        <transforms>
+                <translate value3="-80 4.5 60" />
+                <scale value3="0.007 0.007 0.007" />
+                <rotate value3="0 0 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Woman.obj" texture="scenes/farm/textures/woman.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <!-- DUCKS -->
+        <node id="ducks">
+            <children>
+                <noderef id="duck1" />
+                <noderef id="duck2" />
+                <noderef id="duck3" />
+                <noderef id="duck4" />
+            </children>
+        </node>
+
+        <node id="duck1">
+            <transforms>
+                <translate value3="-40 0 20" />
+                <scale value3="0.25 0.25 0.25" />
+                <rotate value3="-1.57 0 1" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Duck.obj" texture="scenes/farm/textures/duck.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="duck2">
+            <transforms>
+                <translate value3="-40 0 24" />
+                <scale value3="0.17 0.17 0.17" />
+                <rotate value3="-1.57 0 1" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Duck.obj" texture="scenes/farm/textures/duck.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="duck3">
+            <transforms>
+                <translate value3="-42 0 24" />
+                <scale value3="0.17 0.17 0.17" />
+                <rotate value3="-1.57 0 1" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Duck.obj" texture="scenes/farm/textures/duck.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="duck4">
+            <transforms>
+                <translate value3="-44 0 22" />
+                <scale value3="0.17 0.17 0.17" />
+                <rotate value3="-1.57 0 1" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Duck.obj" texture="scenes/farm/textures/duck.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <!-- HORSE -->
+        <node id="horse">
+            <children>
+                <noderef id="horse1" />
+            </children>
+        </node>
+
+        <node id="horse1">
+            <transforms>
+                <translate value3="-80 0 60" />
+                <scale value3="0.007 0.007 0.007" />
+                <rotate value3="1.57 3.14 -2" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Horse.obj" texture="scenes/farm/textures/horse.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <!-- WOOD -->
+        <node id="wood">
+            <children>
+                <noderef id="wood1" />
+                <noderef id="wood2" />
+            </children>
+        </node>
+
+        <node id="wood1">
+            <transforms>
+                <translate value3="-2 1 -12" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Wood.obj" texture="scenes/farm/textures/wood3d.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="wood2">
+            <transforms>
+                <scale value3="0.7 0.7 0.7" />
+                <translate value3="60 0.7 60" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Wood.obj" texture="scenes/farm/textures/wood3d.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <!-- WHEELBARROW -->
+        <node id="wheelbarrow">
+            <children>
+                <noderef id="wheelbarrow1" />
+                <noderef id="wheelbarrow2" />
+            </children>
+        </node>
+
+        <node id="wheelbarrow1">
+            <transforms>
+                <translate value3="-60 0 65" />
+                <scale value3="0.15 0.15 0.15" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Wheelbarrow.obj" texture="scenes/farm/textures/wheelbarrow.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="wheelbarrow2">
+            <transforms>
+                <translate value3="65 0 60" />
+                <scale value3="0.15 0.15 0.15" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Wheelbarrow.obj" texture="scenes/farm/textures/wheelbarrow.png"/>
+                </primitive>
+            </children>
+        </node>
+        
+        <!-- PARK -->
+        <node id="park">
+            <transforms>
+                <translate value3="-5 0 125" />
+            </transforms>
+            <materialref id="parkApp" />
+            <children>
+                <primitive>
+                    <box xyz1="0 0 0" xyz2="50 1.5 40" />
+                </primitive> 
+            </children>
+        </node>
+
+        <!-- TRACTORS -->
+        <node id="tractors">
+            <children>
+                <noderef id="tractor1" />
+                <noderef id="tractor2" />
+                <noderef id="tractor3" />
+                <noderef id="tractor4" />
+                <noderef id="tractor5" />
+            </children>
+        </node>
+
+        <node id="tractor1">
+            <transforms>
+                <translate value3="10 5.7 78" />
+                <scale value3="0.1 0.12 0.1" />
+                <rotate value3="0 -1.57 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor1.png"/>
+                </primitive>
+                <primitive>
+                    <route id="tractor1">
+                        <controlpoint xx="83" yy="5.7" zz="119" rotation="-95"/>
+                        <controlpoint xx="16" yy="5.7" zz="83" rotation="-100"/>
+                        <controlpoint xx="-34" yy="5.7" zz="83" rotation="-80" />
+                        <controlpoint xx="-106" yy="5.7" zz="121" rotation="-170" />
+                        <controlpoint xx="-125" yy="5.7" zz="21" rotation="-175"/>
+                        <controlpoint xx="-94" yy="5.7" zz="-81" rotation="-220"/>
+                        <controlpoint xx="-34" yy="5.7" zz="-100" rotation="-270"/>
+                        <controlpoint xx="98" yy="5.7" zz="-75" rotation="-10"/>
+                        <controlpoint xx="99" yy="5.7" zz="20" rotation="5"/>
+                    </route>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="tractor2">
+            <transforms>
+                <translate value3="-22 5.7 147" />
+                <scale value3="0.1 0.12 0.1" />
+                <rotate value3="0 3.14 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor2.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="tractor3">
+            <transforms>
+                <translate value3="-4.5 5.7 147" />
+                <scale value3="0.1 0.12 0.1" />
+                <rotate value3="0 3.14 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor3.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="tractor4">
+            <transforms>
+                <translate value3="13 5.7 147" />
+                <scale value3="0.1 0.12 0.1" />
+                <rotate value3="0 3.14 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor4.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="tractor5">
+            <transforms>
+                <translate value3="13 5.7 103" />
+                <scale value3="0.1 0.12 0.1" />
+                <rotate value3="0 0 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor5.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <!-- TRACK -->
+        <node id="track">
+            <transforms>
+                <translate value3="0 0.1 0" />
+            </transforms>
+            <materialref id="trackApp" />
+            <children>
+                <primitive>
+                    <track segments="300">
+                        <controlpoint xx="75" yy="0" zz="119" />
+                        <controlpoint xx="8" yy="0" zz="83" />
+                        <controlpoint xx="-42" yy="0" zz="83" />
+                        <controlpoint xx="-114" yy="0" zz="121" />
+                        <controlpoint xx="-102" yy="0" zz="-81" />
+                        <controlpoint xx="90" yy="0" zz="-75" />
+                    </track>
+                </primitive>
+            </children>
+        </node>
+        
+        <!-- NENUFARS -->
+        <node id="nenufars">
+            <transforms>
+                <translate value3="0 0 0" />
+            </transforms>
+            <children>
+                <noderef id="nenufar1" />
+                <noderef id="nenufar2" />
+                <noderef id="nenufar3" />
+                <noderef id="nenufar4" />
+            </children>
+        </node>
+
+        <node id="nenufar1">
+            <transforms>
+                <translate value3="0 0.2 0" />
+            </transforms>
+            <children>
+                <noderef id="nenufar" />
+            </children>
+        </node>
+
+        <node id="nenufar2">
+            <transforms>
+                <translate value3="10 0.2 -5" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="nenufar" />
+            </children>
+        </node>
+
+        <node id="nenufar3">
+            <transforms>
+                <translate value3="-6 0.2 4" />
+                <rotate value3="0 3.14 0" />
+            </transforms>
+            <children>
+                <noderef id="nenufar" />
+            </children>
+        </node>
+
+        <node id="nenufar4">
+            <transforms>
+                <translate value3="-10 0.2 -2" />
+                <rotate value3="0 4.71 0" />
+            </transforms>
+            <children>
+                <noderef id="nenufar" />
+            </children>
+        </node>
+
+        <node id="nenufar">
+            <transforms>
+                <translate value3="0 0.2 0" />
+            </transforms>
+            <materialref id="nenufarApp" />
+            <children>
+                <primitive>
+                    <cylinder base="1.5" top="1.5" height="0.1" slices="32" stacks="32"
+                    thetastart="0" thetalength="5"/>
+                </primitive>
+            </children>
+        </node>
+
+        <!-- HAY -->
+        <node id="hayBurdens">
+            <transforms>
+                <translate value3="0 0 0" />
+            </transforms>
+            <children>
+                <noderef id="hayBurden1" />
+                <noderef id="hayBurden2" />
+                <noderef id="hayBurden3" />
+                <noderef id="hayBurden4" />
+                <noderef id="hayBurden5" />
+            </children>
+        </node>
+
+        <node id="hayBurden1">
+            <transforms>
+                <translate value3="40 0 -10" />
+            </transforms>
+            <children>
+                <noderef id="hayBurden" />
+            </children>
+        </node>
+
+        <node id="hayBurden2">
+            <transforms>
+                <translate value3="46 0 -10" />
+            </transforms>
+            <children>
+                <noderef id="hayBurden" />
+            </children>
+        </node>
+
+        <node id="hayBurden3">
+            <transforms>
+                <translate value3="52 0 -10" />
+            </transforms>
+            <children>
+                <noderef id="hayBurden" />
+            </children> 
+        </node>
+
+        <node id="hayBurden4">
+            <transforms>
+                <translate value3="43 5.5 -10" />
+            </transforms>
+            <children>
+                <noderef id="hayBurden" />
+            </children>
+        </node>
+
+        <node id="hayBurden5">
+            <transforms>
+                <translate value3="49 5.5 -10" />
+            </transforms>
+            <children>
+                <noderef id="hayBurden" />
+            </children>
+        </node>
+
+        <node id="hayBurden">
+            <transforms>
+                <translate value3="0 3 0" />
+                <rotate value3="1.57 0 0" />
+            </transforms>
+            <materialref id="hayApp" />
+            <children>
+                <primitive>
+                    <cylinder base="3" top="3" height="8" slices="100" stacks="50"/>
+                </primitive>
+            </children>
+        </node>
+
+        <!-- LAKE -->
+        <node id="waterLake">
+            <transforms>
+                <translate value3="-30 0.4 5" />
+            </transforms>
+            <materialref id="waterApp" />
+            <children>
+                <primitive>
+                    <cylinder base="15" top="15" height="0.1" slices="32" stacks="32"/>
+                </primitive>
+                <noderef id="nenufars"/>
+                <noderef id="border"/>
+            </children>
+        </node>
+
+        <node id="border">
+            <transforms>
+                <translate value3="0 0 0" />
+            </transforms>
+            <materialref id="woodApp" />
+            <children>
+                <primitive>
+                    <cylinder base="16" top="16" height="0.05" slices="32" stacks="32"/>
+                </primitive>
+            </children>
+        </node>
+
+        <!-- BARN -->
+        <node id="barn">
+            <transforms>
+                <translate value3="15 0 -25" />
+            </transforms>
+
+            <materialref id="barnFrontApp" />
+
+            <children>
+                <noderef id="barnTop" />
+                <noderef id="barnBottom" />
+            </children>
+        </node>
+
+        <node id="barnTop">
+            <transforms>
+                <scale value3="1.2 1 0.5" />
+                <translate value3="0 18.7 0" />
+                <rotate value3="-1.5707 0 0" />
+            </transforms>
+
+            <materialref id="goatMaterial" />
+
+            <children>
+                <primitive>
+                    <cylinder base="11" top="11" height="30" slices="3" stacks="32"/>
+                </primitive> 
+            </children>
+        </node>
+
+        <node id="barnBottom">
+            <transforms>
+                <translate value3="0 8 0" />
+            </transforms>
+
+            <materialref id="barnFrontApp" />
+
+            <children>
+                <primitive>
+                    <box xyz1="0 0 0" xyz2="20 16 30" />
+                </primitive> 
+            </children>
+        </node>
+
+        <!-- FENCES -->
+        <node id="fences">
+            <transforms>
+                <translate value3="0 0 0" />
+            </transforms>
+            <children>
+                <noderef id="fence1" />
+                <noderef id="fence2" />
+                <noderef id="fence3" />
+                <noderef id="fence4" />
+                <noderef id="fence5" />
+                <noderef id="fence6" />
+                <noderef id="fence7" />
+                <noderef id="fence8" />
+                <noderef id="fence9" />
+                <noderef id="fence10" />
+                <noderef id="fence11" />
+                <noderef id="fence12" />
+                <noderef id="fence13" />
+                <noderef id="fence14" />
+                <noderef id="fence15" />
+                <noderef id="fence16" />
+                <noderef id="fence17" />
+                <noderef id="fence18" />
+                <noderef id="fence19" />
+                <noderef id="fence20" />
+                <noderef id="fence21" />
+                <noderef id="fence22" />
+                <noderef id="fence23" />
+                <noderef id="fence24" />
+                <noderef id="fence25" />
+            </children>
+        </node>
+
+        <node id="fence1">
+            <transforms>
+                <translate value3="75 0 -40" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence2">
+            <transforms>
+                <translate value3="75 0 -30" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence3">
+            <transforms>
+                <translate value3="75 0 -20" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence4">
+            <transforms>
+                <translate value3="75 0 -10" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence5">
+            <transforms>
+                <translate value3="75 0 0" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence6">
+            <transforms>
+                <translate value3="75 0 10" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence7">
+            <transforms>
+                <translate value3="75 0 20" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence8">
+            <transforms>
+                <translate value3="75 0 30" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence9">
+            <transforms>
+                <translate value3="75 0 40" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence10">
+            <transforms>
+                <translate value3="62 0 52" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence11">
+            <transforms>
+                <translate value3="52 0 52" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence12">
+            <transforms>
+                <translate value3="42 0 52" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence13">
+            <transforms>
+                <translate value3="32 0 52" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence14">
+            <transforms>
+                <translate value3="22 0 52" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence15">
+            <transforms>
+                <translate value3="-10 0 52" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence16">
+            <transforms>
+                <translate value3="-20 0 52" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence17">
+            <transforms>
+                <translate value3="-30 0 52" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence18">
+            <transforms>
+                <translate value3="-40 0 52" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence19">
+            <transforms>
+                <translate value3="-50 0 52" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="fence" />
+            </children>
+        </node>
+
+        <node id="fence20">
+            <transforms>
+                <translate value3="-60 0 52" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="fence" /> 
+            </children>
+        </node>
+
+        <node id="fence21">
+            <transforms>
+                <translate value3="-70 0 52" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="fence"/>
+            </children>
+        </node>
+
+        <node id="fence22">
+            <transforms>
+                <translate value3="-70 0 40" />
+            </transforms>
+            <children>
+                <noderef id="fence"/>
+            </children>
+        </node>
+
+        <node id="fence23">
+            <transforms>
+                <translate value3="-70 0 30" />
+            </transforms>
+            <children>
+                <noderef id="fence"/>
+            </children>
+        </node>
+
+        <node id="fence24">
+            <transforms>
+                <translate value3="-70 0 20" />
+            </transforms>
+            <children>
+                <noderef id="fence"/>
+            </children>
+        </node>
+
+        <node id="fence25">
+            <transforms>
+                <translate value3="-70 0 10" />
+            </transforms>
+            <children>
+                <noderef id="fence"/>
+            </children>
+        </node>
+
+        <node id="fence">
+            <transforms>
+                <translate value3="0 0 0" />
+            </transforms>
+            <materialref id="woodApp" />
+            <children>
+                <noderef id="fencePostLeft" />
+                <noderef id="fencePostRight" />
+                <noderef id="fenceBarUp" />
+                <noderef id="fenceBarMiddle" />
+                <noderef id="fenceBarDown" />
+            </children>
+        </node>
+
+        <node id="fencePostLeft">
+            <transforms>
+                <translate value3="0 0 0" />
+            </transforms>
+            <children>
+                <noderef id="fencePost" />
+            </children>
+        </node>
+
+        <node id="fencePostRight">
+            <transforms>
+                <translate value3="0 0 12" />
+            </transforms>
+            <children>
+                <noderef id="fencePost" />
+            </children>
+        </node>
+
+        <node id="fenceBarUp">
+            <transforms>
+                <translate value3="0 6.5 0" />
+            </transforms>
+            <children>
+                <noderef id="fenceBar" />
+            </children>
+        </node>
+
+        <node id="fenceBarMiddle">
+            <transforms>
+                <translate value3="0 4 0" />
+            </transforms>
+            <children>
+                <noderef id="fenceBar" />
+            </children>
+        </node>
+
+        <node id="fenceBarDown">
+            <transforms>
+                <translate value3="0 1.5 0" />
+            </transforms>
+            <children>
+                <noderef id="fenceBar" />
+            </children>
+        </node>
+        
+        <node id="fenceBar">
+            <transforms>
+                <translate value3="0 0 6" />
+                <rotate value3="1.57 0 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <cylinder base="0.5" top="0.5" height="12" slices="32" stacks="32"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="fencePost">
+            <transforms>
+                <translate value3="0 4 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <cylinder base="0.5" top="0.5" height="8" slices="32" stacks="32"/>
+                </primitive>
+            </children>
+        </node>
+
+
+        <!-- PRIMITIVES -->
+
+        <node id="polygon">
+            <transforms>
+                <translate value3="-25 0.9 15" />
+                <rotate value3="-1.57 0 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <polygon radius="1.3" slices="32" stacks="32" color_c="1 1 0 1" color_p="0 0 1 1" />
+                </primitive>
+            </children>
+        </node>
+
+		<node id="unitCube">
+            <children>
+                <primitive>
+                    <box xyz1="-0.5 -0.5 -0.5" xyz2="0.5 0.5 0.5" />
+                </primitive>            
+            </children> 
+        </node>
+
+        <!-- PIGS -->
+
+        <node id="pigs" >
+            <transforms>
+                <translate value3="0 0 0" />
+            </transforms>
+            <children>
+                <noderef id="pig1" />
+                <noderef id="pig2" />
+                <noderef id="pig3" />
+                <noderef id="pig4" />
+                <noderef id="pig5" />
+            </children>
+        </node>
+
+        <node id="pig1">
+            <transforms>
+                <translate value3="-7.6 0 33" />
+                <rotate value3="0 4.71 0" />
+            </transforms>
+            <children>
+                <noderef id="pig" />
+            </children>
+        </node>
+
+        <node id="pig2">
+            <transforms>
+                <translate value3="30 0 20" />
+            </transforms>
+            <children>
+                <noderef id="pig" />
+            </children>
+        </node>
+
+        <node id="pig3">
+            <transforms>
+                <scale value3="0.5 0.5 0.5" />
+                <translate value3="38 0 22" />
+            </transforms>
+            <children>
+                <noderef id="pig" />
+            </children> 
+        </node>
+
+        <node id="pig4">
+            <transforms>
+                <scale value3="0.5 0.5 0.5" />
+                <translate value3="36 0 22" />
+            </transforms>
+            <children>
+                <noderef id="pig" />
+            </children>
+        </node>
+
+        <node id="pig5">
+            <transforms>
+                <scale value3="0.5 0.5 0.5" />
+                <translate value3="34 0 22" />
+            </transforms>
+            <children>
+                <noderef id="pig" />
+            </children>
+        </node>
+
+        <node id="pig">
+            <transforms>
+                <scale value3="2 2 2" />
+                <translate value3="2.5 3.5 2.5" />
+            </transforms>
+
+            <materialref id="pigMaterial" />
+
+            <children>
+                <noderef id="pigFront" />
+                <noderef id="pigBody" />
+                <noderef id="pigLegs" />
+            </children>
+        </node>
+
+        <node id="pigFront">
+            <transforms>
+                <scale value3="1 1 0.8" />
+            </transforms>
+            <children>
+                <noderef id="pigHead" />
+                <noderef id="pigNose" />
+            </children>
+        </node>
+        
+        <node id="pigHead">
+            <transforms>
+                <scale value3="1 1 1.1" />
+            </transforms>
+
+             <materialref id="pigMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+                <noderef id="pigFace" />
+            </children>
+        </node>
+
+        <node id="pigFace">
+            <transforms>
+                <translate value3="0 0 0.51" />
+            </transforms>
+
+            <materialref id="pigFaceMaterial" />
+
+            <children>
+                <primitive>
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" />
+                </primitive>
+            </children>
+        </node>
+
+        <node id="pigNose">
+            <transforms>
+                <translate value3="0 -0.20 0.5" />
+                <scale value3="0.5 0.3 0.3" />
+            </transforms>
+
+            <materialref id="pigNoseMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="pigBody">
+            <transforms>
+                <translate value3="0 -0.25 -1.2" />
+                <scale value3="1.4 1 1.8" />
+            </transforms>
+
+            <materialref id="pigMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="pigLegs">
+            <transforms>
+                <translate value3="0 -1.20 -1.2" />
+            </transforms>
+
+            <materialref id="pigMaterial" />
+
+            <children>
+                <noderef id="pigLeg1" />
+                <noderef id="pigLeg2" />
+                <noderef id="pigLeg3" />
+                <noderef id="pigLeg4" />
+            </children>
+        </node>
+
+        <node id="pigLeg1">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="0.35 0 0.45" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="pigLeg2">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="-0.35 0 0.45" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+        
+        <node id="pigLeg3">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="-0.35 0 -0.55" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="pigLeg4">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="0.35 0 -0.55" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="pigCylinder">
+            <transforms>
+                <scale value3="1.5 3 1.5" />
+                <translate value3="2.5 1.5 1.5" />
+            </transforms>
+
+            <materialref id="pigMaterial" />
+
+            <children>
+                <primitive>
+                    <cylinder base="1" top="1" height="1" slices="32" stacks="32"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="pigCube">
+            <transforms>
+                <scale value3="1.5 3 1.5" />
+                <translate value3="2.5 1.5 1.5" />
+            </transforms>
+
+            <materialref id="pigMaterial" />
+
+            <children>
+                <primitive>
+                    <box xyz1="-1 0 -1" xyz2="1 1 1" />
+                </primitive>
+            </children>
+        </node>
+
+        <!-- GOATS -->
+
+        <node id="goats" >
+            <transforms>
+                <translate value3="0 0 0" />
+            </transforms>
+            <children>
+                <noderef id="goat1" />
+                <noderef id="goat2" />
+                <noderef id="goat3" />
+                <noderef id="goat4" />
+                <noderef id="goat5" />
+            </children>
+        </node>
+
+        <node id="goat1">
+            <transforms>
+                <translate value3="-18 0 25" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <noderef id="goat" />
+            </children>
+        </node>
+
+        <node id="goat2">
+            <transforms>
+                <scale value3="0.5 0.5 0.5" />
+                <translate value3="52 0 32" />
+            </transforms>
+            <children>
+                <noderef id="goat" />
+            </children>
+        </node>
+
+        <node id="goat3">
+            <transforms>
+                <scale value3="0.5 0.5 0.5" />
+                <translate value3="49 0 32" />
+            </transforms>
+            <children>
+                <noderef id="goat" />
+            </children>
+        </node>
+
+        <node id="goat4">
+            <transforms>
+                <scale value3="0.5 0.5 0.5" />
+                <translate value3="46 0 32" />
+            </transforms>
+            <children>
+                <noderef id="goat" />
+            </children>
+        </node>
+
+        <node id="goat5">
+            <transforms>
+                <translate value3="60 0 32" />
+            </transforms>
+            <children>
+                <noderef id="goat" />
+            </children>
+        </node>
+        
+        <node id="goat">
+            <transforms>
+                <scale value3="3 3 3" />
+                <translate value3="-6.5 5.2 2.5" />
+            </transforms>
+
+            <children>
+                <noderef id="goatFront" />
+                <noderef id="goatBody" />
+                <noderef id="goatLegs" />
+            </children>
+        </node>
+
+        <node id="goatBody">
+            <transforms>
+                <translate value3="0 -0.25 -1.2" />
+                <scale value3="1.4 1 1.8" />
+            </transforms>
+
+            <materialref id="goatMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="goatLegs">
+            <transforms>
+                <translate value3="0 -1.25 -1.2" />
+            </transforms>
+
+            <materialref id="goatMaterial" />
+
+            <children>
+                <noderef id="goatLeg1" />
+                <noderef id="goatLeg2" />
+                <noderef id="goatLeg3" />
+                <noderef id="goatLeg4" />
+            </children>
+        </node>
+
+        <node id="goatLeg1">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="0.35 0 0.45" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="goatLeg2">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="-0.35 0 0.45" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+        
+        <node id="goatLeg3">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="-0.35 0 -0.55" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="goatLeg4">
+            <transforms>
+                <scale value3="0.5 1 0.5" />
+                <translate value3="0.35 0 -0.55" />
+            </transforms>
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="goatFront">
+            <transforms>
+                <scale value3="1 1 0.8" />
+            </transforms>
+            <children>
+                <noderef id="goatHead" />
+                <noderef id="goatHorns" />
+            </children>
+        </node>
+
+        <node id="goatHead">
+            <transforms>
+                <scale value3="0.55 0.7 1" />
+            </transforms>
+
+            <materialref id="goatHeadMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+                <noderef id="goatLeftFace" />
+                <noderef id="goatRightFace" />
+                <noderef id="goatFace" />
+            </children>
+        </node>
+
+        <node id="goatHorns"> 
+            <transforms>
+                <translate value3="-0.125 0.5 0.4" />
+            </transforms>
+
+            <children>
+                <noderef id="goatHorn1" />
+                <noderef id="goatHorn2" />
+            </children>
+        </node>
+
+        <node id="goatHorn1">
+            <transforms>
+                <scale value3="0.15 0.4 0.2" />
+            </transforms>
+
+            <materialref id="goatHornMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="goatHorn2">
+            <transforms>
+                <scale value3="0.15 0.4 0.2" />
+                <translate value3="0.275 0 0" />
+            </transforms>
+
+            <materialref id="goatHornMaterial" />
+
+            <children>
+                <noderef id="unitCube" />
+            </children>
+        </node>
+
+        <node id="goatLeftFace">
+            <transforms>
+                <rotate value3="0 -1.5707 0" />
+                <translate value3="0 0 0.51" />
+            </transforms>
+
+            <materialref id="goatFaceMaterial2" />
+
+            <children>
+                <primitive>
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" />
+                </primitive>
+            </children>
+        </node>
+
+        <node id="goatRightFace">
+            <transforms>
+                <rotate value3="0 1.5707 0" />
+                <translate value3="0 0 0.51" />
+            </transforms>
+
+            <materialref id="goatFaceMaterial" />
+
+            <children>
+                <primitive>
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" />
+                </primitive>
+            </children>
+        </node>
+
+        <node id="goatFace">
+            <transforms>
+                <translate value3="0 0 0.51" />
+            </transforms>
+
+            <materialref id="goatFaceMaterial3" />
+
+            <children>
+                <primitive>
+                    <rectangle xy1="-0.5 -0.5" xy2="0.5 0.5" />
+                </primitive>
+            </children>
+        </node>
+
+        <node id="goatCylinder">
+            <transforms>
+                <scale value3="2.5 6 3" />
+                <translate value3="-5.5 3.5 1.5" />
+            </transforms>
+
+            <materialref id="goatMaterial" />
+
+            <children>
+                <primitive>
+                    <cylinder base="1" top="1" height="1" slices="32" stacks="32"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="goatCube">
+            <transforms>
+                <scale value3="2.5 6 3" />
+                <translate value3="-5.5 3.5 1.5" />
+            </transforms>
+
+            <materialref id="goatMaterial" />
+
+            <children>
+                <primitive>
+                    <box xyz1="-1 0 -1" xyz2="1 1 1" />
+                </primitive>
+            </children>
+        </node>
+
+        <!-- TREES -->
+        <node id="trees">
+            <transforms>
+                <translate value3="0 0 0" />
+            </transforms>
+            <children>
+                <noderef id="tree1" />
+                <noderef id="tree2" /> 
+                <noderef id="tree3" />
+                <noderef id="tree4" />
+                <noderef id="tree5" />
+                <noderef id="tree6" />
+                <noderef id="tree8" />
+                <noderef id="tree9" />
+                <noderef id="tree10" /> 
+                <noderef id="tree11" /> 
+            </children>
+        </node>
+
+        <node id="tree1">
+            <transforms>
+                <translate value3="-50 0 -60" />
+            </transforms>
+            <children>
+                <noderef id="tree" />
+            </children>
+        </node>
+
+        <node id="tree2">
+            <transforms>
+                <translate value3="-65 0 -50" />
+            </transforms>
+            <children>
+                <noderef id="tree" />
+            </children>
+        </node>
+
+        <node id="tree3">
+            <transforms>
+                <translate value3="-50 0 -60" />
+            </transforms>
+            <children>
+                <noderef id="tree" />
+            </children>
+        </node>
+
+        <node id="tree4">
+            <transforms>
+                <translate value3="-85 0 -70" />
+            </transforms>
+            <children>
+                <noderef id="tree" />
+            </children>
+        </node>
+
+        <node id="tree5">
+            <transforms>
+                <translate value3="-65 0 -80" />
+            </transforms>
+            <children>
+                <noderef id="tree" />
+            </children>
+        </node>
+
+        <node id="tree6">
+            <transforms>
+                <translate value3="-40 0 -80" />
+            </transforms>
+            <children>
+                <noderef id="tree" />
+            </children>
+        </node>
+
+        <node id="tree8">
+            <transforms>
+                <translate value3="-90 0 -25" />
+            </transforms>
+            <children>
+                <noderef id="tree" />
+            </children>
+        </node>
+
+        <node id="tree9">
+            <transforms>
+                <translate value3="-85 0 -45" />
+            </transforms>
+            <children>
+                <noderef id="tree" />
+            </children>
+        </node>
+
+        <node id="tree10">
+            <transforms>
+                <translate value3="15 0 -85" />
+            </transforms>
+            <children>
+                <noderef id="tree" />
+            </children>
+        </node>
+
+        <node id="tree11">
+            <transforms>
+                <translate value3="30 0 -70" />
+            </transforms>
+            <children>
+                <noderef id="tree" />
+            </children>
+        </node>
+
+        <node id="tree">
+            <transforms>
+                <translate value3="30 0 30" />
+            </transforms>
+            <children>
+                <noderef id="treeBottom" />
+                <noderef id="treeTop" />
+            </children>
+        </node>
+
+        <node id="treeBottom">
+            <transforms>
+                <translate value3="0 7 0" />
+            </transforms>
+            <materialref id="treeBottomMaterial" />
+            <children>
+                <primitive>
+                    <cylinder base="1.5" top="1.5" height="14" slices="32" stacks="32"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="treeTop">
+            <transforms>
+                <translate value3="0 14 0" />
+            </transforms>
+            <materialref id="treeTopMaterial" />
+            <children>
+                <noderef id="treeTop1" />
+                <noderef id="treeTop2" />
+                <noderef id="treeTop3" />
+                <noderef id="treeTop4" />
+                <noderef id="treeTop5" />
+            </children>
+        </node>
+
+        <node id="treeTop1">
+            <transforms>
+                <translate value3="2 0 2" />
+            </transforms>
+            <children>
+                <primitive>
+                    <sphere radius="4" slices="32" stacks="32"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="treeTop2">
+            <transforms>
+                <translate value3="-2 0 -2" />
+            </transforms>
+            <children>
+                <primitive>
+                    <sphere radius="4" slices="32" stacks="32"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="treeTop3">
+            <transforms>
+                <translate value3="-2 0 2" />
+            </transforms>
+            <children>
+                <primitive>
+                    <sphere radius="4" slices="32" stacks="32"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="treeTop4">
+            <transforms>
+                <translate value3="2 0 -2" />
+            </transforms>
+            <children>
+                <primitive>
+                    <sphere radius="4" slices="32" stacks="32"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="treeTop5">
+            <transforms>
+                <translate value3="0 4 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <sphere radius="4" slices="32" stacks="32"/>
+                </primitive>
+            </children>
+        </node>
+
+
+        <!-- FLOOR -->
+
+        <node id="floor">
+            <transforms>
+                <rotate value3="-1.5707 0 0" />
+            </transforms>
+            <materialref id="floorApp" />
+            <children>
+                <primitive>
+                    <rectangle xy1="0 0" xy2="300 300" />
+                </primitive>
+            </children>
+        </node>
+
+
+    </graph>
+
+              
+</yaf>
