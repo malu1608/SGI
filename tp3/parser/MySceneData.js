@@ -157,7 +157,7 @@ class MySceneData  {
             {name: "parts_z", type: "integer", required: false, default: 1},
             {name: "distance", type: "float", required: false, default: 0.0}, // The distance at which to display this level of detail. Default 0.0.  
         ]
-        
+
         this.descriptors["nurbs"] = [
 			{name: "degree_u", type: "integer"},
 			{name: "degree_v", type: "integer"},
@@ -170,6 +170,7 @@ class MySceneData  {
 			{name: "xx", type: "float"},
 			{name: "yy", type: "float"},
             {name: "zz", type: "float"},
+            {name: "rotation", type: "float", required: false, default: 0.0}, // The rotation of the control point around the y axis. Default 0.0.
 		]
 
         this.descriptors["skybox"] = [
@@ -241,9 +242,13 @@ class MySceneData  {
             {name: "segments", type: "integer" },
         ]
 
+        this.descriptors["route"] = [
+            {name: "id", type: "string" },
+        ]
+
         this.primaryNodeIds = ["globals", "fog", "skybox" ,"textures", "materials", "cameras", "graph"]
 
-        this.primitiveIds = ["cylinder", "rectangle", "triangle", "sphere", "nurbs" , "box", "model3d", "skybox", "lod", "polygon", "track" ]
+        this.primitiveIds = ["cylinder", "rectangle", "triangle", "sphere", "nurbs" , "box", "model3d", "skybox", "lod", "polygon", "track", "route" ]
     }
 
     createCustomAttributeIfNotExists(obj) {

@@ -26,13 +26,6 @@
             far="10000" 
             location="80 20 -40" 
             target="0 0.0 0" /> 
-
-        <perspective id="Drinking" 
-            angle="40" 
-            near="0.1" 
-            far="10000" 
-            location="-40 20 80" 
-            target="0 0.0 0" /> 
         
         <orthogonal id="Animals" 
             near="0.1" 
@@ -82,6 +75,7 @@
         <texture id="nenufarTex" filepath="scenes/farm/textures/nenufar.png" />
 
         <texture id="trackTex" filepath="scenes/farm/textures/track.png" />
+        <texture id="parkTex" filepath="scenes/farm/textures/park.png" />
 
         <texture id="skyboxTex" filepath="scenes/farm/videos/video.mp4" isVideo="true" />
         <texture id="skyTex" filepath="scenes/farm/textures/sky.png" />
@@ -269,6 +263,15 @@
             texlength_s="50"
             texlength_t="5" />
         
+        <material id="parkApp"
+            color="0.5 0.5 0.5 1.0"
+            emissive="0.0 0.0 0.0 0.0"
+            specular="0.2 0.2 0.2 1.0"
+            shininess="0"
+            textureref="parkTex"
+            texlength_s="1"
+            texlength_t="1" />
+        
         <material id="default"
             color="0.5 0.5 0.5 1.0"
             emissive="0.0 0.0 0.0 0.0"
@@ -286,13 +289,18 @@
                 <noderef id="trees" />
                 <noderef id="barn" />
                 <noderef id="waterLake" />
-                <noderef id="drinking" />
                 <noderef id="hayBurdens"/>
                 <noderef id="pigs" />
                 <noderef id="goats" />
                 <noderef id="fences" />
                 <noderef id="track" />
                 <noderef id="tractors" />
+                <noderef id="park" />
+                <noderef id="wood" />
+                <noderef id="wheelbarrow" />
+                <noderef id="horse" />
+                <noderef id="ducks" />
+                <noderef id="woman" />
 
                 <pointlight id="light1" enabled="true" 
                     color="1 1 1 1" 
@@ -303,6 +311,179 @@
                     position="100 60 100" 
                 /> 
                    
+            </children>
+        </node>
+
+        <!-- WOMAN -->
+        <node id="woman">
+        <transforms>
+                <translate value3="-80 4.5 60" />
+                <scale value3="0.007 0.007 0.007" />
+                <rotate value3="0 0 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Woman.obj" texture="scenes/farm/textures/woman.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <!-- DUCKS -->
+        <node id="ducks">
+            <children>
+                <noderef id="duck1" />
+                <noderef id="duck2" />
+                <noderef id="duck3" />
+                <noderef id="duck4" />
+            </children>
+        </node>
+
+        <node id="duck1">
+            <transforms>
+                <translate value3="-40 0 20" />
+                <scale value3="0.25 0.25 0.25" />
+                <rotate value3="-1.57 0 1" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Duck.obj" texture="scenes/farm/textures/duck.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="duck2">
+            <transforms>
+                <translate value3="-40 0 24" />
+                <scale value3="0.17 0.17 0.17" />
+                <rotate value3="-1.57 0 1" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Duck.obj" texture="scenes/farm/textures/duck.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="duck3">
+            <transforms>
+                <translate value3="-42 0 24" />
+                <scale value3="0.17 0.17 0.17" />
+                <rotate value3="-1.57 0 1" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Duck.obj" texture="scenes/farm/textures/duck.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="duck4">
+            <transforms>
+                <translate value3="-44 0 22" />
+                <scale value3="0.17 0.17 0.17" />
+                <rotate value3="-1.57 0 1" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Duck.obj" texture="scenes/farm/textures/duck.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <!-- HORSE -->
+        <node id="horse">
+            <children>
+                <noderef id="horse1" />
+            </children>
+        </node>
+
+        <node id="horse1">
+            <transforms>
+                <translate value3="-80 0 60" />
+                <scale value3="0.007 0.007 0.007" />
+                <rotate value3="1.57 3.14 -2" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Horse.obj" texture="scenes/farm/textures/horse.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <!-- WOOD -->
+        <node id="wood">
+            <children>
+                <noderef id="wood1" />
+                <noderef id="wood2" />
+            </children>
+        </node>
+
+        <node id="wood1">
+            <transforms>
+                <translate value3="-2 1 -12" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Wood.obj" texture="scenes/farm/textures/wood3d.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="wood2">
+            <transforms>
+                <scale value3="0.7 0.7 0.7" />
+                <translate value3="60 0.7 60" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Wood.obj" texture="scenes/farm/textures/wood3d.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <!-- WHEELBARROW -->
+        <node id="wheelbarrow">
+            <children>
+                <noderef id="wheelbarrow1" />
+                <noderef id="wheelbarrow2" />
+            </children>
+        </node>
+
+        <node id="wheelbarrow1">
+            <transforms>
+                <translate value3="-60 0 65" />
+                <scale value3="0.15 0.15 0.15" />
+                <rotate value3="0 1.57 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Wheelbarrow.obj" texture="scenes/farm/textures/wheelbarrow.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="wheelbarrow2">
+            <transforms>
+                <translate value3="65 0 60" />
+                <scale value3="0.15 0.15 0.15" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Wheelbarrow.obj" texture="scenes/farm/textures/wheelbarrow.png"/>
+                </primitive>
+            </children>
+        </node>
+        
+        <!-- PARK -->
+        <node id="park">
+            <transforms>
+                <translate value3="-5 0 125" />
+            </transforms>
+            <materialref id="parkApp" />
+            <children>
+                <primitive>
+                    <box xyz1="0 0 0" xyz2="50 1.5 40" />
+                </primitive> 
             </children>
         </node>
 
@@ -319,7 +500,7 @@
 
         <node id="tractor1">
             <transforms>
-                <translate value3="-40 5.7 78" />
+                <translate value3="10 5.7 78" />
                 <scale value3="0.1 0.12 0.1" />
                 <rotate value3="0 -1.57 0" />
             </transforms>
@@ -327,14 +508,27 @@
                 <primitive>
                     <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor1.png"/>
                 </primitive>
+                <primitive>
+                    <route id="tractor1">
+                        <controlpoint xx="83" yy="5.7" zz="119" rotation="-95"/>
+                        <controlpoint xx="16" yy="5.7" zz="83" rotation="-100"/>
+                        <controlpoint xx="-34" yy="5.7" zz="83" rotation="-80" />
+                        <controlpoint xx="-106" yy="5.7" zz="121" rotation="-170" />
+                        <controlpoint xx="-125" yy="5.7" zz="21" rotation="-175"/>
+                        <controlpoint xx="-94" yy="5.7" zz="-81" rotation="-220"/>
+                        <controlpoint xx="-34" yy="5.7" zz="-100" rotation="-270"/>
+                        <controlpoint xx="98" yy="5.7" zz="-75" rotation="-10"/>
+                        <controlpoint xx="99" yy="5.7" zz="20" rotation="5"/>
+                    </route>
+                </primitive>
             </children>
         </node>
 
         <node id="tractor2">
             <transforms>
-                <translate value3="-20 5.7 78" />
+                <translate value3="-22 5.7 147" />
                 <scale value3="0.1 0.12 0.1" />
-                <rotate value3="0 -1.57 0" />
+                <rotate value3="0 3.14 0" />
             </transforms>
             <children>
                 <primitive>
@@ -345,9 +539,9 @@
 
         <node id="tractor3">
             <transforms>
-                <translate value3="0 5.7 78" />
+                <translate value3="-4.5 5.7 147" />
                 <scale value3="0.1 0.12 0.1" />
-                <rotate value3="0 -1.57 0" />
+                <rotate value3="0 3.14 0" />
             </transforms>
             <children>
                 <primitive>
@@ -358,9 +552,9 @@
 
         <node id="tractor4">
             <transforms>
-                <translate value3="20 5.7 78" />
+                <translate value3="13 5.7 147" />
                 <scale value3="0.1 0.12 0.1" />
-                <rotate value3="0 -1.57 0" />
+                <rotate value3="0 3.14 0" />
             </transforms>
             <children>
                 <primitive>
@@ -371,9 +565,9 @@
 
         <node id="tractor5">
             <transforms>
-                <translate value3="40 5.7 78" />
+                <translate value3="13 5.7 103" />
                 <scale value3="0.1 0.12 0.1" />
-                <rotate value3="0 -1.57 0" />
+                <rotate value3="0 0 0" />
             </transforms>
             <children>
                 <primitive>
@@ -385,19 +579,18 @@
         <!-- TRACK -->
         <node id="track">
             <transforms>
-                <translate value3="-145 0.1 -150" />
-                <scale value3="0.5 0.05 0.5" />
+                <translate value3="0 0.1 0" />
             </transforms>
             <materialref id="trackApp" />
             <children>
                 <primitive>
                     <track segments="300">
-                        <controlpoint xx="467" yy="0" zz="539" />
-                        <controlpoint xx="333" yy="0" zz="468" />
-                        <controlpoint xx="232" yy="0" zz="467" />
-                        <controlpoint xx="89" yy="0" zz="544" />
-                        <controlpoint xx="112" yy="0" zz="118" />
-                        <controlpoint xx="497" yy="0" zz="132" />
+                        <controlpoint xx="75" yy="0" zz="119" />
+                        <controlpoint xx="8" yy="0" zz="83" />
+                        <controlpoint xx="-42" yy="0" zz="83" />
+                        <controlpoint xx="-114" yy="0" zz="121" />
+                        <controlpoint xx="-102" yy="0" zz="-81" />
+                        <controlpoint xx="90" yy="0" zz="-75" />
                     </track>
                 </primitive>
             </children>
@@ -536,187 +729,6 @@
             <children>
                 <primitive>
                     <cylinder base="3" top="3" height="8" slices="100" stacks="50"/>
-                </primitive>
-            </children>
-        </node>
-
-        <!-- DRINKING FOUNTAIN -->
-        <node id="waterDrinking">
-            <transforms>
-                <translate value3="0 0 0" />
-            </transforms>
-            <materialref id="waterApp" />
-            <children>
-                <noderef id="waterDrinkingTop"/>
-                <noderef id="waterDrinkingFront"/>
-                <noderef id="waterDrinkingBack"/>
-            </children>
-        </node>
-
-        <node id="waterDrinkingTop">
-            <transforms>
-                <translate value3="0 2 0" />
-            </transforms>
-            <children>
-                <primitive>
-                    <nurbs degree_u="1" degree_v="1" parts_u="20" parts_v="20" distance="0.0">
-                        <controlpoint xx="0.5" yy="0" zz="0.1" />
-                        <controlpoint xx="3.5" yy="0" zz="0.1" />
-
-                        <controlpoint xx="0.5" yy="0" zz="7.9" />
-                        <controlpoint xx="3.5" yy="0" zz="7.9" />
-                    </nurbs>
-                </primitive>
-            </children>
-        </node>
-
-        <node id="waterDrinkingBack">
-            <transforms>
-                <translate value3="0 -0.5 0.1" />
-            </transforms>
-            <children>
-                <primitive>
-                    <nurbs degree_u="1" degree_v="2" parts_u="20" parts_v="20" distance="0.0">
-
-                        <controlpoint xx="0.5" yy="0" zz="0" />
-                        <controlpoint xx="2" yy="0" zz="0" />
-                        <controlpoint xx="3.5" yy="0" zz="0" />
-
-                        <controlpoint xx="0.5" yy="2.5" zz="0" />
-                        <controlpoint xx="2" yy="2.5" zz="0" />
-                        <controlpoint xx="3.5" yy="2.5" zz="0" />
-                        
-                    </nurbs>
-                </primitive>
-            </children>
-        </node>
-
-        <node id="waterDrinkingFront">
-            <transforms>
-                <translate value3="0 -0.5 7.9" />
-            </transforms>
-            <children>
-                <primitive>
-                    <nurbs degree_u="1" degree_v="2" parts_u="20" parts_v="20" distance="0.0">
-
-                        <controlpoint xx="0.5" yy="2.5" zz="0" />
-                        <controlpoint xx="2" yy="2.5" zz="0" />
-                        <controlpoint xx="3.5" yy="2.5" zz="0" />
-
-                        <controlpoint xx="0.5" yy="0" zz="0" />
-                        <controlpoint xx="2" yy="0" zz="0" />
-                        <controlpoint xx="3.5" yy="0" zz="0" />
-                    </nurbs>
-                </primitive>
-            </children>
-        </node>
-
-        <node id="drinking">
-            <transforms>
-                <translate value3="-15 0 30" />
-            </transforms>
-            <materialref id="woodApp" />
-            <children>
-                <noderef id="drinkingTop"/>
-                <noderef id="drinkingFront"/>
-                <noderef id="drinkingBack"/>
-                <noderef id="drinkingLeft"/>
-                <noderef id="drinkingRight"/>
-                <noderef id="waterDrinking"/>
-            </children>
-        </node>
-
-        <node id="drinkingLeft">
-            <transforms>
-                <translate value3="0 0 0" />
-            </transforms>
-            <children>
-                <primitive>
-                    <nurbs degree_u="1" degree_v="1" parts_u="20" parts_v="20" distance="0.0">
-                        <controlpoint xx="0" yy="3" zz="0" />
-                        <controlpoint xx="0" yy="3" zz="8" />
-
-                        <controlpoint xx="0" yy="0" zz="0" />
-                        <controlpoint xx="0" yy="0" zz="8" />
-                    </nurbs>
-                </primitive>
-            </children>
-        </node>
-
-        <node id="drinkingRight">
-            <transforms>
-                <translate value3="4 0 0" />
-            </transforms>
-            <children>
-                <primitive>
-                    <nurbs degree_u="1" degree_v="1" parts_u="20" parts_v="20" distance="0.0">
-                        <controlpoint xx="0" yy="0" zz="0" />
-                        <controlpoint xx="0" yy="0" zz="8" />
-
-                        <controlpoint xx="0" yy="3" zz="0" />
-                        <controlpoint xx="0" yy="3" zz="8" />
-                    </nurbs>
-                </primitive>
-            </children>
-        </node>
-
-        <node id="drinkingTop">
-            <transforms>
-                <translate value3="0 3 0" />
-            </transforms>
-            <children>
-                <primitive>
-                    <nurbs degree_u="1" degree_v="2" parts_u="20" parts_v="20" distance="0.0">
-                        <controlpoint xx="0" yy="0" zz="0" />
-                        <controlpoint xx="2" yy="-3" zz="0" />
-                        <controlpoint xx="4" yy="0" zz="0" />
-
-                        <controlpoint xx="0" yy="0" zz="8" />
-                        <controlpoint xx="2" yy="-3" zz="8" />
-                        <controlpoint xx="4" yy="0" zz="8" />
-                    </nurbs>
-                </primitive>
-            </children>
-        </node>
-
-        <node id="drinkingFront">
-            <transforms>
-                <translate value3="0 0 8" />
-            </transforms>
-            <children>
-                <primitive>
-                    <nurbs degree_u="1" degree_v="2" parts_u="20" parts_v="20" distance="0.0">
-
-                        <controlpoint xx="0" yy="3" zz="0" />
-                        <controlpoint xx="2" yy="0" zz="0" />
-                        <controlpoint xx="4" yy="3" zz="0" />
-
-                        <controlpoint xx="0" yy="0" zz="0" />
-                        <controlpoint xx="2" yy="0" zz="0" />
-                        <controlpoint xx="4" yy="0" zz="0" />
-                    </nurbs>
-                </primitive>
-            </children>
-        </node>
-
-        <node id="drinkingBack">
-            <transforms>
-                <translate value3="0 0 0" />
-            </transforms>
-            <children>
-                <primitive>
-                    <nurbs degree_u="1" degree_v="2" parts_u="20" parts_v="20" distance="0.0">
-
-                        <controlpoint xx="0" yy="0" zz="0" />
-                        <controlpoint xx="2" yy="0" zz="0" />
-                        <controlpoint xx="4" yy="0" zz="0" />
-
-                        <controlpoint xx="0" yy="3" zz="0" />
-                        <controlpoint xx="2" yy="0" zz="0" />
-                        <controlpoint xx="4" yy="3" zz="0" />
-
-                        
-                    </nurbs>
                 </primitive>
             </children>
         </node>

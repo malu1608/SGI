@@ -302,12 +302,9 @@ class MyContents  {
     set_nodes(nodeRef, parent = undefined) {
     
         let node = this.data.nodes[nodeRef];
-        if(node.id === "pigs"){
-            console.log("node: ")    
-            console.log(node);
-        }
-        
         let group = new THREE.Group();
+
+        group.name = node.id;
         
         // apply group transformations
         let transformations = node['transformations'];
@@ -341,11 +338,6 @@ class MyContents  {
         if (node.receiveShadows || parentReceiveShadow) {
             group.receiveShadow = true
         }
-
-        if(node.id === "pigs"){
-            console.log("group: ")    
-            console.log(group);
-        }
         
         // Process children of the node
         node.children.forEach(async child =>{
@@ -357,7 +349,8 @@ class MyContents  {
                 // Add primitive child to the group
                 let material = this.materials[group.materialIds[0]];
                 let newPrimitive = null;
-            
+                group.data = child;
+
                 if (child.subtype === "model3d") {
                     // Use OBJLoader asynchronously
                     const objLoader = new OBJLoader();
@@ -525,7 +518,6 @@ class MyContents  {
             else if(transformations[transformation].type === "S"){
                 const [x, y, z] = transformations[transformation].scale;
                 group.scale.set(x, y, z);
-
             }
             
         }
@@ -705,20 +697,75 @@ class MyContents  {
     }
 
     onAfterSceneLoadedAndBeforeRender(data) {
-        // called after the scene is loaded and before the first render
+        // Called after the scene is loaded and before the first render
         this.data = data;
 
         this.buildSkyboxs();
-
         this.set_materials(data.materials);
         this.set_cameras(data.cameras,data.activeCameraId);
 
         this.object = this.set_nodes(data.rootId);
         this.app.scene.add(this.object);
+
+        this.clock = new THREE.Clock();
+        this.oppTractor = this.app.scene.getObjectByName("tractor1");
+
+        console.log(this.oppTractor);
+
+        // Route control points and quartenions
+        this.routeControlPoints = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Vector3(point.xx, point.yy, point.zz));
+        this.routeQuartenions = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(point.rotation)));
+
+        // Close the route
+        this.routeControlPoints.push(this.routeControlPoints[0]);
+        this.routeQuartenions.push(this.routeQuartenions[0]);
+
+        // Place a box in each control point
+        this.routeControlPoints.forEach(point => {
+            const geometry = new THREE.BoxGeometry(2, 2, 2);
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            const cube = new THREE.Mesh(geometry, material);
+            cube.position.set(point.x, point.y, point.z);
+            this.app.scene.add(cube);
+        });
+
+        // Position and rotation keyframe tracks
+        const positionKF = new THREE.VectorKeyframeTrack(
+            '.position',
+            [...Array(this.routeControlPoints.length).keys()],
+            [].concat(...this.routeControlPoints.map(point => [...point.toArray()])),
+            THREE.InterpolateSmooth
+        );
+
+        const quaternionKF = new THREE.QuaternionKeyframeTrack(
+            '.quaternion',
+            [...Array(this.routeQuartenions.length).keys()],
+            [].concat(...this.routeQuartenions.map(point => [...point.toArray()])),
+        );
+
+        // Animation clip
+        const positionClip = new THREE.AnimationClip('OpponentTractor', -1, [positionKF]);
+        const rotationClip = new THREE.AnimationClip('OpponentTractor', -1, [quaternionKF]);
+
+        // Animation mixer
+        this.mixer = new THREE.AnimationMixer(this.oppTractor);
+
+        // Actions
+        this.positionAction = this.mixer.clipAction(positionClip);
+        this.rotationAction = this.mixer.clipAction(rotationClip);
+
+        // Change the speed of the animation
+        this.positionAction.timeScale = 0.5;
+        this.rotationAction.timeScale = 0.5;
+
+        this.positionAction.play();
+        this.rotationAction.play();
     }
 
     update() {
-        
+        if (this.mixer) {
+            this.mixer.update(this.clock.getDelta());
+        }
     }
 }
 
