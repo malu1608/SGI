@@ -24,6 +24,21 @@ class MyContents  {
         this.object = null;
         this.lights = {};
         this.videos = [];
+
+        this.raycaster = new THREE.Raycaster()
+        
+        this.pointer = new THREE.Vector2()
+        this.intersectedObj = null
+        this.pickingColor = "0x00ff00"  
+        this.availableLayers = ['none']
+        this.selectedLayer = this.availableLayers[0] 
+        this.notPickableObjIds = []
+        document.addEventListener(
+            "pointermove",
+            // "mousemove",
+            // "pointerdown",
+            this.onPointerMove.bind(this)
+        );   
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
 		this.reader.open("scenes/farm/farm.xml");		
     }
@@ -38,8 +53,10 @@ class MyContents  {
             this.axis = new MyAxis(this)
             this.app.scene.add(this.axis)
         }
+        //this.assignTractorsToLayers();
+        
     }
-
+    
     /**
      * Called when the scene xml file load is complete
      * @param {MySceneData} data the entire scene data object
@@ -57,7 +74,85 @@ class MyContents  {
         this.onAfterSceneLoadedAndBeforeRender(data);
 
     }
+    onPointerMove(event) {
+        event.preventDefault();
+        // calculate pointer position in normalized device coordinates
 
+        this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        console.log("Position x: " + this.pointer.x + " y: " + this.pointer.y);
+
+        console.log("Camera: " + this.app.activeCameraName);
+
+        this.raycaster.near = this.app.cameras[this.app.activeCameraName].near;
+        this.raycaster.far = this.app.cameras[this.app.activeCameraName].far;
+        //set the picking ray from the camera position and mouse coordinates
+        this.raycaster.setFromCamera(this.pointer, this.app.cameras[this.app.activeCameraName]);
+        const tractors = [];
+        for (let i = 1; i <= 5; i++) {
+            const tractorName = "tractor" + i;
+            const tractor = this.app.scene.getObjectByName(tractorName);
+            if (tractor) {
+                if (tractor.isGroup) {
+                    tractors.push(...tractor.children);
+                } else {
+                    tractors.push(tractor);
+                }
+                tractors.push(tractor);
+            } else {
+                console.warn(`Tractor named ${tractorName} not found.`);
+            }
+        }
+        
+        //compute intersections
+        console.log("filhos",tractors)
+        //console.log("raycaster",rayorigin, raydirection)
+        var intersects = this.raycaster.intersectObjects(tractors,true);
+        //console.log(intersects);
+        console.log("Intersects: " + intersects.length);
+        this.pickingHelper(intersects);
+        
+    }
+    pickingHelper(intersects) {
+        if (intersects.length > 0) {
+            const obj = intersects[0].object
+            console.log("Object picked: " + obj.name)
+            if (this.notPickableObjIds.includes(obj.name)) {
+                this.restoreColorOfFirstPickedObj()
+                console.log("Object cannot be picked !")
+            }
+            else
+                this.changeColorOfFirstPickedObj(obj)
+        } else {
+            this.restoreColorOfFirstPickedObj()
+        }
+    }
+    changeColorOfFirstPickedObj(obj) {
+        if (this.lastPickedObj != obj) {
+            if (this.lastPickedObj)
+                this.lastPickedObj.material.color.setHex(this.lastPickedObj.currentHex);
+            this.lastPickedObj = obj;
+            this.lastPickedObj.currentHex = this.lastPickedObj.material.color.getHex();
+            this.lastPickedObj.material.color.setHex(this.pickingColor);
+        }
+    }
+    restoreColorOfFirstPickedObj() {
+        if (this.lastPickedObj)
+            this.lastPickedObj.material.color.setHex(this.lastPickedObj.currentHex);
+        this.lastPickedObj = null;
+    }
+
+    updateSelectedLayer() {
+        this.raycaster.layers.enableAll()
+        if (this.selectedLayer !== 'none') {
+            const selectedIndex = this.availableLayers[parseInt(this.selectedLayer)]
+            this.raycaster.layers.set(selectedIndex)
+        }
+    }
+    updatePickingColor(value) {
+        this.pickingColor = value.replace('#', '0x');
+    }
 
     /**
      * Sets fog based on the provided fog data.
@@ -710,7 +805,7 @@ class MyContents  {
         this.clock = new THREE.Clock();
         //this.oppTractor = this.app.scene.getObjectByName("tractor1");
 
-        console.log(this.oppTractor);
+        //console.log(this.oppTractor);
 
         // Route control points and quartenions
         this.routeControlPoints = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Vector3(point.xx, point.yy, point.zz));

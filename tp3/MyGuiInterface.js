@@ -50,6 +50,20 @@ class MyGuiInterface  {
             videoFolder.add(video, 'playbackRate', 0, 2).name('Speed');
             videoFolder.close(); 
         });
+
+        // picking interface
+        const data_pic_color = {
+            'picking color': this.contents.pickingColor
+        };
+
+        const pickFolder = this.datgui.addFolder('Picking');
+        pickFolder.addColor(data_pic_color, 'picking color').onChange((value) => { this.contents.updatePickingColor(value) });
+        pickFolder.add(this.contents.raycaster, 'near', 0, 5)
+        pickFolder.add(this.contents.raycaster, 'far', 5, 80)
+        pickFolder.add(this.contents, 'selectedLayer', ['none']).name("selected layer").onChange((value) => { this.contents.selectedLayers = value; this.contents.updateSelectedLayer() });
+        pickFolder.open()
+
+
     }
 }
 
