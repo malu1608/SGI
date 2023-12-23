@@ -497,8 +497,20 @@
                 <noderef id="tractor5" />
             </children>
         </node>
-
+         
         <node id="tractor1">
+            <transforms>
+                <translate value3="-4.5 5.7 103" />
+                <scale value3="0.1 0.12 0.1" />
+                <rotate value3="0 0 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor3.png"/>
+                </primitive>
+            </children> 
+        </node>
+        <!--  
             <transforms>
                 <translate value3="10 5.7 78" />
                 <scale value3="0.1 0.12 0.1" />
@@ -521,9 +533,7 @@
                         <controlpoint xx="99" yy="5.7" zz="20" rotation="5"/>
                     </route>
                 </primitive>
-            </children>
-        </node>
-
+            </children>-->
         <node id="tractor2">
             <transforms>
                 <translate value3="-22 5.7 147" />

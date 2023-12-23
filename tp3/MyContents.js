@@ -708,7 +708,7 @@ class MyContents  {
         this.app.scene.add(this.object);
 
         this.clock = new THREE.Clock();
-        this.oppTractor = this.app.scene.getObjectByName("tractor1");
+        //this.oppTractor = this.app.scene.getObjectByName("tractor1");
 
         console.log(this.oppTractor);
 
@@ -729,6 +729,7 @@ class MyContents  {
             this.app.scene.add(cube);
         });
 
+        /*
         // Position and rotation keyframe tracks
         const positionKF = new THREE.VectorKeyframeTrack(
             '.position',
@@ -759,7 +760,7 @@ class MyContents  {
         this.rotationAction.timeScale = 0.5;
 
         this.positionAction.play();
-        this.rotationAction.play();
+        this.rotationAction.play();*/
     }
 
     update() {
