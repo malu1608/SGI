@@ -4,6 +4,7 @@ import { MyFileReader } from './parser/MyFileReader.js';
 import { MyNurbsBuilder } from './MyNurbsBuilder.js';
 import { PolygonBuilder } from './PolygonBuilder.js';
 import { MyTrackBuilder } from './MyTrackBuilder.js';
+
 /**
  *  This class contains the contents of out application
  */
@@ -14,29 +15,121 @@ class MyContents  {
        @param {MyApp} app The application object
     */ 
     constructor(app) {
-        this.app = app
+        this.state = "Menu"; // Start with the Menu state
         this.axis = null
+        this.app = app
+        
         this.data = null
         this.materials = new Map();
         this.object = null;
         this.lights = {};
         this.videos = [];
-        this.reader = new MyFileReader(app, this, this.onSceneLoaded);
-		this.reader.open("scenes/farm/farm.xml");		
+        this.playButton = null;
+        this.spriteSheetTexture = null;
+        this.tilesPerRow = 16; // for a 16x16 grid
+        this.raycaster = new THREE.Raycaster()
+        this.raycaster.near = 1
+        this.raycaster.far = 20
+        this.booksTexture = new THREE.TextureLoader().load('scenes/farm/textures/hay.jpg');
+        this.pointer = new THREE.Vector2()
+        this.intersectedObj = null
+        this.pickingColor = "0x00ff00"  
+
+        this.menuItems = {};
+        this.currentHighlighted = null;
+
+    }
+
+    setMenu() {
+        const menuGeometry = new THREE.PlaneGeometry(10, 10);
+        const menuMaterial = new THREE.MeshBasicMaterial({ color: 0x123456 });
+        const menu = new THREE.Mesh(menuGeometry, menuMaterial);
+        menu.position.set(0, 0, -5);
+        
+        // Create 3D text for menu items and add to the scene
+        this.menuItems.play = {
+            object: this.createTextFromSpriteSheet('PLAY', new THREE.Vector3(0, 1, 0)),
+            action: this.startGame.bind(this)
+        };
+        this.menuItems.options = {
+            object: this.createTextFromSpriteSheet('OPTIONS', new THREE.Vector3(0, 0, 0)),
+            action: this.showOptions.bind(this)
+        };
+        this.menuItems.quit = {
+            object: this.createTextFromSpriteSheet('QUIT', new THREE.Vector3(0, -1, 0)),
+            action: this.quitGame.bind(this)
+        };
+
+        // For each menu item, add the text to the menu and scene
+        for (const key in this.menuItems) {
+            const item = this.menuItems[key];
+            console.log("item:",item);
+            if (Array.isArray(item.objects)) {
+                item.objects.forEach(mesh => {
+                    this.app.scene.add(mesh);
+                    // Uncomment if you want to add the text to the menu as children
+                    // menu.add(mesh);
+                });
+            } 
+            //this.app.scene.add(item.object); // If you want it independent of the menu plane
+        }
+
+        // Create the highlight sprite and add it to the scene
+        this.buttonHighlight = this.createButtonHighlightSprite(new THREE.Vector3(-1.5, 1, 0));
+        this.app.scene.add(this.buttonHighlight);
+        this.app.scene.add(menu);
+
+    }
+
+    updateButtonHighlight() {
+        if (this.currentHighlighted) {
+            // Calculate the correct frame based on the highlighted button
+            const numberOfFrames = 3; // The total number of frames in your spritesheet
+            const frameIndex = Object.keys(this.menuItems).indexOf(this.currentHighlighted);
+            this.buttonHighlight.material.map.offset.x = frameIndex / numberOfFrames;
+            this.buttonHighlight.material.map.needsUpdate = true;
+        }
     }
 
     /**
      * initializes the contents
      */
     init() {
-        // create once 
-        if (this.axis === null) {
-            // create and attach the axis to the scene
-            this.axis = new MyAxis(this)
-            this.app.scene.add(this.axis)
+        this.initSpriteSheet();
+        console.log("state",this.state)
+        if (this.state === "Menu") {
+            this.setMenu();
+            document.addEventListener("pointerdown", this.onPointerClick.bind(this), false);
+            this.state = "Scene"; // Start with the Menu state
+        } else if (this.state === "Scene" ) {
+            this.loadScene();
+            
         }
-    }
 
+        // Set up the event listener for pointerdown
+        document.addEventListener("pointerdown", this.onPointerClick.bind(this), false);
+        
+        
+    }
+    loadScene() {
+        /*
+        if (this.playButton) {
+            this.app.scene.remove(this.playButton.parent); // Assuming the menu is the parent of the play button
+        }*/
+        this.state = "Scene"; // Change state to scene
+
+        if (this.axis === null) {
+            this.axis = new MyAxis(this);
+            this.app.scene.add(this.axis);
+        }
+
+        // Load the scene from XML
+        this.reader = new MyFileReader(this.app, this, this.onSceneLoaded);
+        this.reader.open("scenes/farm/farm.xml");
+
+        
+    }
+    
     /**
      * Called when the scene xml file load is complete
      * @param {MySceneData} data the entire scene data object
@@ -54,7 +147,137 @@ class MyContents  {
         this.onAfterSceneLoadedAndBeforeRender(data);
 
     }
+    
+    onPointerClick(event) {
+        event.preventDefault();
+        // calculate pointer position in normalized device coordinates
 
+        this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        console.log("Position x: " + this.pointer.x + " y: " + this.pointer.y);
+
+        console.log("Camera: " + this.app.activeCameraName);
+        //set the picking ray from the camera position and mouse coordinates
+        this.raycaster.setFromCamera(this.pointer, this.app.cameras[this.app.activeCameraName]);
+
+        //compute intersections
+        const menuItemsArray = Object.values(this.menuItems).map(item => item.object);
+        var intersects = this.raycaster.intersectObjects(menuItemsArray.flat());
+        console.log(intersects);
+        if (intersects.length > 0) {
+            const intersected = intersects[0].object;
+
+            // Check which menu item was clicked and perform the action
+            for (let key in this.menuItems) {
+                const item = this.menuItems[key];
+                if (item.object.includes(intersected)) {
+                    this.currentHighlighted = key;
+                    item.action();
+                    this.removeMenu(); // Remove menu from the scene
+                    break;
+                }
+            }
+            
+        }
+
+    }
+    removeMenu() {
+        // Remove all menu items from the scene
+        for (const key in this.menuItems) {
+          const item = this.menuItems[key];
+          this.app.scene.remove(item.object);
+        }
+        // Remove the button highlight sprite
+        this.app.scene.remove(this.buttonHighlight);
+    }
+    startGame() {
+        console.log("Start game clicked");
+        console.log("Play button clicked, loading scene...");
+        //this.app.scene.remove(this.playButton.parent); // Remove play button from the scene
+        this.loadScene(); // Call the function to load the scene
+    }
+
+    showOptions() {
+        console.log("Options clicked");
+
+        this.loadScene(); 
+        // Logic to show options menu
+    }
+
+    quitGame() {
+        console.log("Quit game clicked");
+        // Logic to quit the game
+    }
+
+    initSpriteSheet() {
+        this.spriteSheetTexture = new THREE.TextureLoader().load('fonts/spritesheet.png');
+        //console.log("texture:",this.spriteSheetTexture);
+        this.tilesPerRow = 16; // Assuming you have a 16x16 grid of characters in your sprite sheet
+    }
+
+    getUVForCharacter(character) {
+
+        const asciiCode = character.charCodeAt(0);
+        console.log("asciiCode:",asciiCode);
+        const tileUSize = 1 / this.tilesPerRow; // The size of one tile in U dimension
+        const tileVSize = 1 / this.tilesPerRow; // The size of one tile in V dimension
+
+        const uIndex = asciiCode % this.tilesPerRow;
+        const vIndex = Math.floor(asciiCode / this.tilesPerRow);
+        
+        return {
+            u: uIndex * tileUSize,
+            v: 1 - (vIndex + 1) * tileVSize // Textures in WebGL are Y-inverted
+        };
+    }
+
+    // Use this function to create a mesh for each character using the sprite sheet
+    createTextFromSpriteSheet(text, position) {
+        const characters = text.split('');
+        const meshes = [];
+
+        characters.forEach((char, index) => {
+
+            const uv = this.getUVForCharacter(char);
+
+            // Apply UV mapping to the sprite sheet texture
+            this.spriteSheetTexture.offset.x = uv.u;
+            this.spriteSheetTexture.offset.y = uv.v;
+            this.spriteSheetTexture.repeat.set(1 / this.tilesPerRow, 1 / this.tilesPerRow);
+
+            // Create the material with the mapped texture
+            const material = new THREE.MeshBasicMaterial({
+                map: this.spriteSheetTexture.clone(),
+                transparent: true
+            });
+
+            // Create a plane geometry for the character
+            const geometry = new THREE.PlaneGeometry(1, 1); // Adjust size as needed
+            const mesh = new THREE.Mesh(geometry, material);
+
+            // Position the character mesh
+            mesh.position.set(
+                position.x + index, // You might want to adjust the spacing
+                position.y,
+                position.z
+            );
+
+            this.app.scene.add(mesh);
+            meshes.push(mesh);
+        });
+
+        return meshes; // Return the array of meshes if you need to keep track of them
+    }
+    // Method to create a spritesheet material for a button
+    createButtonHighlightSprite(position) {
+        const spriteMap = new THREE.TextureLoader().load('fonts/spritesheet.png');
+        const spriteMaterial = new THREE.SpriteMaterial({ map: spriteMap });
+        const sprite = new THREE.Sprite(spriteMaterial);
+        sprite.position.copy(position);
+        this.app.scene.add(sprite);
+        return sprite;
+    }
 
     /**
      * Sets fog based on the provided fog data.

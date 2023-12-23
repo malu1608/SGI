@@ -172,7 +172,9 @@ class MyContents  {
 
                 const img = mipmapTex.image;
                 // console.log("IMG: ", img.width, mipmap);
+                console.log("canvas.width: ", canvas.width);
                 canvas.width = img.width;
+                
                 canvas.height = img.height;
 
                 context.drawImage(img, 0, 0);
