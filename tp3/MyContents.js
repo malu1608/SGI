@@ -41,22 +41,23 @@ class MyContents  {
     }
 
     setMenu() {
+       
         const menuGeometry = new THREE.PlaneGeometry(10, 10);
-        const menuMaterial = new THREE.MeshBasicMaterial({ color: 0x123456 });
+        const menuMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
         const menu = new THREE.Mesh(menuGeometry, menuMaterial);
-        menu.position.set(0, 0, -5);
+        menu.position.set(0, 0, -1);
         
         // Create 3D text for menu items and add to the scene
         this.menuItems.play = {
-            object: this.createTextFromSpriteSheet('PLAY', new THREE.Vector3(0, 1, 0)),
+            object: this.createTextFromSpriteSheet('1.PLAY', new THREE.Vector3(0, 1, 0)),
             action: this.startGame.bind(this)
         };
         this.menuItems.options = {
-            object: this.createTextFromSpriteSheet('OPTIONS', new THREE.Vector3(0, 0, 0)),
+            object: this.createTextFromSpriteSheet('2.OPTIONS', new THREE.Vector3(0, 0, 0)),
             action: this.showOptions.bind(this)
         };
         this.menuItems.quit = {
-            object: this.createTextFromSpriteSheet('QUIT', new THREE.Vector3(0, -1, 0)),
+            object: this.createTextFromSpriteSheet('3.QUIT', new THREE.Vector3(0, -1, 0)),
             action: this.quitGame.bind(this)
         };
 
@@ -95,8 +96,10 @@ class MyContents  {
      * initializes the contents
      */
     init() {
-        this.initSpriteSheet();
+        
         console.log("state",this.state)
+
+        
         if (this.state === "Menu") {
             this.setMenu();
             document.addEventListener("pointerdown", this.onPointerClick.bind(this), false);
@@ -191,7 +194,9 @@ class MyContents  {
         // Remove the button highlight sprite
         this.app.scene.remove(this.buttonHighlight);
     }
+    
     startGame() {
+        
         console.log("Start game clicked");
         console.log("Play button clicked, loading scene...");
         //this.app.scene.remove(this.playButton.parent); // Remove play button from the scene
@@ -200,8 +205,7 @@ class MyContents  {
 
     showOptions() {
         console.log("Options clicked");
-
-        this.loadScene(); 
+        //this.loadScene(); 
         // Logic to show options menu
     }
 
@@ -210,14 +214,10 @@ class MyContents  {
         // Logic to quit the game
     }
 
-    initSpriteSheet() {
-        this.spriteSheetTexture = new THREE.TextureLoader().load('fonts/spritesheet.png');
-        //console.log("texture:",this.spriteSheetTexture);
-        this.tilesPerRow = 16; // Assuming you have a 16x16 grid of characters in your sprite sheet
-    }
+   
 
     getUVForCharacter(character) {
-
+        this.tilesPerRow = 16;
         const asciiCode = character.charCodeAt(0);
         console.log("asciiCode:",asciiCode);
         const tileUSize = 1 / this.tilesPerRow; // The size of one tile in U dimension
@@ -236,26 +236,31 @@ class MyContents  {
     createTextFromSpriteSheet(text, position) {
         const characters = text.split('');
         const meshes = [];
-
+        
         characters.forEach((char, index) => {
 
             const uv = this.getUVForCharacter(char);
 
-            // Apply UV mapping to the sprite sheet texture
-            this.spriteSheetTexture.offset.x = uv.u;
-            this.spriteSheetTexture.offset.y = uv.v;
-            this.spriteSheetTexture.repeat.set(1 / this.tilesPerRow, 1 / this.tilesPerRow);
+            const characterTexture = new THREE.TextureLoader().load('fonts/spritesheet.png').clone();
+            characterTexture.needsUpdate = true; // Important after modifying the texture
 
-            // Create the material with the mapped texture
+            characterTexture.wrapS = THREE.ClampToEdgeWrapping;
+            characterTexture.wrapT = THREE.ClampToEdgeWrapping;
+            // Apply UV mapping to the cloned texture
+            characterTexture.offset.x = uv.u;
+            characterTexture.offset.y = uv.v;
+            characterTexture.repeat.set(1 / this.tilesPerRow, 1 / this.tilesPerRow);
+
+            // Create the material with the cloned texture
             const material = new THREE.MeshBasicMaterial({
-                map: this.spriteSheetTexture.clone(),
-                transparent: true
+                map: characterTexture,
+                transparent: true // Assuming your spritesheet has transparency
             });
 
             // Create a plane geometry for the character
             const geometry = new THREE.PlaneGeometry(1, 1); // Adjust size as needed
             const mesh = new THREE.Mesh(geometry, material);
-
+            mesh.position.set(position.x + index, position.y, position.z);
             // Position the character mesh
             mesh.position.set(
                 position.x + index, // You might want to adjust the spacing
@@ -263,6 +268,7 @@ class MyContents  {
                 position.z
             );
 
+            console.log("mesh:",mesh);
             this.app.scene.add(mesh);
             meshes.push(mesh);
         });
