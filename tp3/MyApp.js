@@ -114,7 +114,13 @@ class MyApp   {
     setActiveCamera(cameraName) {   
         this.activeCameraName = cameraName
         this.activeCamera = this.cameras[this.activeCameraName]
+        console.log(`my app active camera is ${this.activeCameraName}`)
     }
+
+    getActiveCamera() {
+        return this.cameras[this.activeCameraName];
+    }
+
 
     /**
      * updates the active camera if required
@@ -146,7 +152,7 @@ class MyApp   {
             }
         }
     }
-
+    
     /**
      * the window resize handler
      */

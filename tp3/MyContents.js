@@ -24,9 +24,17 @@ class MyContents  {
         this.object = null;
         this.lights = {};
         this.videos = [];
+        this.picked_obj = []
+        this.selectedTractors = [];
+        this.trackPositions = [
+            new THREE.Vector3(10,0,450),
+            new THREE.Vector3(10,0,450)
+        ];
+        this.trackPositions[0].rotation.x = Math.PI / 2;
 
         this.raycaster = new THREE.Raycaster()
-        
+        this.raycaster.near = 0.1
+        this.raycaster.far = 1000
         this.pointer = new THREE.Vector2()
         this.intersectedObj = null
         this.pickingColor = "0x00ff00"  
@@ -35,12 +43,19 @@ class MyContents  {
         this.notPickableObjIds = []
         document.addEventListener(
             "pointermove",
-            // "mousemove",
-            // "pointerdown",
             this.onPointerMove.bind(this)
         );   
+        document.addEventListener("pointerdown", this.onPointerClick.bind(this));
+
+        this.tilesPerRow = 16;
+        this.spriteSheetTexture = new THREE.TextureLoader().load('fonts/spritesheet.png', texture => {
+            texture.wrapS = THREE.ClampToEdgeWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
+        });
         this.reader = new MyFileReader(app, this, this.onSceneLoaded);
-		this.reader.open("scenes/farm/farm.xml");		
+		this.reader.open("scenes/farm/farm.xml");
+        
+        
     }
 
     /**
@@ -53,7 +68,7 @@ class MyContents  {
             this.axis = new MyAxis(this)
             this.app.scene.add(this.axis)
         }
-        //this.assignTractorsToLayers();
+        this.createTextFromSpriteSheet("Please choose the tractor:",new THREE.Vector3(0, 250, 0))
         
     }
     
@@ -85,34 +100,110 @@ class MyContents  {
 
         console.log("Camera: " + this.app.activeCameraName);
 
-        this.raycaster.near = this.app.cameras[this.app.activeCameraName].near;
-        this.raycaster.far = this.app.cameras[this.app.activeCameraName].far;
         //set the picking ray from the camera position and mouse coordinates
-        this.raycaster.setFromCamera(this.pointer, this.app.cameras[this.app.activeCameraName]);
-        const tractors = [];
-        for (let i = 1; i <= 5; i++) {
-            const tractorName = "tractor" + i;
-            const tractor = this.app.scene.getObjectByName(tractorName);
-            if (tractor) {
-                if (tractor.isGroup) {
-                    tractors.push(...tractor.children);
-                } else {
-                    tractors.push(tractor);
-                }
-                tractors.push(tractor);
-            } else {
-                console.warn(`Tractor named ${tractorName} not found.`);
-            }
-        }
+        console.log("contents",this.app.getActiveCamera())
+        //console.log("cameras",this.app.cameras)
+        this.raycaster.setFromCamera(this.pointer, this.app.getActiveCamera());
+
+        const pickingTractor = true;
         
+        let tractors = [];
+        if(pickingTractor){
+            for (let i = 1; i <= 5; i++) { // 5 tractors
+                const tractorName = "tractor" + i;
+                const tractor = this.app.scene.getObjectByName(tractorName);
+                if (tractor) {
+                        tractors.push(tractor);
+                    }
+                   
+                 else {
+                    console.warn(`Tractor named ${tractorName} not found.`);
+                }
+            }
+            this.picked_obj = tractors;
+        } else
+            {
+                let obstacles = [];
+                for (let i = 1; i <= 2; i++) { // 2 woods and 2 wheelbarrows
+                    const woodName = "wood" + i;
+                    const wheelBarrowName = "wheelbarrow" + i;
+                    const wood = this.app.scene.getObjectByName(woodName);
+                    const wheelBarrow = this.app.scene.getObjectByName(wheelBarrowName);
+                    if (wood.isGroup) {
+                        console.log("wood mesh",wood.getMeshes)
+                        obstacles.push(wood);
+                    } else {
+                        console.warn(`Wood named ${woodName} not found.`);
+                    }
+
+                    if (wheelBarrow) {
+                        if (wheelBarrow.isGroup ) {
+                            obstacles.push(...wheelBarrow.children);
+                        } else {
+                            obstacles.push(wheelBarrow);
+                        }
+                        obstacles.push(wheelBarrow);
+                    } else {
+                        console.warn(`WheelBarrow named ${wheelBarrowName} not found.`);
+                    }
+                }
+                this.picked_obj = obstacles;
+            }
+
+
         //compute intersections
-        console.log("filhos",tractors)
+        console.log("filhos",this.picked_obj)
         //console.log("raycaster",rayorigin, raydirection)
-        var intersects = this.raycaster.intersectObjects(tractors,true);
+        var intersects = this.raycaster.intersectObjects(this.picked_obj,true);
         //console.log(intersects);
         console.log("Intersects: " + intersects.length);
         this.pickingHelper(intersects);
         
+    }
+    onPointerClick(event) {
+        event.preventDefault();
+        // calculate pointer position in normalized device coordinates
+
+        this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        console.log("Position x: " + this.pointer.x + " y: " + this.pointer.y);
+
+        //console.log("Camera: " + this.app.activeCameraName);
+        //console.log("cameras", this.app.cameras)
+        
+        //set the picking ray from the camera position and mouse coordinates
+        this.raycaster.setFromCamera(this.pointer, this.app.getActiveCamera());
+        
+        var intersects = this.raycaster.intersectObjects(this.picked_obj,true);
+        if (intersects.length > 0) {
+            for (var i = 0; i < intersects.length; i++) {
+
+                console.log("elementos",intersects[i]);
+            }
+            const clickedTractor = intersects[0].object.parent;
+            
+            // Add the clicked tractor to the selection array
+            this.selectedTractors.push(clickedTractor);
+    
+            // Move the tractor to the next position on the track
+            if (this.selectedTractors.length <= this.trackPositions.length) {
+                const positionIndex = this.selectedTractors.length - 1;
+                this.moveTractorToTrack(clickedTractor, this.trackPositions[positionIndex]);
+            }
+        }
+        //console.log(intersects);
+        console.log("Intersects: " + intersects.length);
+        this.pickingHelper(intersects);
+    }
+    moveTractorToTrack(tractor, position) {
+        // Move the tractor to the given position
+        tractor.position.copy(position);
+    
+        // Optional: reset the color of the tractor if needed
+        if (tractor.material && tractor.currentHex) {
+            tractor.material.color.setHex(tractor.currentHex);
+        }
     }
     pickingHelper(intersects) {
         if (intersects.length > 0) {
@@ -152,6 +243,60 @@ class MyContents  {
     }
     updatePickingColor(value) {
         this.pickingColor = value.replace('#', '0x');
+    }
+
+    getUVForCharacter(character) {
+        const asciiCode = character.charCodeAt(0);
+        console.log("asciiCode:",asciiCode);
+        const tileUSize = 1 / this.tilesPerRow; // The size of one tile in U dimension
+        const tileVSize = 1 / this.tilesPerRow; // The size of one tile in V dimension
+
+        const uIndex = asciiCode % this.tilesPerRow;
+        const vIndex = Math.floor(asciiCode / this.tilesPerRow);
+        
+        return {
+            u: uIndex * tileUSize,
+            v: 1 - (vIndex + 1) * tileVSize // Textures in WebGL are Y-inverted
+        };
+    }
+
+    createTextFromSpriteSheet(text, position) {
+        const characters = text.split('');
+        const meshes = [];
+        let currentPositionX = position.x; 
+        
+        characters.forEach((char, index) => {
+
+            const uv = this.getUVForCharacter(char);
+
+            const characterTexture = this.spriteSheetTexture.clone();
+            characterTexture.needsUpdate = true; // Important after modifying the texture
+            
+            // Apply UV mapping to the cloned texture
+            characterTexture.offset.set(uv.u, uv.v);
+            characterTexture.repeat.set(1 / this.tilesPerRow, 1 / this.tilesPerRow);
+
+            // Create the material with the cloned texture
+            const material = new THREE.MeshBasicMaterial({
+                map: characterTexture,
+                color: 0x00ff00, 
+                //transparent: true // Assuming your spritesheet has transparency
+            });
+            console.log("material:",material);  
+            // Create a plane geometry for the character
+            const geometry = new THREE.PlaneGeometry(1, 1); // Adjust size as needed
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(currentPositionX, position.y, position.z);
+            // Position the character mesh
+            meshes.push(mesh);
+            console.log("mesh:",mesh);
+            this.app.scene.add(mesh);
+
+            currentPositionX += 1;
+            
+        });
+
+        return meshes; // Return the array of meshes if you need to keep track of them
     }
 
     /**
@@ -378,6 +523,7 @@ class MyContents  {
             else{
                 console.log("camera type not recognized");
             }
+            console.log("Camera: " + camera.id + " " + camera.type + " " + camera.near + " " + camera.far);
 
         }
 
@@ -808,6 +954,8 @@ class MyContents  {
         //console.log(this.oppTractor);
 
         // Route control points and quartenions
+        /*
+         
         this.routeControlPoints = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Vector3(point.xx, point.yy, point.zz));
         this.routeQuartenions = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(point.rotation)));
 
@@ -823,7 +971,7 @@ class MyContents  {
             cube.position.set(point.x, point.y, point.z);
             this.app.scene.add(cube);
         });
-
+*/
         /*
         // Position and rotation keyframe tracks
         const positionKF = new THREE.VectorKeyframeTrack(
