@@ -500,9 +500,9 @@
          
         <node id="tractor1">
             <transforms>
-                <translate value3="-4.5 5.7 103" />
+                <translate value3="-4.5 5.7 125" />
                 <scale value3="0.1 0.12 0.1" />
-                <rotate value3="0 0 0" />
+                <rotate value3="0 3.17 0" />
             </transforms>
             <children>
                 <primitive>
@@ -575,9 +575,9 @@
 
         <node id="tractor5">
             <transforms>
-                <translate value3="13 5.7 103" />
+                <translate value3="13 5.7 125" />
                 <scale value3="0.1 0.12 0.1" />
-                <rotate value3="0 0 0" />
+                <rotate value3="0 3.17 0" />
             </transforms>
             <children>
                 <primitive>

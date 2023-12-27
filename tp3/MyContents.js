@@ -27,10 +27,12 @@ class MyContents  {
         this.picked_obj = []
         this.selectedTractors = [];
         this.trackPositions = [
-            new THREE.Vector3(10,0,450),
-            new THREE.Vector3(10,0,450)
+            new THREE.Vector3(-10,0,75),
+            new THREE.Vector3(-10,0,85)
         ];
-        this.trackPositions[0].rotation.x = Math.PI / 2;
+        this.choosingPlayerTractor = true;
+        // Define the angle of rotation in radians (90 degrees)
+       
 
         this.raycaster = new THREE.Raycaster()
         this.raycaster.near = 0.1
@@ -160,6 +162,7 @@ class MyContents  {
         this.pickingHelper(intersects);
         
     }
+
     onPointerClick(event) {
         event.preventDefault();
         // calculate pointer position in normalized device coordinates
@@ -176,34 +179,56 @@ class MyContents  {
         this.raycaster.setFromCamera(this.pointer, this.app.getActiveCamera());
         
         var intersects = this.raycaster.intersectObjects(this.picked_obj,true);
+        console.log("intersects: ", intersects);
         if (intersects.length > 0) {
             for (var i = 0; i < intersects.length; i++) {
 
                 console.log("elementos",intersects[i]);
+            }  
+            console.log("intersects[0]: ", intersects[0]);
+            const clickedTractor = intersects[0].object.parent.parent;
+            console.log("clickedTractor: ", clickedTractor);
+            if (clickedTractor.material && clickedTractor.currentHex) {
+                // Set the color back to its original value
+                clickedTractor.material.color.setHex(clickedTractor.currentHex);
             }
-            const clickedTractor = intersects[0].object.parent;
             
             // Add the clicked tractor to the selection array
             this.selectedTractors.push(clickedTractor);
     
             // Move the tractor to the next position on the track
+            console.log("this.selectedTractors.length: ", this.selectedTractors.length);
+            console.log("this.trackPositions.length: ", this.trackPositions.length);
             if (this.selectedTractors.length <= this.trackPositions.length) {
                 const positionIndex = this.selectedTractors.length - 1;
-                this.moveTractorToTrack(clickedTractor, this.trackPositions[positionIndex]);
+                this.moveTractorToTrack(clickedTractor);
+                this.choosingPlayerTractor = false;
             }
         }
         //console.log(intersects);
         console.log("Intersects: " + intersects.length);
         this.pickingHelper(intersects);
     }
-    moveTractorToTrack(tractor, position) {
+
+    moveTractorToTrack(tractor) {
         // Move the tractor to the given position
-        tractor.position.copy(position);
+        //tractor.position.copy(position);
+        const previousPosition = tractor.position.clone();
+
+        let angle = Math.PI /2;
+        let axis = new THREE.Vector3(0, 1, 0);
+
+        // Rotate the tractor to face the next position
+        tractor.rotateOnAxis(axis, angle);
+
+        let toPosition = this.choosingPlayerTractor ? this.trackPositions[0] : this.trackPositions[1];
+        tractor.position.set(toPosition.x, previousPosition.y, toPosition.z);
     
         // Optional: reset the color of the tractor if needed
-        if (tractor.material && tractor.currentHex) {
-            tractor.material.color.setHex(tractor.currentHex);
+        if (tractor.material && tractor.material.color && tractor.originalColor) {
+            tractor.material.color.set(tractor.originalColor);
         }
+        console.log("tractor: ", tractor);
     }
     pickingHelper(intersects) {
         if (intersects.length > 0) {
