@@ -7,6 +7,20 @@ import { MyTrackBuilder } from './MyTrackBuilder.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 
+const States = {
+    CHOOSING_PLAYER_TRACTOR: 0,
+    CHOOSING_AUTONOMOUS_TRACTOR: 1,
+    PLAY: 2,
+    MAIN_MENU : 3,
+    INSTRUCTIONS : 4,
+    GAME_OVER : 5,
+    START_GAME : 6,
+    RESUME_GAME : 7,
+    CHOOSING_OBSTACLES : 8,
+    PLACING_OBSTACLES : 9,
+    PAUSE : 10
+}
+
 /**
  *  This class contains the contents of out application
  */
@@ -31,9 +45,9 @@ class MyContents  {
             new THREE.Vector3(-10,0,85)
         ];
         this.choosingPlayerTractor = true;
-        // Define the angle of rotation in radians (90 degrees)
+   
+        this.tractorAutonomous = null
        
-
         this.raycaster = new THREE.Raycaster()
         this.raycaster.near = 0.1
         this.raycaster.far = 1000
@@ -42,6 +56,7 @@ class MyContents  {
         this.pickingColor = "0x00ff00"  
         this.availableLayers = ['none']
         this.selectedLayer = this.availableLayers[0] 
+        this.current_state = States.MAIN_MENU
         this.notPickableObjIds = []
         document.addEventListener(
             "pointermove",
@@ -196,11 +211,10 @@ class MyContents  {
             // Add the clicked tractor to the selection array
             this.selectedTractors.push(clickedTractor);
     
-            // Move the tractor to the next position on the track
-            console.log("this.selectedTractors.length: ", this.selectedTractors.length);
-            console.log("this.trackPositions.length: ", this.trackPositions.length);
+            // select only 2 tractors
+            //console.log("this.selectedTractors.length: ", this.selectedTractors.length);
+            //console.log("this.trackPositions.length: ", this.trackPositions.length);
             if (this.selectedTractors.length <= this.trackPositions.length) {
-                const positionIndex = this.selectedTractors.length - 1;
                 this.moveTractorToTrack(clickedTractor);
                 this.choosingPlayerTractor = false;
             }
@@ -221,14 +235,19 @@ class MyContents  {
         // Rotate the tractor to face the next position
         tractor.rotateOnAxis(axis, angle);
 
-        let toPosition = this.choosingPlayerTractor ? this.trackPositions[0] : this.trackPositions[1];
+        let toPosition = this.choosingPlayerTractor ? this.trackPositions[0] : this.trackPositions[1]; //zero is our player, one is the automatic one
         tractor.position.set(toPosition.x, previousPosition.y, toPosition.z);
     
         // Optional: reset the color of the tractor if needed
         if (tractor.material && tractor.material.color && tractor.originalColor) {
             tractor.material.color.set(tractor.originalColor);
         }
-        console.log("tractor: ", tractor);
+        
+        if(!this.choosingPlayerTractor){
+            this.tractorAutonomous = tractor;
+        }
+        console.log("tractor autonomo: ", this.tractorAutonomous);
+        
     }
     pickingHelper(intersects) {
         if (intersects.length > 0) {
@@ -962,6 +981,10 @@ class MyContents  {
         console.log("" + new Array(indent * 4).join(' ') + " - " + obj.type + " " + (obj.id !== undefined ? "'" + obj.id + "'" : ""))
     }
 
+    movingAutonomousTractor() {
+        
+    }
+
     onAfterSceneLoadedAndBeforeRender(data) {
         // Called after the scene is loaded and before the first render
         this.data = data;
@@ -974,12 +997,12 @@ class MyContents  {
         this.app.scene.add(this.object);
 
         this.clock = new THREE.Clock();
-        //this.oppTractor = this.app.scene.getObjectByName("tractor1");
 
-        //console.log(this.oppTractor);
+        this.oppTractor = this.tractorAutonomous ? this.tractorAutonomous : this.object.getObjectByName('tractor2');
 
-        // Route control points and quartenions
-        /*
+        console.log("autonomo",this.oppTractor);
+
+        //Route control points and quartenions
          
         this.routeControlPoints = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Vector3(point.xx, point.yy, point.zz));
         this.routeQuartenions = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(point.rotation)));
@@ -996,8 +1019,7 @@ class MyContents  {
             cube.position.set(point.x, point.y, point.z);
             this.app.scene.add(cube);
         });
-*/
-        /*
+
         // Position and rotation keyframe tracks
         const positionKF = new THREE.VectorKeyframeTrack(
             '.position',
@@ -1006,7 +1028,7 @@ class MyContents  {
             THREE.InterpolateSmooth
         );
 
-        const quaternionKF = new THREE.QuaternionKeyframeTrack(
+        const quaternionKF = new THREE.QuaternionKeyfointerrameTrack(
             '.quaternion',
             [...Array(this.routeQuartenions.length).keys()],
             [].concat(...this.routeQuartenions.map(point => [...point.toArray()])),
@@ -1028,13 +1050,52 @@ class MyContents  {
         this.rotationAction.timeScale = 0.5;
 
         this.positionAction.play();
-        this.rotationAction.play();*/
+        this.rotationAction.play();
     }
 
     update() {
         if (this.mixer) {
             this.mixer.update(this.clock.getDelta());
         }
+        
+        switch (this.current_state) {
+            case States.PLAY:
+                break;
+            case States.PAUSE:
+                this.updateState(States.PLAY);
+                break;
+            case States.GAME_OVER:
+                this.updateState(States.MAIN_MENU);
+                break;
+            case States.INSTRUCTIONS:
+                this.updateState(States.MAIN_MENU);
+                break;
+            case States.CHOOSING_OBSTACLES:
+                this.updateState(States.PLACING_OBSTACLES);
+                break;
+            case States.PLACING_OBSTACLES:
+                this.updateState(States.RESUME_GAME);
+                break;
+            case States.RESUME_GAME: //restart game
+                this.updateState(States.PLAY);
+                break;
+            case States.CHOOSING_PLAYER_TRACTOR:
+                this.updateState(States.CHOOSING_AUTONOMOUS_TRACTOR);
+                break;
+            case States.CHOOSING_AUTONOMOUS_TRACTOR:
+                this.updateState(States.PLAY);
+                break;
+            default:
+                this.current_state = States.MAIN_MENU;
+                break;
+        }
+
+        console.log("current state: ", this.current_state);
+
+    }
+
+    updateState(newState) {
+        this.current_state = newState;
     }
 }
 
