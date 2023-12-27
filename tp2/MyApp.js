@@ -8,7 +8,7 @@ import Stats from 'three/addons/libs/stats.module.js'
 /**
  * This class contains the application object
  */
-class MyApp   {
+class MyApp {
     /**
      * the constructor
      */

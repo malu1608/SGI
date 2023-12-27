@@ -29,6 +29,9 @@ class MyGuiInterface  {
      * Initialize the gui interface
      */
     init() {
+
+        
+        
         // interface with cameras
         const cameraFolder = this.datgui.addFolder('Cameras')
         const cameras = this.contents.app.cameras
@@ -39,7 +42,16 @@ class MyGuiInterface  {
             this.app.cameras[camera.name] = camera
             cameraFolder.open();
         });
-
+        //picking
+        const data_pic_color = {
+            'picking color': this.contents.pickingColor
+        };
+        const pickFolder = this.datgui.addFolder('Picking');
+        pickFolder.addColor(data_pic_color, 'picking color').onChange((value) => { this.contents.updatePickingColor(value) });
+        pickFolder.add(this.contents.raycaster, 'near', 0, 5)
+        pickFolder.add(this.contents.raycaster, 'far', 5, 80)
+        pickFolder.add(this.contents, 'selectedLayer', ['none', '1', '2', '3']).name("selected layer").onChange((value) => { this.contents.selectedLayers = value; this.contents.updateSelectedLayer() });
+        pickFolder.open()
         // interface with videos
         const videos = this.contents.videos;
         const videosFolder = this.datgui.addFolder('Videos');

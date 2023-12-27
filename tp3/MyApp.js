@@ -29,7 +29,7 @@ class MyApp   {
         this.controls = null
         this.gui = null
         this.axis = null
-        this.contents == null
+        this.contents = null
     }
     /**
      * initializes the application
@@ -64,6 +64,7 @@ class MyApp   {
 
         // manage window resizes
         window.addEventListener('resize', this.onResize.bind(this), false );
+
     }
 
     /**
@@ -202,6 +203,7 @@ class MyApp   {
         this.lastCameraName = this.activeCameraName
         this.stats.end()
     }
+
 }
 
 

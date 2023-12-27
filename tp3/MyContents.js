@@ -31,8 +31,10 @@ class MyContents  {
        @param {MyApp} app The application object
     */ 
     constructor(app) {
-        this.app = app
+        this.state = "Menu"; // Start with the Menu state
         this.axis = null
+        this.app = app
+        
         this.data = null
         this.materials = new Map();
         this.object = null;
@@ -63,16 +65,71 @@ class MyContents  {
             this.onPointerMove.bind(this)
         );   
         document.addEventListener("pointerdown", this.onPointerClick.bind(this));
-
-        this.tilesPerRow = 16;
-        this.spriteSheetTexture = new THREE.TextureLoader().load('fonts/spritesheet.png', texture => {
+  
+        /*this.spriteSheetTexture = new THREE.TextureLoader().load('fonts/spritesheet.png', texture => {
             texture.wrapS = THREE.ClampToEdgeWrapping;
             texture.wrapT = THREE.ClampToEdgeWrapping;
-        });
-        this.reader = new MyFileReader(app, this, this.onSceneLoaded);
-		this.reader.open("scenes/farm/farm.xml");
+        });*/
         
         
+        this.spriteSheetTexture = null;
+        this.tilesPerRow = 16; // for a 16x16 grid
+
+        this.menuItems = {};
+        this.currentHighlighted = null;
+
+    }
+
+    setMenu() {
+       
+        const menuGeometry = new THREE.PlaneGeometry(10, 10);
+        const menuMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const menu = new THREE.Mesh(menuGeometry, menuMaterial);
+        menu.position.set(0, 0, -1);
+        
+        // Create 3D text for menu items and add to the scene
+        this.menuItems.play = {
+            object: this.createTextFromSpriteSheet('1.PLAY', new THREE.Vector3(0, 1, 0)),
+            action: this.startGame.bind(this)
+        };
+        this.menuItems.options = {
+            object: this.createTextFromSpriteSheet('2.OPTIONS', new THREE.Vector3(0, 0, 0)),
+            action: this.showOptions.bind(this)
+        };
+        this.menuItems.quit = {
+            object: this.createTextFromSpriteSheet('3.QUIT', new THREE.Vector3(0, -1, 0)),
+            action: this.quitGame.bind(this)
+        };
+
+        // For each menu item, add the text to the menu and scene
+        for (const key in this.menuItems) {
+            const item = this.menuItems[key];
+            console.log("item:",item);
+            if (Array.isArray(item.objects)) {
+                item.objects.forEach(mesh => {
+                    this.app.scene.add(mesh);
+                    // Uncomment if you want to add the text to the menu as children
+                    // menu.add(mesh);
+                });
+            } 
+            //this.app.scene.add(item.object); // If you want it independent of the menu plane
+        }
+
+        // Create the highlight sprite and add it to the scene
+        this.buttonHighlight = this.createButtonHighlightSprite(new THREE.Vector3(-1.5, 1, 0));
+        this.app.scene.add(this.buttonHighlight);
+        this.app.scene.add(menu);
+
+    }
+
+    updateButtonHighlight() {
+        if (this.currentHighlighted) {
+            // Calculate the correct frame based on the highlighted button
+            const numberOfFrames = 3; // The total number of frames in your spritesheet
+            const frameIndex = Object.keys(this.menuItems).indexOf(this.currentHighlighted);
+            this.buttonHighlight.material.map.offset.x = frameIndex / numberOfFrames;
+            this.buttonHighlight.material.map.needsUpdate = true;
+        }
     }
 
     /**
@@ -85,7 +142,41 @@ class MyContents  {
             this.axis = new MyAxis(this)
             this.app.scene.add(this.axis)
         }
-        this.createTextFromSpriteSheet("Please choose the tractor:",new THREE.Vector3(0, 250, 0))
+        //this.createTextFromSpriteSheet("Please choose the tractor:",new THREE.Vector3(0, 250, 0))
+        
+        //console.log("state",this.state)
+
+        /*
+        if (this.state === "Menu") {
+            this.setMenu();
+            document.addEventListener("pointerdown", this.onPointerClick.bind(this), false);
+            this.state = "Scene"; // Start with the Menu state
+        } else if (this.state === "Scene" ) {
+            this.loadScene();
+            
+        }*/
+
+        // Set up the event listener for pointerdown
+        //document.addEventListener("pointerdown", this.onPointerClick.bind(this), false);
+        
+        
+    }
+    loadScene() {
+        /*
+        if (this.playButton) {
+            this.app.scene.remove(this.playButton.parent); // Assuming the menu is the parent of the play button
+        }*/
+        this.state = "Scene"; // Change state to scene
+
+        if (this.axis === null) {
+            this.axis = new MyAxis(this);
+            this.app.scene.add(this.axis);
+        }
+
+        // Load the scene from XML
+        this.reader = new MyFileReader(this.app, this, this.onSceneLoaded);
+        this.reader.open("scenes/farm/farm.xml");
+
         
     }
     
@@ -304,43 +395,57 @@ class MyContents  {
         };
     }
 
+    // Use this function to create a mesh for each character using the sprite sheet
     createTextFromSpriteSheet(text, position) {
         const characters = text.split('');
         const meshes = [];
-        let currentPositionX = position.x; 
         
         characters.forEach((char, index) => {
 
             const uv = this.getUVForCharacter(char);
 
-            const characterTexture = this.spriteSheetTexture.clone();
+            const characterTexture = new THREE.TextureLoader().load('fonts/spritesheet.png').clone();
             characterTexture.needsUpdate = true; // Important after modifying the texture
-            
+
+            characterTexture.wrapS = THREE.ClampToEdgeWrapping;
+            characterTexture.wrapT = THREE.ClampToEdgeWrapping;
             // Apply UV mapping to the cloned texture
-            characterTexture.offset.set(uv.u, uv.v);
+            characterTexture.offset.x = uv.u;
+            characterTexture.offset.y = uv.v;
             characterTexture.repeat.set(1 / this.tilesPerRow, 1 / this.tilesPerRow);
 
             // Create the material with the cloned texture
             const material = new THREE.MeshBasicMaterial({
                 map: characterTexture,
-                color: 0x00ff00, 
-                //transparent: true // Assuming your spritesheet has transparency
+                transparent: true // Assuming your spritesheet has transparency
             });
-            console.log("material:",material);  
+
             // Create a plane geometry for the character
             const geometry = new THREE.PlaneGeometry(1, 1); // Adjust size as needed
             const mesh = new THREE.Mesh(geometry, material);
-            mesh.position.set(currentPositionX, position.y, position.z);
+            mesh.position.set(position.x + index, position.y, position.z);
             // Position the character mesh
-            meshes.push(mesh);
+            mesh.position.set(
+                position.x + index, // You might want to adjust the spacing
+                position.y,
+                position.z
+            );
+
             console.log("mesh:",mesh);
             this.app.scene.add(mesh);
-
-            currentPositionX += 1;
-            
+            meshes.push(mesh);
         });
 
         return meshes; // Return the array of meshes if you need to keep track of them
+    }
+    // Method to create a spritesheet material for a button
+    createButtonHighlightSprite(position) {
+        const spriteMap = new THREE.TextureLoader().load('fonts/spritesheet.png');
+        const spriteMaterial = new THREE.SpriteMaterial({ map: spriteMap });
+        const sprite = new THREE.Sprite(spriteMaterial);
+        sprite.position.copy(position);
+        this.app.scene.add(sprite);
+        return sprite;
     }
 
     /**
