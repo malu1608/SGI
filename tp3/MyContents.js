@@ -7,6 +7,21 @@ import { MyTrackBuilder } from './MyTrackBuilder.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 
+const States = {
+    CHOOSING_PLAYER_TRACTOR: 0,
+    CHOOSING_AUTONOMOUS_TRACTOR: 1,
+    STARTING_PLAY: 2,
+    MAIN_MENU : 3,
+    INSTRUCTIONS : 4,
+    GAME_OVER : 5,
+    START_GAME : 6,
+    RESUME_GAME : 7,
+    CHOOSING_OBSTACLES : 8,
+    PLACING_OBSTACLES : 9,
+    PAUSE : 10,
+    PLAY : 11
+}
+
 /**
  *  This class contains the contents of out application
  */
@@ -17,29 +32,120 @@ class MyContents  {
        @param {MyApp} app The application object
     */ 
     constructor(app) {
-        this.app = app
+        this.current_state = States.MAIN_MENU
         this.axis = null
+        this.app = app
+        
         this.data = null
         this.materials = new Map();
         this.object = null;
         this.lights = {};
         this.videos = [];
-        this.reader = new MyFileReader(app, this, this.onSceneLoaded);
-		this.reader.open("scenes/farm/farm.xml");		
+        this.picked_obj = []
+        this.selectedTractors = [];
+        this.trackPositions = [
+            new THREE.Vector3(-10,0,75),
+            new THREE.Vector3(-10,0,85)
+        ];
+        this.choosingPlayerTractor = true;
+   
+        this.tractorAutonomous = null
+       
+        this.raycaster = new THREE.Raycaster()
+        this.raycaster.near = 0.1
+        this.raycaster.far = 1000
+        this.pointer = new THREE.Vector2()
+        this.intersectedObj = null
+        this.pickingColor = "0x00ff00"  
+        this.availableLayers = ['none']
+        this.selectedLayer = this.availableLayers[0] 
+        this.current_state = States.MAIN_MENU
+        this.notPickableObjIds = []
+        this.text_obj = new THREE.Object3D();
+        this.app.scene.add(this.text_obj);
+        
+        
+         /*   */
+        /*this.spriteSheetTexture = new THREE.TextureLoader().load('fonts/spritesheet.png', texture => {
+            texture.wrapS = THREE.ClampToEdgeWrapping;
+            texture.wrapT = THREE.ClampToEdgeWrapping;
+        });*/
+        
+        
+        this.spriteSheetTexture = null;
+        this.tilesPerRow = 16; // For a 16x16 grid
+
+        this.menuItems = {};
+        this.menu = null; // To store the menu object
+        this.menuEventListenerAdded = false; // To check if the event listener is added
+        this.currentHighlighted = null;
+        this.initPointerEvents();
+
+    }
+
+
+    initPointerEvents(){
+        document.addEventListener(
+            "pointermove",
+            this.onPointerMove.bind(this)
+        );
+        document.addEventListener("pointerdown", this.onPointerClick.bind(this));
+        this.menuEventListenerAdded = true;
+    }
+
+    setMenu() {
+        if (this.menu){
+            return;
+        }
+
+        // Create a plane for the menu
+        const menuGeometry = new THREE.PlaneGeometry(10, 10);
+        const menuMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const menu = new THREE.Mesh(menuGeometry, menuMaterial);
+        menu.position.set(0, 0, -1);
+        
+        // Create 3D text for menu items and add to the scene
+        this.menuItems.play = {
+            object: this.createTextFromSpriteSheet('Start', new THREE.Vector3(0, 1, 0)), 
+            action : ()=>{this.current_state = States.START_GAME}
+        };
+
+        this.menu = menu;
+        this.toggleMenuVisibility(true);
+        this.app.scene.add(menu);
+    }
+
+    toggleMenuVisibility(visible) {
+        if (this.menu) {
+            // Toggle the menu visibility
+            this.menu.visible = visible;
+
+            // Toggle the visibility of each menu item
+            Object.values(this.menuItems).forEach(item => {
+                item.object.forEach(obj => obj.visible = visible)
+            });
+        }
     }
 
     /**
      * initializes the contents
      */
     init() {
-        // create once 
-        if (this.axis === null) {
-            // create and attach the axis to the scene
-            this.axis = new MyAxis(this)
-            this.app.scene.add(this.axis)
-        }
+        
+          
     }
 
+    loadScene() {
+        if (this.axis === null) {
+            this.axis = new MyAxis(this);
+            this.app.scene.add(this.axis);
+        }
+
+        // Load the scene from XML
+        this.reader = new MyFileReader(this.app, this, this.onSceneLoaded);
+        this.reader.open("scenes/farm/farm.xml");
+    }
+    
     /**
      * Called when the scene xml file load is complete
      * @param {MySceneData} data the entire scene data object
@@ -58,6 +164,281 @@ class MyContents  {
 
     }
 
+    onPointerMove(event) {
+
+        event.preventDefault();
+
+        // Calculate pointer position in normalized device coordinates
+        this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        // Set the picking ray from the camera position and mouse coordinates
+        this.raycaster.setFromCamera(this.pointer, this.app.getActiveCamera());
+
+        const pickingTractor = true;
+        
+        let tractors = [];
+        console.log("state picking",this.current_state)
+        if (this.current_state === 0 || this.current_state === 2 || this.current_state === 1){ // Choose player tractor or start game
+            if (pickingTractor ){
+                for (let i = 1; i <= 5; i++) { // 5 tractors
+                    const tractorName = "tractor" + i;
+                    const tractor = this.app.scene.getObjectByName(tractorName);
+                    if (tractor) {
+                            tractors.push(tractor);
+                    }
+                    else {
+                        console.warn(`Tractor named ${tractorName} not found.`);
+                    }
+                }
+                this.picked_obj = tractors;
+
+            } else
+                {
+                    let obstacles = [];
+                    for (let i = 1; i <= 2; i++) { 
+                        // 2 woods and 2 wheelbarrows
+                        const woodName = "wood" + i;
+                        const wheelBarrowName = "wheelbarrow" + i;
+
+                        // Get the wood and wheelbarrow objects
+                        const wood = this.app.scene.getObjectByName(woodName);
+                        const wheelBarrow = this.app.scene.getObjectByName(wheelBarrowName);
+                        
+                        if (wood.isGroup) {
+                            obstacles.push(wood);
+                        } else {
+                            console.warn(`Wood named ${woodName} not found.`);
+                        }
+
+                        if (wheelBarrow) {
+                            if (wheelBarrow.isGroup ) {
+                                obstacles.push(...wheelBarrow.children);
+                            } else {
+                                obstacles.push(wheelBarrow);
+                            }
+                            obstacles.push(wheelBarrow);
+                        } else {
+                            console.warn(`WheelBarrow named ${wheelBarrowName} not found.`);
+                        }
+                    }
+                    this.picked_obj = obstacles;
+                }
+
+            // Compute intersections
+            var intersects = this.raycaster.intersectObjects(this.picked_obj,true);
+            console.log(intersects);
+            console.log("Intersects: " + intersects.length);
+            this.pickingHelper(intersects);
+        }
+            
+    }
+
+    onPointerClick(event) {
+        event.preventDefault();
+
+        // Calculate pointer position in normalized device coordinates
+        this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+        this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        // Set the picking ray from the camera position and mouse coordinates
+        this.raycaster.setFromCamera(this.pointer, this.app.getActiveCamera());
+
+        if (this.current_state === 3) { // menu
+            const menuItemsArray = Object.values(this.menuItems).map(item => item.object);
+            var intersects = this.raycaster.intersectObjects(menuItemsArray.flat());
+
+            // Check if any menu item was clicked
+            if (intersects.length > 0) {
+                const intersected = intersects[0].object;
+
+                // Check which menu item was clicked and perform the action
+                for (let key in this.menuItems) {
+                    const item = this.menuItems[key];
+                    if (item.object.includes(intersected)) {
+                        item.action();
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Player or autonomous tractor selection
+        else if ( this.current_state === 0 || this.current_state === 1 ){ 
+
+            // Compute intersections
+            intersects = this.raycaster.intersectObjects(this.picked_obj,true);
+
+            if (intersects.length > 0) {
+                const clickedTractor = intersects[0].object.parent.parent;
+
+                if (clickedTractor.material && clickedTractor.currentHex) {
+                    // Set the color back to its original value
+                    clickedTractor.material.color.setHex(clickedTractor.currentHex);
+                }
+                
+                // Add the clicked tractor to the selection array
+                this.selectedTractors.push(clickedTractor);
+        
+                if (this.selectedTractors.length <= this.trackPositions.length) {
+                    
+                    this.moveTractorToTrack(clickedTractor);
+                    this.choosingPlayerTractor = false;
+                    
+                    if(this.current_state === 0){
+                        this.current_state = 1
+                        this.text_obj.remove(...this.text_obj.children)
+                        this.text_obj.add(...this.createTextFromSpriteSheet('Please choose the autonomous tractor:', new THREE.Vector3(-25, 15, 0)))
+                    }
+                    else if (this.current_state === 1){
+                        this.current_state = 2
+                    }
+                }
+            }  
+        }
+        this.pickingHelper(intersects);
+    }
+
+    moveTractorToTrack(tractor) {
+        // Move the tractor to the given position
+        const previousPosition = tractor.position.clone();
+        let angle = Math.PI /2;
+        let axis = new THREE.Vector3(0, 1, 0);
+
+        // Rotate the tractor to face the next position
+        tractor.rotateOnAxis(axis, angle);
+
+        // Move the tractor to the next position
+        let toPosition = this.choosingPlayerTractor ? this.trackPositions[0] : this.trackPositions[1]; // Zero is our player, one is the automatic one
+        tractor.position.set(toPosition.x, previousPosition.y, toPosition.z);
+
+        // Optional: reset the color of the tractor if needed
+        if (tractor.material && tractor.material.color && tractor.originalColor) {
+            tractor.material.color.set(tractor.originalColor);
+        }
+        
+        if(!this.choosingPlayerTractor){
+            this.tractorAutonomous = tractor;
+        }
+    }
+
+    pickingHelper(intersects) {
+        if (intersects.length > 0) {
+            const obj = intersects[0].object
+            if (this.notPickableObjIds.includes(obj.name)) {
+                this.restoreColorOfFirstPickedObj()
+                console.log("Object cannot be picked !")
+            } 
+            else {
+                this.changeColorOfFirstPickedObj(obj)
+            }
+        } 
+        else {
+            this.restoreColorOfFirstPickedObj()
+        }
+    }
+
+    // Method to change the color of the first picked object
+    changeColorOfFirstPickedObj(obj) {
+        if (this.lastPickedObj != obj) {
+            if (this.lastPickedObj)
+                this.lastPickedObj.material.color.setHex(this.lastPickedObj.currentHex);
+            this.lastPickedObj = obj;
+            this.lastPickedObj.currentHex = this.lastPickedObj.material.color.getHex();
+            this.lastPickedObj.material.color.setHex(this.pickingColor);
+        }
+    }
+
+    // Method to restore the color of the first picked object
+    restoreColorOfFirstPickedObj() {
+        if (this.lastPickedObj)
+            this.lastPickedObj.material.color.setHex(this.lastPickedObj.currentHex);
+        this.lastPickedObj = null;
+    }
+
+    // Method to update the selected layer
+    updateSelectedLayer() {
+        this.raycaster.layers.enableAll()
+        if (this.selectedLayer !== 'none') {
+            const selectedIndex = this.availableLayers[parseInt(this.selectedLayer)]
+            this.raycaster.layers.set(selectedIndex)
+        }
+    }
+
+    // Method to update the picking color
+    updatePickingColor(value) {
+        this.pickingColor = value.replace('#', '0x');
+    }
+
+    getUVForCharacter(character) {
+        const asciiCode = character.charCodeAt(0);
+        const tileUSize = 1 / this.tilesPerRow; // The size of one tile in U dimension
+        const tileVSize = 1 / this.tilesPerRow; // The size of one tile in V dimension
+
+        const uIndex = asciiCode % this.tilesPerRow;
+        const vIndex = Math.floor(asciiCode / this.tilesPerRow);
+        
+        return {
+            u: uIndex * tileUSize,
+            v: 1 - (vIndex + 1) * tileVSize // Textures in WebGL are Y-inverted
+        };
+    }
+
+    // Use this function to create a mesh for each character using the sprite sheet
+    createTextFromSpriteSheet(text, position) {
+        const characters = text.split('');
+        const meshes = [];
+        
+        characters.forEach((char, index) => {
+
+            const uv = this.getUVForCharacter(char);
+            const characterTexture = new THREE.TextureLoader().load('fonts/spritesheet.png').clone();
+            characterTexture.needsUpdate = true; // Important after modifying the texture
+
+            // Configure texture wrapping
+            characterTexture.wrapS = THREE.ClampToEdgeWrapping;
+            characterTexture.wrapT = THREE.ClampToEdgeWrapping;
+
+            // Apply UV mapping to the cloned texture
+            characterTexture.offset.x = uv.u;
+            characterTexture.offset.y = uv.v;
+            characterTexture.repeat.set(1 / this.tilesPerRow, 1 / this.tilesPerRow);
+
+            // Create the material with the cloned texture
+            const material = new THREE.MeshBasicMaterial({
+                map: characterTexture,
+                transparent: true
+            });
+
+            // Create a plane geometry for the character
+            const geometry = new THREE.PlaneGeometry(1, 1); 
+            const mesh = new THREE.Mesh(geometry, material);
+
+            // Position the character mesh
+            mesh.position.set(position.x + index, position.y, position.z);
+            mesh.position.set(
+                position.x + index, 
+                position.y,
+                position.z
+            );
+
+            this.app.scene.add(mesh);
+            meshes.push(mesh);
+        });
+
+        return meshes;
+    }
+
+    // Method to create a spritesheet material for a button
+    createButtonHighlightSprite(position) {
+        const spriteMap = new THREE.TextureLoader().load('fonts/spritesheet.png');
+        const spriteMaterial = new THREE.SpriteMaterial({ map: spriteMap });
+        const sprite = new THREE.Sprite(spriteMaterial);
+
+        sprite.position.copy(position);
+        this.app.scene.add(sprite);
+        return sprite;
+    }
 
     /**
      * Sets fog based on the provided fog data.
@@ -185,7 +566,6 @@ class MyContents  {
                 console.error(error);
             }
         );
-        
     }
 
     /**
@@ -283,6 +663,7 @@ class MyContents  {
             else{
                 console.log("camera type not recognized");
             }
+            console.log("Camera: " + camera.id + " " + camera.type + " " + camera.near + " " + camera.far);
 
         }
 
@@ -290,6 +671,8 @@ class MyContents  {
         if(id != null){
             this.app.setActiveCamera(id); 
         }
+
+        this.app.updateCameras = true;
 
     }
 
@@ -696,21 +1079,9 @@ class MyContents  {
         console.log("" + new Array(indent * 4).join(' ') + " - " + obj.type + " " + (obj.id !== undefined ? "'" + obj.id + "'" : ""))
     }
 
-    onAfterSceneLoadedAndBeforeRender(data) {
-        // Called after the scene is loaded and before the first render
-        this.data = data;
-
-        this.buildSkyboxs();
-        this.set_materials(data.materials);
-        this.set_cameras(data.cameras,data.activeCameraId);
-
-        this.object = this.set_nodes(data.rootId);
-        this.app.scene.add(this.object);
-
-        this.clock = new THREE.Clock();
-        this.oppTractor = this.app.scene.getObjectByName("tractor1");
-
-        console.log(this.oppTractor);
+    movingAutonomousTractor() {
+         
+        this.oppTractor = this.tractorAutonomous ? this.tractorAutonomous : this.object.getObjectByName('tractor2');
 
         // Route control points and quartenions
         this.routeControlPoints = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Vector3(point.xx, point.yy, point.zz));
@@ -760,12 +1131,98 @@ class MyContents  {
 
         this.positionAction.play();
         this.rotationAction.play();
+        
+    }
+
+    onAfterSceneLoadedAndBeforeRender(data) {
+        // Called after the scene is loaded and before the first render
+        this.data = data;
+
+        this.buildSkyboxs();
+        this.set_materials(data.materials);
+        this.set_cameras(data.cameras,data.activeCameraId);
+
+        this.object = this.set_nodes(data.rootId);
+        this.app.scene.add(this.object);
+        this.clock = new THREE.Clock();
     }
 
     update() {
+        const activeCamera = this.app.getActiveCamera();
+        const cameraWorldPosition = new THREE.Vector3();
+        const cameraWorldDirection = new THREE.Vector3();
+
+        // Update the position of the HUD
+        activeCamera.getWorldPosition(cameraWorldPosition);
+        activeCamera.getWorldDirection(cameraWorldDirection);
+
+        const hudPosition = cameraWorldPosition.clone().add(cameraWorldDirection.clone());
+        
+        this.text_obj.position.set(...hudPosition);
+        this.text_obj.scale.set(0.05, 0.05, 0.05)
+        this.text_obj.lookAt(cameraWorldPosition);
+
+        // Update the mixer
         if (this.mixer) {
             this.mixer.update(this.clock.getDelta());
         }
+
+        // Update the state
+        switch (this.current_state) {
+            case States.MAIN_MENU:
+                this.toggleMenuVisibility(true);
+                this.setMenu();
+                break;
+            case States.STARTING_PLAY:
+                this.movingAutonomousTractor()
+                this.restoreColorOfFirstPickedObj()
+                this.current_state = States.PLAY;
+                break;
+            case States.PLAY:
+                
+                break;
+            case States.PAUSE:
+                
+                break;
+            case States.GAME_OVER:
+    
+                break;
+            case States.INSTRUCTIONS:
+                
+                break;
+            case States.CHOOSING_OBSTACLES:
+            
+                break;
+            case States.PLACING_OBSTACLES:
+                
+                break;
+            case States.RESUME_GAME: // Restart game
+                
+                break;
+            case States.CHOOSING_PLAYER_TRACTOR:
+                
+            
+                break;
+            case States.CHOOSING_AUTONOMOUS_TRACTOR:
+                
+                break;
+
+            case States.START_GAME:
+                this.toggleMenuVisibility(false);
+                this.loadScene()
+                this.current_state = States.CHOOSING_PLAYER_TRACTOR
+                this.text_obj.add(...this.createTextFromSpriteSheet('Please choose the player tractor:', new THREE.Vector3(-25, 15, 0)))
+                
+                break
+            
+            default:
+                this.current_state = States.MAIN_MENU;
+                break;
+        }
+    }
+
+    updateState(newState) {
+        this.current_state = newState;
     }
 }
 

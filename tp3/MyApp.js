@@ -1,4 +1,3 @@
-
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { MyContents } from './MyContents.js';
@@ -29,13 +28,12 @@ class MyApp   {
         this.controls = null
         this.gui = null
         this.axis = null
-        this.contents == null
+        this.contents = null
     }
     /**
      * initializes the application
      */
     init() {
-                
         // Create an empty scene
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color( 0x101010 );
@@ -62,8 +60,9 @@ class MyApp   {
         // Append Renderer to DOM
         document.getElementById("canvas").appendChild( this.renderer.domElement );
 
-        // manage window resizes
+        // Manage window resizes
         window.addEventListener('resize', this.onResize.bind(this), false );
+
     }
 
     /**
@@ -77,7 +76,7 @@ class MyApp   {
         perspective1.position.set(10,10,3)
         this.cameras['Perspective'] = perspective1
 
-        // defines the frustum size for the orthographic cameras
+        // Defines the frustum size for the orthographic cameras
         const left = -this.frustumSize / 2 * aspect
         const right = this.frustumSize /2 * aspect 
         const top = this.frustumSize / 2 
@@ -85,21 +84,21 @@ class MyApp   {
         const near = -this.frustumSize /2
         const far =  this.frustumSize
 
-        // create a left view orthographic camera
+        // Create a left view orthographic camera
         const orthoLeft = new THREE.OrthographicCamera( left, right, top, bottom, near, far);
         orthoLeft.up = new THREE.Vector3(0,1,0);
         orthoLeft.position.set(-this.frustumSize /4,0,0) 
         orthoLeft.lookAt( new THREE.Vector3(0,0,0) );
         this.cameras['Left'] = orthoLeft
 
-        // create a top view orthographic camera
+        // Create a top view orthographic camera
         const orthoTop = new THREE.OrthographicCamera( left, right, top, bottom, near, far);
         orthoTop.up = new THREE.Vector3(0,0,1);
         orthoTop.position.set(0, this.frustumSize /4, 0) 
         orthoTop.lookAt( new THREE.Vector3(0,0,0) );
         this.cameras['Top'] = orthoTop
 
-        // create a front view orthographic camera
+        // Create a front view orthographic camera
         const orthoFront = new THREE.OrthographicCamera( left, right, top, bottom, near, far);
         orthoFront.up = new THREE.Vector3(0,1,0);
         orthoFront.position.set(0,0, this.frustumSize /4) 
@@ -114,7 +113,13 @@ class MyApp   {
     setActiveCamera(cameraName) {   
         this.activeCameraName = cameraName
         this.activeCamera = this.cameras[this.activeCameraName]
+        console.log(`my app active camera is ${this.activeCameraName}`)
     }
+
+    getActiveCamera() {
+        return this.cameras[this.activeCameraName];
+    }
+
 
     /**
      * updates the active camera if required
@@ -124,19 +129,19 @@ class MyApp   {
      */
     updateCameraIfRequired() {
 
-        // camera changed?
-        if (this.lastCameraName !== this.activeCameraName) {
+        // If the active camera name changed
+        if (this.lastCameraName !== this.activeCameraName || this.updateCameras) {
+            this.updateCameras = false;
             this.lastCameraName = this.activeCameraName;
             this.activeCamera = this.cameras[this.activeCameraName]
             document.getElementById("camera").innerHTML = this.activeCameraName
            
-            // call on resize to update the camera aspect ratio
-            // among other things
+            // Call on resize to update the camera aspect ratio
             this.onResize()
 
-            // are the controls yet?
+            // Update the controls
             if (this.controls === null) {
-                // Orbit controls allow the camera to orbit around a target.
+                // Orbit controls allow the camera to orbit around a target
                 this.controls = new OrbitControls( this.activeCamera, this.renderer.domElement );
                 this.controls.enableZoom = true;
                 this.controls.update();
@@ -146,7 +151,7 @@ class MyApp   {
             }
         }
     }
-
+    
     /**
      * the window resize handler
      */
@@ -196,6 +201,7 @@ class MyApp   {
         this.lastCameraName = this.activeCameraName
         this.stats.end()
     }
+
 }
 
 
