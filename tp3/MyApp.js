@@ -132,7 +132,8 @@ class MyApp   {
     updateCameraIfRequired() {
 
         // camera changed?
-        if (this.lastCameraName !== this.activeCameraName) {
+        if (this.lastCameraName !== this.activeCameraName || this.updateCameras) {
+            this.updateCameras = false;
             this.lastCameraName = this.activeCameraName;
             this.activeCamera = this.cameras[this.activeCameraName]
             document.getElementById("camera").innerHTML = this.activeCameraName

@@ -10,7 +10,7 @@ import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 const States = {
     CHOOSING_PLAYER_TRACTOR: 0,
     CHOOSING_AUTONOMOUS_TRACTOR: 1,
-    PLAY: 2,
+    STARTING_PLAY: 2,
     MAIN_MENU : 3,
     INSTRUCTIONS : 4,
     GAME_OVER : 5,
@@ -18,7 +18,9 @@ const States = {
     RESUME_GAME : 7,
     CHOOSING_OBSTACLES : 8,
     PLACING_OBSTACLES : 9,
-    PAUSE : 10
+    PAUSE : 10,
+    PLAY : 11
+
 }
 
 /**
@@ -60,6 +62,8 @@ class MyContents  {
         this.selectedLayer = this.availableLayers[0] 
         this.current_state = States.MAIN_MENU
         this.notPickableObjIds = []
+        this.text_obj = new THREE.Object3D();
+        this.app.scene.add(this.text_obj);
         
         
          /*   */
@@ -93,6 +97,9 @@ class MyContents  {
 
     setMenu() {
        
+        if (this.menu){
+            return;
+        }
         const menuGeometry = new THREE.PlaneGeometry(10, 10);
         const menuMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
         const menu = new THREE.Mesh(menuGeometry, menuMaterial);
@@ -101,6 +108,7 @@ class MyContents  {
         // Create 3D text for menu items and add to the scene
         this.menuItems.play = {
             object: this.createTextFromSpriteSheet('Start', new THREE.Vector3(0, 1, 0)), 
+            action : ()=>{this.current_state = States.START_GAME}
         };
         /*
         this.menuItems.options = {
@@ -113,18 +121,25 @@ class MyContents  {
         };*/
 
         this.menu = menu
-        this.menu.visible = false
+        //this.menu.visible = false
         this.toggleMenuVisibility(true);
         this.app.scene.add(menu)
         
     }
 
     toggleMenuVisibility(visible) {
+        
         if (this.menu) {
+            //console.log("toggle menu visibility" , this.menu)
+            
             this.menu.visible = visible; // Toggle the menu visibility
+
             // Toggle the visibility of each menu item
             Object.values(this.menuItems).forEach(item => {
-                item.object.visible = visible; // Set each menu item visibility
+                item.object.forEach(obj => obj.visible = visible)
+
+                // Set each menu item visibility~
+                //console.log("item",item.object)
             });
         }
     }
@@ -134,39 +149,9 @@ class MyContents  {
      */
     init() {
         
-        // create once  
-        /*
-        if (this.axis === null) {
-            // create and attach the axis to the scene
-            this.axis = new MyAxis(this)
-            this.app.scene.add(this.axis)
-        }
-        
-        //this.createTextFromSpriteSheet("Please choose the tractor:",new THREE.Vector3(0, 250, 0))
-        
-        //console.log("state",this.state)
-
-       
-        if (this.state === "Menu") {
-            this.setMenu();
-            document.addEventListener("pointerdown", this.onPointerClick.bind(this), false);
-            this.state = "Scene"; // Start with the Menu state
-        } else if (this.state === "Scene" ) {
-            this.loadScene();
-            
-        }*/
-
-        // Set up the event listener for pointerdown
-        //document.addEventListener("pointerdown", this.onPointerClick.bind(this), false);
-        
-        
+          
     }
     loadScene() {
-        /*
-        if (this.playButton) {
-            this.app.scene.remove(this.playButton.parent); // Assuming the menu is the parent of the play button
-        }*/
-        //this.current_state = States.PLAY // Change state to scene
 
         if (this.axis === null) {
             this.axis = new MyAxis(this);
@@ -176,8 +161,6 @@ class MyContents  {
         // Load the scene from XML
         this.reader = new MyFileReader(this.app, this, this.onSceneLoaded);
         this.reader.open("scenes/farm/farm.xml");
-
-        this.current_state = States.CHOOSING_PLAYER_TRACTOR
     }
     
     /**
@@ -198,6 +181,7 @@ class MyContents  {
 
     }
     onPointerMove(event) {
+
         event.preventDefault();
         // calculate pointer position in normalized device coordinates
 
@@ -217,62 +201,60 @@ class MyContents  {
         
         let tractors = [];
         console.log("state picking",this.current_state)
-        if ( this.current_state === 0){
-        if(pickingTractor ){
-            for (let i = 1; i <= 5; i++) { // 5 tractors
-                const tractorName = "tractor" + i;
-                const tractor = this.app.scene.getObjectByName(tractorName);
-                if (tractor) {
-                        tractors.push(tractor);
-                    }
-                   
-                 else {
-                    console.warn(`Tractor named ${tractorName} not found.`);
-                }
-            }
-            this.picked_obj = tractors;
-        } else
-            {
-                let obstacles = [];
-                for (let i = 1; i <= 2; i++) { // 2 woods and 2 wheelbarrows
-                    const woodName = "wood" + i;
-                    const wheelBarrowName = "wheelbarrow" + i;
-                    const wood = this.app.scene.getObjectByName(woodName);
-                    const wheelBarrow = this.app.scene.getObjectByName(wheelBarrowName);
-                    if (wood.isGroup) {
-                        console.log("wood mesh",wood.getMeshes)
-                        obstacles.push(wood);
-                    } else {
-                        console.warn(`Wood named ${woodName} not found.`);
-                    }
-
-                    if (wheelBarrow) {
-                        if (wheelBarrow.isGroup ) {
-                            obstacles.push(...wheelBarrow.children);
-                        } else {
-                            obstacles.push(wheelBarrow);
+        if ( this.current_state === 0 || this.current_state === 2 || this.current_state === 1){ //choose player tractor or start game
+            if(pickingTractor ){
+                for (let i = 1; i <= 5; i++) { // 5 tractors
+                    const tractorName = "tractor" + i;
+                    const tractor = this.app.scene.getObjectByName(tractorName);
+                    if (tractor) {
+                            tractors.push(tractor);
                         }
-                        obstacles.push(wheelBarrow);
-                    } else {
-                        console.warn(`WheelBarrow named ${wheelBarrowName} not found.`);
+                    
+                    else {
+                        console.warn(`Tractor named ${tractorName} not found.`);
                     }
                 }
-                this.picked_obj = obstacles;
-            }
-        }
+                this.picked_obj = tractors;
 
-        if (this.current_state === 3) {
-            //play?
-        }
+            } else
+                {
+                    let obstacles = [];
+                    for (let i = 1; i <= 2; i++) { // 2 woods and 2 wheelbarrows
+                        const woodName = "wood" + i;
+                        const wheelBarrowName = "wheelbarrow" + i;
+                        const wood = this.app.scene.getObjectByName(woodName);
+                        const wheelBarrow = this.app.scene.getObjectByName(wheelBarrowName);
+                        if (wood.isGroup) {
+                            console.log("wood mesh",wood.getMeshes)
+                            obstacles.push(wood);
+                        } else {
+                            console.warn(`Wood named ${woodName} not found.`);
+                        }
 
-        //compute intersections
-        console.log("filhos",this.picked_obj)
-        //console.log("raycaster",rayorigin, raydirection)
-        var intersects = this.raycaster.intersectObjects(this.picked_obj,true);
-        console.log(intersects);
-        console.log("Intersects: " + intersects.length);
-        this.pickingHelper(intersects);
-        
+                        if (wheelBarrow) {
+                            if (wheelBarrow.isGroup ) {
+                                obstacles.push(...wheelBarrow.children);
+                            } else {
+                                obstacles.push(wheelBarrow);
+                            }
+                            obstacles.push(wheelBarrow);
+                        } else {
+                            console.warn(`WheelBarrow named ${wheelBarrowName} not found.`);
+                        }
+                    }
+                    this.picked_obj = obstacles;
+                }
+
+            //compute intersections
+            console.log("filhos",this.picked_obj)
+            //console.log("raycaster",rayorigin, raydirection)
+            var intersects = this.raycaster.intersectObjects(this.picked_obj,true);
+            console.log(intersects);
+            console.log("Intersects: " + intersects.length);
+            this.pickingHelper(intersects);
+            
+        }
+            
     }
 
     onPointerClick(event) {
@@ -283,9 +265,6 @@ class MyContents  {
         this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
         console.log("Position x: " + this.pointer.x + " y: " + this.pointer.y);
-
-        //console.log("Camera: " + this.app.activeCameraName);
-        //console.log("cameras", this.app.cameras)
         
         //set the picking ray from the camera position and mouse coordinates
         this.raycaster.setFromCamera(this.pointer, this.app.getActiveCamera());
@@ -308,17 +287,16 @@ class MyContents  {
                 }
                 
             }
-            this.current_state = States.START_GAME
+            
         }
-        else{
+        
+        else if ( this.current_state === 0 || this.current_state === 1 ){ //player or outonomous tractor
+            console.log("current state",this.current_state)
+            
             intersects = this.raycaster.intersectObjects(this.picked_obj,true);
             console.log("intersects: ", intersects);
             if (intersects.length > 0) {
-                for (var i = 0; i < intersects.length; i++) {
-
-                    console.log("elementos",intersects[i]);
-                }  
-                console.log("intersects[0]: ", intersects[0]);
+                 
                 const clickedTractor = intersects[0].object.parent.parent;
                 console.log("clickedTractor: ", clickedTractor);
                 if (clickedTractor.material && clickedTractor.currentHex) {
@@ -329,18 +307,29 @@ class MyContents  {
                 // Add the clicked tractor to the selection array
                 this.selectedTractors.push(clickedTractor);
         
-                // select only 2 tractors
-                //console.log("this.selectedTractors.length: ", this.selectedTractors.length);
-                //console.log("this.trackPositions.length: ", this.trackPositions.length);
                 if (this.selectedTractors.length <= this.trackPositions.length) {
+                    
                     this.moveTractorToTrack(clickedTractor);
+                    
                     this.choosingPlayerTractor = false;
+                    
+                    if(this.current_state === 0){
+                        this.current_state = 1
+                        this.text_obj.remove(...this.text_obj.children)
+                        this.text_obj.add(...this.createTextFromSpriteSheet('Please choose the autonomous tractor:', new THREE.Vector3(-25, 15, 0)))
+                    }
+                    else if (this.current_state === 1){
+                        this.current_state = 2
+                    }
                 }
+                
             }
-            //console.log(intersects);
-            //console.log("Intersects: " + intersects.length);
-            this.pickingHelper(intersects);
+     
+           
+            
         }
+        this.pickingHelper(intersects);
+
     }
 
     moveTractorToTrack(tractor) {
@@ -356,7 +345,7 @@ class MyContents  {
 
         let toPosition = this.choosingPlayerTractor ? this.trackPositions[0] : this.trackPositions[1]; //zero is our player, one is the automatic one
         tractor.position.set(toPosition.x, previousPosition.y, toPosition.z);
-    
+
         // Optional: reset the color of the tractor if needed
         if (tractor.material && tractor.material.color && tractor.originalColor) {
             tractor.material.color.set(tractor.originalColor);
@@ -368,6 +357,7 @@ class MyContents  {
         console.log("tractor autonomo: ", this.tractorAutonomous);
         
     }
+
     pickingHelper(intersects) {
         if (intersects.length > 0) {
             const obj = intersects[0].object
@@ -382,6 +372,7 @@ class MyContents  {
             this.restoreColorOfFirstPickedObj()
         }
     }
+
     changeColorOfFirstPickedObj(obj) {
         if (this.lastPickedObj != obj) {
             if (this.lastPickedObj)
@@ -397,6 +388,7 @@ class MyContents  {
         this.lastPickedObj = null;
     }
 
+    //not used i think
     updateSelectedLayer() {
         this.raycaster.layers.enableAll()
         if (this.selectedLayer !== 'none') {
@@ -404,6 +396,7 @@ class MyContents  {
             this.raycaster.layers.set(selectedIndex)
         }
     }
+
     updatePickingColor(value) {
         this.pickingColor = value.replace('#', '0x');
     }
@@ -708,6 +701,8 @@ class MyContents  {
         if(id != null){
             this.app.setActiveCamera(id); 
         }
+
+        this.app.updateCameras = true;
 
     }
 
@@ -1115,28 +1110,12 @@ class MyContents  {
     }
 
     movingAutonomousTractor() {
-        
-    }
-
-    onAfterSceneLoadedAndBeforeRender(data) {
-        // Called after the scene is loaded and before the first render
-        this.data = data;
-
-        this.buildSkyboxs();
-        this.set_materials(data.materials);
-        this.set_cameras(data.cameras,data.activeCameraId);
-
-        this.object = this.set_nodes(data.rootId);
-        this.app.scene.add(this.object);
-
-        this.clock = new THREE.Clock();
-
+         
         this.oppTractor = this.tractorAutonomous ? this.tractorAutonomous : this.object.getObjectByName('tractor2');
 
         console.log("autonomo",this.oppTractor);
-
         //Route control points and quartenions
-        /*
+    
         this.routeControlPoints = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Vector3(point.xx, point.yy, point.zz));
         this.routeQuartenions = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(point.rotation)));
 
@@ -1161,7 +1140,7 @@ class MyContents  {
             THREE.InterpolateSmooth
         );
 
-        const quaternionKF = new THREE.QuaternionKeyfointerrameTrack(
+        const quaternionKF = new THREE.QuaternionKeyframeTrack(
             '.quaternion',
             [...Array(this.routeQuartenions.length).keys()],
             [].concat(...this.routeQuartenions.map(point => [...point.toArray()])),
@@ -1183,10 +1162,42 @@ class MyContents  {
         this.rotationAction.timeScale = 0.5;
 
         this.positionAction.play();
-        this.rotationAction.play();*/
+        this.rotationAction.play();
+        
     }
 
+    onAfterSceneLoadedAndBeforeRender(data) {
+        // Called after the scene is loaded and before the first render
+        this.data = data;
+
+        this.buildSkyboxs();
+        this.set_materials(data.materials);
+        this.set_cameras(data.cameras,data.activeCameraId);
+
+        this.object = this.set_nodes(data.rootId);
+        this.app.scene.add(this.object);
+        this.clock = new THREE.Clock();
+       
+    }
+
+
     update() {
+
+        const activeCamera = this.app.getActiveCamera();
+
+        const cameraWorldPosition = new THREE.Vector3();
+        const cameraWorldDirection = new THREE.Vector3();
+
+        activeCamera.getWorldPosition(cameraWorldPosition);
+        activeCamera.getWorldDirection(cameraWorldDirection);
+
+        const hudPosition = cameraWorldPosition.clone().add(cameraWorldDirection.clone());
+        
+        this.text_obj.position.set(...hudPosition);
+        this.text_obj.scale.set(0.05, 0.05, 0.05)
+
+        this.text_obj.lookAt(cameraWorldPosition);
+
         if (this.mixer) {
             this.mixer.update(this.clock.getDelta());
         }
@@ -1196,46 +1207,49 @@ class MyContents  {
             case States.MAIN_MENU:
                 this.toggleMenuVisibility(true);
                 this.setMenu();
-                console.log("state dps do set menu",this.current_state);
-                
-                //document.addEventListener("pointerdown", this.onPointerClick.bind(this), false);
-                //this.updateState(States.PLAY); // Start with the Menu state
+                break;
+            case States.STARTING_PLAY:
+                this.movingAutonomousTractor()
+                this.restoreColorOfFirstPickedObj()
+                this.current_state = States.PLAY;
                 break;
             case States.PLAY:
                 
                 break;
             case States.PAUSE:
-                //this.updateState(States.PLAY);
+                
                 break;
             case States.GAME_OVER:
-                //this.updateState(States.MAIN_MENU);
+    
                 break;
             case States.INSTRUCTIONS:
-                //this.updateState(States.MAIN_MENU);
+                
                 break;
             case States.CHOOSING_OBSTACLES:
-                //this.updateState(States.PLACING_OBSTACLES);
+            
                 break;
             case States.PLACING_OBSTACLES:
-                //this.updateState(States.RESUME_GAME);
+                
                 break;
             case States.RESUME_GAME: //restart game
-                //this.updateState(States.PLAY);
+                
                 break;
             case States.CHOOSING_PLAYER_TRACTOR:
-                //this.updateState(States.CHOOSING_AUTONOMOUS_TRACTOR);
+                
+            
                 break;
             case States.CHOOSING_AUTONOMOUS_TRACTOR:
-                //this.updateState(States.PLAY);
+                
                 break;
 
             case States.START_GAME:
                 this.toggleMenuVisibility(false);
                 this.loadScene()
-                
-                console.log("menu desligado", this.menu)
+                this.current_state = States.CHOOSING_PLAYER_TRACTOR
+                this.text_obj.add(...this.createTextFromSpriteSheet('Please choose the player tractor:', new THREE.Vector3(-25, 15, 0)))
                 
                 break
+            
             default:
                 this.current_state = States.MAIN_MENU;
                 break;

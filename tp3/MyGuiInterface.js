@@ -35,7 +35,7 @@ class MyGuiInterface  {
         // interface with cameras
         const cameraFolder = this.datgui.addFolder('Cameras')
         const cameras = this.contents.app.cameras
-        console.log("aqi",cameras)
+        //console.log("aqi",cameras)
         cameraFolder.add(this.app, 'activeCameraName', Object.values(cameras).map(camera => camera.name)).name("active camera");
 
         cameras.forEach((camera, index) => {
