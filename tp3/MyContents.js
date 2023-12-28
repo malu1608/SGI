@@ -64,22 +64,12 @@ class MyContents  {
         this.notPickableObjIds = []
         this.text_obj = new THREE.Object3D();
         this.app.scene.add(this.text_obj);
-        
-        
-         /*   */
-        /*this.spriteSheetTexture = new THREE.TextureLoader().load('fonts/spritesheet.png', texture => {
-            texture.wrapS = THREE.ClampToEdgeWrapping;
-            texture.wrapT = THREE.ClampToEdgeWrapping;
-        });*/
-        
-        
         this.spriteSheetTexture = null;
         this.tilesPerRow = 16; // for a 16x16 grid
 
         this.menuItems = {};
         this.menu = null; // To store the menu object
         this.menuEventListenerAdded = false; // To check if the event listener is added
-        this.currentHighlighted = null;
         this.initPointerEvents();
 
     }
@@ -130,16 +120,12 @@ class MyContents  {
     toggleMenuVisibility(visible) {
         
         if (this.menu) {
-            //console.log("toggle menu visibility" , this.menu)
             
             this.menu.visible = visible; // Toggle the menu visibility
 
             // Toggle the visibility of each menu item
             Object.values(this.menuItems).forEach(item => {
                 item.object.forEach(obj => obj.visible = visible)
-
-                // Set each menu item visibility~
-                //console.log("item",item.object)
             });
         }
     }
@@ -148,9 +134,9 @@ class MyContents  {
      * initializes the contents
      */
     init() {
-        
-          
+             
     }
+
     loadScene() {
 
         if (this.axis === null) {
@@ -183,8 +169,8 @@ class MyContents  {
     onPointerMove(event) {
 
         event.preventDefault();
-        // calculate pointer position in normalized device coordinates
 
+        // calculate pointer position in normalized device coordinates
         this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -194,7 +180,7 @@ class MyContents  {
 
         //set the picking ray from the camera position and mouse coordinates
         console.log("contents",this.app.getActiveCamera())
-        //console.log("cameras",this.app.cameras)
+        
         this.raycaster.setFromCamera(this.pointer, this.app.getActiveCamera());
 
         const pickingTractor = true;
@@ -259,8 +245,8 @@ class MyContents  {
 
     onPointerClick(event) {
         event.preventDefault();
-        // calculate pointer position in normalized device coordinates
 
+        // calculate pointer position in normalized device coordinates
         this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -268,7 +254,7 @@ class MyContents  {
         
         //set the picking ray from the camera position and mouse coordinates
         this.raycaster.setFromCamera(this.pointer, this.app.getActiveCamera());
-        console.log("tem d ser 3", this.current_state)
+
         if (this.current_state === 3) { // menu
             console.log("",this.current_state)
             const menuItemsArray = Object.values(this.menuItems).map(item => item.object);
@@ -324,29 +310,26 @@ class MyContents  {
                 }
                 
             }
-     
-           
-            
+      
         }
         this.pickingHelper(intersects);
 
     }
 
     moveTractorToTrack(tractor) {
-        // Move the tractor to the given position
-        //tractor.position.copy(position);
+       
         const previousPosition = tractor.position.clone();
 
         let angle = Math.PI /2;
         let axis = new THREE.Vector3(0, 1, 0);
 
-        // Rotate the tractor to face the next position
+        // Rotate the tractor to starting track position
         tractor.rotateOnAxis(axis, angle);
 
         let toPosition = this.choosingPlayerTractor ? this.trackPositions[0] : this.trackPositions[1]; //zero is our player, one is the automatic one
         tractor.position.set(toPosition.x, previousPosition.y, toPosition.z);
 
-        // Optional: reset the color of the tractor if needed
+        // reset the color of the tractor 
         if (tractor.material && tractor.material.color && tractor.originalColor) {
             tractor.material.color.set(tractor.originalColor);
         }
@@ -388,7 +371,6 @@ class MyContents  {
         this.lastPickedObj = null;
     }
 
-    //not used i think
     updateSelectedLayer() {
         this.raycaster.layers.enableAll()
         if (this.selectedLayer !== 'none') {
@@ -430,6 +412,7 @@ class MyContents  {
 
             characterTexture.wrapS = THREE.ClampToEdgeWrapping;
             characterTexture.wrapT = THREE.ClampToEdgeWrapping;
+
             // Apply UV mapping to the cloned texture
             characterTexture.offset.x = uv.u;
             characterTexture.offset.y = uv.v;
@@ -438,13 +421,14 @@ class MyContents  {
             // Create the material with the cloned texture
             const material = new THREE.MeshBasicMaterial({
                 map: characterTexture,
-                transparent: true // Assuming your spritesheet has transparency
+                transparent: true 
             });
 
             // Create a plane geometry for the character
             const geometry = new THREE.PlaneGeometry(1, 1); // Adjust size as needed
             const mesh = new THREE.Mesh(geometry, material);
             mesh.position.set(position.x + index, position.y, position.z);
+
             // Position the character mesh
             mesh.position.set(
                 position.x + index, // You might want to adjust the spacing
@@ -452,21 +436,11 @@ class MyContents  {
                 position.z
             );
 
-            //console.log("mesh:",mesh);
             this.app.scene.add(mesh);
             meshes.push(mesh);
         });
 
         return meshes; // Return the array of meshes if you need to keep track of them
-    }
-    // Method to create a spritesheet material for a button
-    createButtonHighlightSprite(position) {
-        const spriteMap = new THREE.TextureLoader().load('fonts/spritesheet.png');
-        const spriteMaterial = new THREE.SpriteMaterial({ map: spriteMap });
-        const sprite = new THREE.Sprite(spriteMaterial);
-        sprite.position.copy(position);
-        this.app.scene.add(sprite);
-        return sprite;
     }
 
     /**
