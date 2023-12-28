@@ -5,7 +5,7 @@ import { MyNurbsBuilder } from './MyNurbsBuilder.js';
 import { PolygonBuilder } from './PolygonBuilder.js';
 import { MyTrackBuilder } from './MyTrackBuilder.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
+import { MyTractorBuilder } from './MyTractorBuilder.js';
 
 const States = {
     CHOOSING_PLAYER_TRACTOR: 0,
@@ -41,14 +41,15 @@ class MyContents  {
         this.object = null;
         this.lights = {};
         this.videos = [];
-        this.picked_obj = []
+        this.picked_obj = [];
+
+        // Tractors
         this.selectedTractors = [];
         this.trackPositions = [
             new THREE.Vector3(-10,0,75),
             new THREE.Vector3(-10,0,85)
         ];
         this.choosingPlayerTractor = true;
-   
         this.tractorAutonomous = null
        
         this.raycaster = new THREE.Raycaster()
@@ -64,25 +65,66 @@ class MyContents  {
         this.text_obj = new THREE.Object3D();
         this.app.scene.add(this.text_obj);
         
-        
-         /*   */
-        /*this.spriteSheetTexture = new THREE.TextureLoader().load('fonts/spritesheet.png', texture => {
-            texture.wrapS = THREE.ClampToEdgeWrapping;
-            texture.wrapT = THREE.ClampToEdgeWrapping;
-        });*/
-        
-        
+        // Sprite sheet
         this.spriteSheetTexture = null;
         this.tilesPerRow = 16; // For a 16x16 grid
 
+        // Menu
         this.menuItems = {};
         this.menu = null; // To store the menu object
         this.menuEventListenerAdded = false; // To check if the event listener is added
         this.currentHighlighted = null;
         this.initPointerEvents();
 
+        // Game
+        this.keys = {W: false, S: false, A: false, D: false};
+        document.addEventListener('keydown', this.onKeyDown.bind(this));
+        document.addEventListener('keyup', this.onKeyUp.bind(this));
+        this.tractor = null;
+
     }
 
+    onKeyDown(event) {
+        if(this.current_state === States.PLAY){
+            switch (event.code) {
+                case 'KeyW':
+                    this.keys.W = true;
+                    break;
+                case 'KeyS':
+                    this.keys.S = true;
+                    break;
+                case 'KeyA':
+                    this.keys.A = true;
+                    break;
+                case 'KeyD':
+                    this.keys.D = true;
+                    break;
+                default:
+                    break;
+            }
+        }    
+    }
+
+    onKeyUp(event) {
+        if(this.current_state === States.PLAY){
+            switch (event.code) {
+                case 'KeyW':
+                    this.keys.W = false;
+                    break;
+                case 'KeyS':
+                    this.keys.S = false;
+                    break;
+                case 'KeyA':
+                    this.keys.A = false;
+                    break;
+                case 'KeyD':
+                    this.keys.D = false;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 
     initPointerEvents(){
         document.addEventListener(
@@ -178,7 +220,6 @@ class MyContents  {
         const pickingTractor = true;
         
         let tractors = [];
-        console.log("state picking",this.current_state)
         if (this.current_state === 0 || this.current_state === 2 || this.current_state === 1){ // Choose player tractor or start game
             if (pickingTractor ){
                 for (let i = 1; i <= 5; i++) { // 5 tractors
@@ -227,8 +268,6 @@ class MyContents  {
 
             // Compute intersections
             var intersects = this.raycaster.intersectObjects(this.picked_obj,true);
-            console.log(intersects);
-            console.log("Intersects: " + intersects.length);
             this.pickingHelper(intersects);
         }
             
@@ -302,15 +341,18 @@ class MyContents  {
     moveTractorToTrack(tractor) {
         // Move the tractor to the given position
         const previousPosition = tractor.position.clone();
-        let angle = Math.PI /2;
-        let axis = new THREE.Vector3(0, 1, 0);
 
-        // Rotate the tractor to face the next position
-        tractor.rotateOnAxis(axis, angle);
+        let tractors = this.app.scene.getObjectByName("tractors");
 
-        // Move the tractor to the next position
         let toPosition = this.choosingPlayerTractor ? this.trackPositions[0] : this.trackPositions[1]; // Zero is our player, one is the automatic one
-        tractor.position.set(toPosition.x, previousPosition.y, toPosition.z);
+        
+        if (this.choosingPlayerTractor) {
+            tractors.remove(tractor);
+            tractor.position.set(toPosition.x, previousPosition.y, toPosition.z);
+            tractor.rotation.set(0,-Math.PI/2,0)
+            this.app.scene.add(tractor);
+            this.tractor = new MyTractorBuilder(tractor);
+        }
 
         // Optional: reset the color of the tractor if needed
         if (tractor.material && tractor.material.color && tractor.originalColor) {
@@ -1147,6 +1189,57 @@ class MyContents  {
         this.clock = new THREE.Clock();
     }
 
+    handleKeys() {
+        if (this.keys.W){
+            this.tractor.accelerate();
+        }
+        if (this.keys.S){
+            this.tractor.decelerate();
+        }
+        if (this.keys.A){
+            this.tractor.turnLeft();
+        }
+        if (this.keys.D){
+            this.tractor.turnRight();
+        }
+    }
+
+    updateCamera() {
+
+        // Update the camera position and target
+        let activeCamera = this.app.getActiveCamera();
+        let tractorsPark = this.app.scene.getObjectByName('park');
+        
+        switch(this.current_state){
+            case States.PLAY:
+                let offset = new THREE.Vector3(0, 8, -20);
+                let rotationMatrix = new THREE.Matrix4();
+                rotationMatrix.makeRotationY(this.tractor.orientation);
+
+                offset.applyMatrix4(rotationMatrix);
+
+                let cameraPosition = this.tractor.object.position.clone().add(offset);
+
+                activeCamera.position.copy(new THREE.Vector3(cameraPosition.x, cameraPosition.y, cameraPosition.z)); 
+
+                this.app.controls.target = this.tractor.object.position.clone();
+                break;
+
+            case States.CHOOSING_PLAYER_TRACTOR:
+                activeCamera.position.copy(tractorsPark.position.clone().add(new THREE.Vector3(0, 30, -30)));
+                this.app.controls.target = tractorsPark.position.clone();
+                break;
+            
+            case States.CHOOSING_AUTONOMOUS_TRACTOR:
+                activeCamera.position.copy(tractorsPark.position.clone().add(new THREE.Vector3(0, 30, -30)));
+                this.app.controls.target = tractorsPark.position.clone();
+                break;
+
+            default:
+                break;
+        }
+    }
+
     update() {
         const activeCamera = this.app.getActiveCamera();
         const cameraWorldPosition = new THREE.Vector3();
@@ -1179,10 +1272,12 @@ class MyContents  {
                 this.current_state = States.PLAY;
                 break;
             case States.PLAY:
-                
+                this.text_obj.remove(...this.text_obj.children)
+                this.handleKeys();
+                this.tractor.update();
+                this.updateCamera();
                 break;
             case States.PAUSE:
-                
                 break;
             case States.GAME_OVER:
     
@@ -1201,9 +1296,14 @@ class MyContents  {
                 break;
             case States.CHOOSING_PLAYER_TRACTOR:
                 
+                this.updateCamera();
+                
             
                 break;
             case States.CHOOSING_AUTONOMOUS_TRACTOR:
+
+            
+                this.updateCamera();
                 
                 break;
 
@@ -1219,6 +1319,7 @@ class MyContents  {
                 this.current_state = States.MAIN_MENU;
                 break;
         }
+
     }
 
     updateState(newState) {
