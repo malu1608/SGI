@@ -5,7 +5,6 @@ import { MyNurbsBuilder } from './MyNurbsBuilder.js';
 import { PolygonBuilder } from './PolygonBuilder.js';
 import { MyTrackBuilder } from './MyTrackBuilder.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 
 const States = {
     CHOOSING_PLAYER_TRACTOR: 0,
@@ -20,7 +19,7 @@ const States = {
     PLACING_OBSTACLES : 9,
     PAUSE : 10,
     PLAY : 11
-
+    
 }
 
 /**
@@ -48,6 +47,11 @@ class MyContents  {
             new THREE.Vector3(-10,0,75),
             new THREE.Vector3(-10,0,85)
         ];
+
+        this.obstacleTrackPositions = [
+            new THREE.Vector3(-60,1,100),
+           
+        ]
         this.choosingPlayerTractor = true;
    
         this.tractorAutonomous = null
@@ -71,7 +75,9 @@ class MyContents  {
         this.menu = null; // To store the menu object
         this.menuEventListenerAdded = false; // To check if the event listener is added
         this.initPointerEvents();
-
+        this.circles = []
+    
+        
     }
 
 
@@ -90,6 +96,7 @@ class MyContents  {
         if (this.menu){
             return;
         }
+        
         const menuGeometry = new THREE.PlaneGeometry(10, 10);
         const menuMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
         const menu = new THREE.Mesh(menuGeometry, menuMaterial);
@@ -97,9 +104,11 @@ class MyContents  {
         
         // Create 3D text for menu items and add to the scene
         this.menuItems.play = {
-            object: this.createTextFromSpriteSheet('Start', new THREE.Vector3(0, 1, 0)), 
+            
+            object: this.text_obj.add(...this.createTextFromSpriteSheet('Start', new THREE.Vector3(0, 1, 0))), 
             action : ()=>{this.current_state = States.START_GAME}
         };
+        
         /*
         this.menuItems.options = {
             object: this.createTextFromSpriteSheet('2.OPTIONS', new THREE.Vector3(0, 0, 0)),
@@ -111,12 +120,12 @@ class MyContents  {
         };*/
 
         this.menu = menu
-        //this.menu.visible = false
+        this.menu.visible = false
         this.toggleMenuVisibility(true);
         this.app.scene.add(menu)
         
     }
-
+    
     toggleMenuVisibility(visible) {
         
         if (this.menu) {
@@ -125,7 +134,8 @@ class MyContents  {
 
             // Toggle the visibility of each menu item
             Object.values(this.menuItems).forEach(item => {
-                item.object.forEach(obj => obj.visible = visible)
+                //console.log("item",item)
+                item.object.visible = visible;
             });
         }
     }
@@ -166,81 +176,80 @@ class MyContents  {
         this.onAfterSceneLoadedAndBeforeRender(data);
 
     }
+    
     onPointerMove(event) {
 
         event.preventDefault();
-
+        
         // calculate pointer position in normalized device coordinates
         this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-        console.log("Position x: " + this.pointer.x + " y: " + this.pointer.y);
+        //console.log("Position x: " + this.pointer.x + " y: " + this.pointer.y);
 
-        console.log("Camera: " + this.app.activeCameraName);
+        //console.log("Camera: " + this.app.activeCameraName);
 
         //set the picking ray from the camera position and mouse coordinates
-        console.log("contents",this.app.getActiveCamera())
+        //console.log("contents",this.app.getActiveCamera())
         
         this.raycaster.setFromCamera(this.pointer, this.app.getActiveCamera());
 
-        const pickingTractor = true;
-        
         let tractors = [];
-        console.log("state picking",this.current_state)
-        if ( this.current_state === 0 || this.current_state === 2 || this.current_state === 1){ //choose player tractor or start game
-            if(pickingTractor ){
-                for (let i = 1; i <= 5; i++) { // 5 tractors
-                    const tractorName = "tractor" + i;
-                    const tractor = this.app.scene.getObjectByName(tractorName);
-                    if (tractor) {
-                            tractors.push(tractor);
-                        }
-                    
-                    else {
-                        console.warn(`Tractor named ${tractorName} not found.`);
+        
+        if ( this.current_state === 0 || this.current_state === 2 || this.current_state === 1){ //choose player tractor , start game or choose autonomous tractor
+            
+            for (let i = 1; i <= 5; i++) { // 5 tractors
+                const tractorName = "tractor" + i;
+                const tractor = this.app.scene.getObjectByName(tractorName);
+                if (tractor) {
+                        tractors.push(tractor);
                     }
+                
+                else {
+                    console.warn(`Tractor named ${tractorName} not found.`);
                 }
-                this.picked_obj = tractors;
+            }
+            this.picked_obj = tractors;
 
-            } else
-                {
-                    let obstacles = [];
-                    for (let i = 1; i <= 2; i++) { // 2 woods and 2 wheelbarrows
-                        const woodName = "wood" + i;
-                        const wheelBarrowName = "wheelbarrow" + i;
-                        const wood = this.app.scene.getObjectByName(woodName);
-                        const wheelBarrow = this.app.scene.getObjectByName(wheelBarrowName);
-                        if (wood.isGroup) {
-                            console.log("wood mesh",wood.getMeshes)
-                            obstacles.push(wood);
-                        } else {
-                            console.warn(`Wood named ${woodName} not found.`);
-                        }
-
-                        if (wheelBarrow) {
-                            if (wheelBarrow.isGroup ) {
-                                obstacles.push(...wheelBarrow.children);
-                            } else {
-                                obstacles.push(wheelBarrow);
-                            }
-                            obstacles.push(wheelBarrow);
-                        } else {
-                            console.warn(`WheelBarrow named ${wheelBarrowName} not found.`);
-                        }
-                    }
-                    this.picked_obj = obstacles;
+            
+        } else if(this.current_state === 8 || this.current_state === 9 ) {
+            let obstacles = [];
+            for (let i = 1; i <= 2; i++) { // 2 woods and 2 wheelbarrows
+                const woodName = "wood" + i;
+                const wheelBarrowName = "wheelbarrow" + i;
+                const wood = this.app.scene.getObjectByName(woodName);
+                const wheelBarrow = this.app.scene.getObjectByName(wheelBarrowName);
+                if (wood.isGroup) {
+                    obstacles.push(wood);
+                } else {
+                    console.warn(`Wood named ${woodName} not found.`);
                 }
 
-            //compute intersections
-            console.log("filhos",this.picked_obj)
-            //console.log("raycaster",rayorigin, raydirection)
-            var intersects = this.raycaster.intersectObjects(this.picked_obj,true);
-            console.log(intersects);
-            console.log("Intersects: " + intersects.length);
-            this.pickingHelper(intersects);
+                if (wheelBarrow) {
+                    if (wheelBarrow.isGroup ) {
+                        obstacles.push(...wheelBarrow.children);
+                    } else {
+                        obstacles.push(wheelBarrow);
+                    }
+                    obstacles.push(wheelBarrow);
+                } else {
+                    console.warn(`WheelBarrow named ${wheelBarrowName} not found.`);
+                }
+            }
+            this.picked_obj = obstacles;
+            //console.log("state move",this.current_state)
             
         }
-            
+
+        //console.log("picked obj",this.picked_obj)
+        
+        var intersects = this.raycaster.intersectObjects(this.picked_obj,true);
+        
+        //compute intersections
+        //console.log("move intersects",intersects);
+        //console.log("intersects length: " + intersects.length);
+        this.pickingHelper(intersects);
+             
     }
 
     onPointerClick(event) {
@@ -250,23 +259,24 @@ class MyContents  {
         this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-        console.log("Position x: " + this.pointer.x + " y: " + this.pointer.y);
+        //console.log("Position x: " + this.pointer.x + " y: " + this.pointer.y);
         
         //set the picking ray from the camera position and mouse coordinates
         this.raycaster.setFromCamera(this.pointer, this.app.getActiveCamera());
 
         if (this.current_state === 3) { // menu
-            console.log("",this.current_state)
             const menuItemsArray = Object.values(this.menuItems).map(item => item.object);
+            console.log("menuItemsArray",menuItemsArray)
             var intersects = this.raycaster.intersectObjects(menuItemsArray.flat());
-            console.log(intersects);
+            console.log("menu click",intersects);
             if (intersects.length > 0) {
                 const intersected = intersects[0].object;
 
                 // Check which menu item was clicked and perform the action
                 for (let key in this.menuItems) {
                     const item = this.menuItems[key];
-                    if (item.object.includes(intersected)) {
+                    if (item.object.isObject3D === intersected.isObject3D) {
+                        console.log("iguais")
                         item.action();
                         break;
                     }
@@ -279,11 +289,11 @@ class MyContents  {
         else if ( this.current_state === 0 || this.current_state === 1 ){ //player or outonomous tractor
             console.log("current state",this.current_state)
             
-            intersects = this.raycaster.intersectObjects(this.picked_obj,true);
-            console.log("intersects: ", intersects);
-            if (intersects.length > 0) {
+            var intersects2 = this.raycaster.intersectObjects(this.picked_obj,true);
+            console.log("intersects click: ", intersects);
+            if (intersects2.length > 0) {
                  
-                const clickedTractor = intersects[0].object.parent.parent;
+                const clickedTractor = intersects2[0].object.parent.parent;
                 console.log("clickedTractor: ", clickedTractor);
                 if (clickedTractor.material && clickedTractor.currentHex) {
                     // Set the color back to its original value
@@ -311,9 +321,69 @@ class MyContents  {
                 
             }
       
-        }
-        this.pickingHelper(intersects);
+        } else if (this.current_state === 8 || this.current_state === 9) {
+            
+            console.log("picked obj",this.picked_obj)
+            intersects2 = this.raycaster.intersectObjects(this.picked_obj,true);
+            console.log("intersects click obstacle: ", intersects2);
+            if (intersects2.length > 0) {
+                const clickedObstacle = intersects2[0].object.parent.parent;
+                console.log("clickedObstacle: ", clickedObstacle);
 
+                if(this.current_state === 8){
+                    if (clickedObstacle.name.startsWith("wheelbarrow") || clickedObstacle.name.startsWith("wood")) {
+                        this.picked_obj = this.circles
+                        this.current_state = 9
+                        
+                    }
+                    
+                    this.text_obj.remove(...this.text_obj.children)
+                    this.text_obj.add(...this.createTextFromSpriteSheet('Please place the obstacle on the track:', new THREE.Vector3(-25, 15, 0)))
+                } 
+
+                if(this.current_state === 9){
+                    //foi dada set da posiçao do circulo
+                
+                    console.log("intersects click circle: ", intersects2);
+                    //this.movingObstacle(clickedObstacle)
+                    
+                    //this.movingObstacle(clickedObstacle);
+                }
+                
+            }
+        }
+        this.pickingHelper(intersects2);
+
+    }
+
+    setObstacleTrackPosition(position){
+        const circleRadius = 5;
+        const circleSegments = 32;
+        const circleGeometry = new THREE.CircleGeometry(circleRadius, circleSegments);
+        const circleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const circle = new THREE.Mesh(circleGeometry, circleMaterial);
+
+        circle.rotation.x = -Math.PI / 2;
+        circle.position.set(position.x, position.y, position.z);
+
+        return circle;
+    }
+
+    movingObstacle(obstacle) {
+        const previousPosition = obstacle.position.clone();
+
+        let angle = Math.PI /2;
+        let axis = new THREE.Vector3(0, 1, 0);
+
+        // Rotate the tractor to starting track position
+        obstacle.rotateOnAxis(axis, angle);
+
+        //se jogador escolher a posição 0
+        obstacle.position.set(this.obstacleTrackPositions[0].x, previousPosition.y,this.obstacleTrackPositions[0].z);
+
+        if (obstacle.material && obstacle.material.color && obstacle.originalColor) {
+            obstacle.material.color.set(obstacle.originalColor);
+        }
     }
 
     moveTractorToTrack(tractor) {
@@ -349,6 +419,7 @@ class MyContents  {
                 this.restoreColorOfFirstPickedObj()
                 console.log("Object cannot be picked !")
             }
+            
             else
                 this.changeColorOfFirstPickedObj(obj)
         } else {
@@ -385,7 +456,7 @@ class MyContents  {
 
     getUVForCharacter(character) {
         const asciiCode = character.charCodeAt(0);
-        console.log("asciiCode:",asciiCode);
+        //console.log("asciiCode:",asciiCode);
         const tileUSize = 1 / this.tilesPerRow; // The size of one tile in U dimension
         const tileVSize = 1 / this.tilesPerRow; // The size of one tile in V dimension
 
@@ -408,7 +479,7 @@ class MyContents  {
             const uv = this.getUVForCharacter(char);
 
             const characterTexture = new THREE.TextureLoader().load('fonts/spritesheet.png').clone();
-            characterTexture.needsUpdate = true; // Important after modifying the texture
+            characterTexture.needsUpdate = true; 
 
             characterTexture.wrapS = THREE.ClampToEdgeWrapping;
             characterTexture.wrapT = THREE.ClampToEdgeWrapping;
@@ -425,13 +496,13 @@ class MyContents  {
             });
 
             // Create a plane geometry for the character
-            const geometry = new THREE.PlaneGeometry(1, 1); // Adjust size as needed
+            const geometry = new THREE.PlaneGeometry(1, 1); 
             const mesh = new THREE.Mesh(geometry, material);
             mesh.position.set(position.x + index, position.y, position.z);
 
             // Position the character mesh
             mesh.position.set(
-                position.x + index, // You might want to adjust the spacing
+                position.x + index, // adjust the spacing
                 position.y,
                 position.z
             );
@@ -1188,7 +1259,10 @@ class MyContents  {
                 this.current_state = States.PLAY;
                 break;
             case States.PLAY:
+                //missing collision with power up and popping menu
+                this.current_state = States.CHOOSING_OBSTACLES
                 
+                this.text_obj.add(...this.createTextFromSpriteSheet('Please choose the one obstacle (wheelbarrow or wood):', new THREE.Vector3(-25, 15, 0)))
                 break;
             case States.PAUSE:
                 
@@ -1200,10 +1274,24 @@ class MyContents  {
                 
                 break;
             case States.CHOOSING_OBSTACLES:
-            
+                
+                //this.current_state = States.PLACING_OBSTACLES
+                
+                
+                
                 break;
             case States.PLACING_OBSTACLES:
-                
+                //this.movingObstacle(clickedObstacle);
+                //this.restoreColorOfFirstPickedObj()
+                this.obstacleTrackPositions.forEach(position => {
+                    const circle = this.setObstacleTrackPosition(position);
+                    this.app.scene.add(circle);
+                    this.circles.push(circle);
+
+                });
+
+
+                this.current_state = States.RESUME_GAME;
                 break;
             case States.RESUME_GAME: //restart game
                 
@@ -1220,6 +1308,8 @@ class MyContents  {
                 this.toggleMenuVisibility(false);
                 this.loadScene()
                 this.current_state = States.CHOOSING_PLAYER_TRACTOR
+                this.text_obj.remove(...this.text_obj.children)
+                console.log("estado start game",this.current_state)
                 this.text_obj.add(...this.createTextFromSpriteSheet('Please choose the player tractor:', new THREE.Vector3(-25, 15, 0)))
                 
                 break
@@ -1231,10 +1321,6 @@ class MyContents  {
 
         //console.log("current state: ", this.current_state);
 
-    }
-
-    updateState(newState) {
-        this.current_state = newState;
     }
 }
 
