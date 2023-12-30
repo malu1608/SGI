@@ -63,6 +63,11 @@ class MyApp   {
         // Manage window resizes
         window.addEventListener('resize', this.onResize.bind(this), false );
 
+        // Text Divs
+        this.timerDiv = document.getElementById("timer");
+        this.velocityDiv = document.getElementById("velocity");
+        this.lapCountDiv = document.getElementById("laps");
+
     }
 
     /**

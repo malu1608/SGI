@@ -5,7 +5,9 @@ import { MyNurbsBuilder } from './MyNurbsBuilder.js';
 import { PolygonBuilder } from './PolygonBuilder.js';
 import { MyTrackBuilder } from './MyTrackBuilder.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { MyTractorBuilder } from './MyTractorBuilder.js';
+import { MyTractor } from './MyTractor.js';
+import { MyEnemyTractor } from './MyEnemyTractor.js';
+import { MyGame} from './MyGame.js';
 
 const States = {
     CHOOSING_PLAYER_TRACTOR: 0,
@@ -50,7 +52,6 @@ class MyContents  {
             new THREE.Vector3(-10,0,85)
         ];
         this.choosingPlayerTractor = true;
-        this.tractorAutonomous = null
        
         this.raycaster = new THREE.Raycaster()
         this.raycaster.near = 0.1
@@ -80,7 +81,7 @@ class MyContents  {
         this.keys = {W: false, S: false, A: false, D: false};
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
-        this.tractor = null;
+        this.app.game = new MyGame(this.app);
 
     }
 
@@ -351,7 +352,7 @@ class MyContents  {
             tractor.position.set(toPosition.x, previousPosition.y, toPosition.z);
             tractor.rotation.set(0,-Math.PI/2,0)
             this.app.scene.add(tractor);
-            this.tractor = new MyTractorBuilder(tractor);
+            this.app.game.playerTractor = new MyTractor(tractor);
         }
 
         // Optional: reset the color of the tractor if needed
@@ -360,7 +361,7 @@ class MyContents  {
         }
         
         if(!this.choosingPlayerTractor){
-            this.tractorAutonomous = tractor;
+            this.app.game.enemyTractor = new MyEnemyTractor(this.app,tractor);
         }
     }
 
@@ -1121,61 +1122,6 @@ class MyContents  {
         console.log("" + new Array(indent * 4).join(' ') + " - " + obj.type + " " + (obj.id !== undefined ? "'" + obj.id + "'" : ""))
     }
 
-    movingAutonomousTractor() {
-         
-        this.oppTractor = this.tractorAutonomous ? this.tractorAutonomous : this.object.getObjectByName('tractor2');
-
-        // Route control points and quartenions
-        this.routeControlPoints = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Vector3(point.xx, point.yy, point.zz));
-        this.routeQuartenions = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(point.rotation)));
-
-        // Close the route
-        this.routeControlPoints.push(this.routeControlPoints[0]);
-        this.routeQuartenions.push(this.routeQuartenions[0]);
-
-        // Place a box in each control point
-        this.routeControlPoints.forEach(point => {
-            const geometry = new THREE.BoxGeometry(2, 2, 2);
-            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-            const cube = new THREE.Mesh(geometry, material);
-            cube.position.set(point.x, point.y, point.z);
-            this.app.scene.add(cube);
-        });
-
-        // Position and rotation keyframe tracks
-        const positionKF = new THREE.VectorKeyframeTrack(
-            '.position',
-            [...Array(this.routeControlPoints.length).keys()],
-            [].concat(...this.routeControlPoints.map(point => [...point.toArray()])),
-            THREE.InterpolateSmooth
-        );
-
-        const quaternionKF = new THREE.QuaternionKeyframeTrack(
-            '.quaternion',
-            [...Array(this.routeQuartenions.length).keys()],
-            [].concat(...this.routeQuartenions.map(point => [...point.toArray()])),
-        );
-
-        // Animation clip
-        const positionClip = new THREE.AnimationClip('OpponentTractor', -1, [positionKF]);
-        const rotationClip = new THREE.AnimationClip('OpponentTractor', -1, [quaternionKF]);
-
-        // Animation mixer
-        this.mixer = new THREE.AnimationMixer(this.oppTractor);
-
-        // Actions
-        this.positionAction = this.mixer.clipAction(positionClip);
-        this.rotationAction = this.mixer.clipAction(rotationClip);
-
-        // Change the speed of the animation
-        this.positionAction.timeScale = 0.5;
-        this.rotationAction.timeScale = 0.5;
-
-        this.positionAction.play();
-        this.rotationAction.play();
-        
-    }
-
     onAfterSceneLoadedAndBeforeRender(data) {
         // Called after the scene is loaded and before the first render
         this.data = data;
@@ -1191,16 +1137,16 @@ class MyContents  {
 
     handleKeys() {
         if (this.keys.W){
-            this.tractor.accelerate();
+            this.app.game.playerTractor.accelerate();
         }
         if (this.keys.S){
-            this.tractor.decelerate();
+            this.app.game.playerTractor.decelerate();
         }
         if (this.keys.A){
-            this.tractor.turnLeft();
+            this.app.game.playerTractor.turnLeft();
         }
         if (this.keys.D){
-            this.tractor.turnRight();
+            this.app.game.playerTractor.turnRight();
         }
     }
 
@@ -1214,15 +1160,15 @@ class MyContents  {
             case States.PLAY:
                 let offset = new THREE.Vector3(0, 8, -20);
                 let rotationMatrix = new THREE.Matrix4();
-                rotationMatrix.makeRotationY(this.tractor.orientation);
+                rotationMatrix.makeRotationY(this.app.game.playerTractor.orientation);
 
                 offset.applyMatrix4(rotationMatrix);
 
-                let cameraPosition = this.tractor.object.position.clone().add(offset);
+                let cameraPosition = this.app.game.playerTractor.object.position.clone().add(offset);
 
                 activeCamera.position.copy(new THREE.Vector3(cameraPosition.x, cameraPosition.y, cameraPosition.z)); 
 
-                this.app.controls.target = this.tractor.object.position.clone();
+                this.app.controls.target = this.app.game.playerTractor.object.position.clone();
                 break;
 
             case States.CHOOSING_PLAYER_TRACTOR:
@@ -1255,11 +1201,6 @@ class MyContents  {
         this.text_obj.scale.set(0.05, 0.05, 0.05)
         this.text_obj.lookAt(cameraWorldPosition);
 
-        // Update the mixer
-        if (this.mixer) {
-            this.mixer.update(this.clock.getDelta());
-        }
-
         // Update the state
         switch (this.current_state) {
             case States.MAIN_MENU:
@@ -1267,14 +1208,14 @@ class MyContents  {
                 this.setMenu();
                 break;
             case States.STARTING_PLAY:
-                this.movingAutonomousTractor()
                 this.restoreColorOfFirstPickedObj()
                 this.current_state = States.PLAY;
+                this.app.game.initGame();
                 break;
             case States.PLAY:
                 this.text_obj.remove(...this.text_obj.children)
                 this.handleKeys();
-                this.tractor.update();
+                this.app.game.update();
                 this.updateCamera();
                 break;
             case States.PAUSE:

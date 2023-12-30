@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-class MyTractorBuilder {
+class MyTractor {
     constructor(tractor) {
         this.object = tractor;
         this.completedLaps = 0;
@@ -85,4 +85,4 @@ class MyTractorBuilder {
     }
 }
 
-export { MyTractorBuilder };
+export { MyTractor };
