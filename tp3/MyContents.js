@@ -104,11 +104,11 @@ class MyContents  {
         
         // Create 3D text for menu items and add to the scene
         this.menuItems.play = {
+            object: this.text_obj.add(...this.createTextFromSpriteSheet('Start', new THREE.Vector3(0, 1, 0))),
             
-            object: this.text_obj.add(...this.createTextFromSpriteSheet('Start', new THREE.Vector3(0, 1, 0))), 
             action : ()=>{this.current_state = States.START_GAME}
         };
-        
+        console.log("text_obj start", this.text_obj) 
         /*
         this.menuItems.options = {
             object: this.createTextFromSpriteSheet('2.OPTIONS', new THREE.Vector3(0, 0, 0)),
@@ -267,16 +267,15 @@ class MyContents  {
         if (this.current_state === 3) { // menu
             const menuItemsArray = Object.values(this.menuItems).map(item => item.object);
             console.log("menuItemsArray",menuItemsArray)
-            var intersects = this.raycaster.intersectObjects(menuItemsArray.flat());
-            console.log("menu click",intersects);
-            if (intersects.length > 0) {
-                const intersected = intersects[0].object;
-
+            var intersects2 = this.raycaster.intersectObjects(menuItemsArray.flat());
+            console.log("menu click",intersects2);
+            if (intersects2.length > 0) {
+                const intersected = intersects2[0].object;
+                console.log("entrei")
                 // Check which menu item was clicked and perform the action
                 for (let key in this.menuItems) {
                     const item = this.menuItems[key];
-                    if (item.object.isObject3D === intersected.isObject3D) {
-                        console.log("iguais")
+                    if (item.object.isObject3D === intersected.isObject3D)  {
                         item.action();
                         break;
                     }
@@ -289,8 +288,8 @@ class MyContents  {
         else if ( this.current_state === 0 || this.current_state === 1 ){ //player or outonomous tractor
             console.log("current state",this.current_state)
             
-            var intersects2 = this.raycaster.intersectObjects(this.picked_obj,true);
-            console.log("intersects click: ", intersects);
+            intersects2 = this.raycaster.intersectObjects(this.picked_obj,true);
+            console.log("intersects click: ", intersects2);
             if (intersects2.length > 0) {
                  
                 const clickedTractor = intersects2[0].object.parent.parent;
@@ -1308,9 +1307,12 @@ class MyContents  {
                 this.toggleMenuVisibility(false);
                 this.loadScene()
                 this.current_state = States.CHOOSING_PLAYER_TRACTOR
-                this.text_obj.remove(...this.text_obj.children)
-                console.log("estado start game",this.current_state)
+                //console.log("estado start game",this.current_state)
+                console.log("text_obj", this.text_obj)
+                this.text_obj.remove(...this.text_obj.children)  
+                this.text_obj.visible = true            
                 this.text_obj.add(...this.createTextFromSpriteSheet('Please choose the player tractor:', new THREE.Vector3(-25, 15, 0)))
+                
                 
                 break
             
