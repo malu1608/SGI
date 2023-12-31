@@ -50,6 +50,9 @@ class MyContents  {
 
         this.obstacleTrackPositions = [
             new THREE.Vector3(-60,1,100),
+            new THREE.Vector3(-125,1,50),
+            new THREE.Vector3(70,1,-90),
+            new THREE.Vector3(100,1,-30)
            
         ]
         this.choosingPlayerTractor = true;
@@ -76,6 +79,7 @@ class MyContents  {
         this.menuEventListenerAdded = false; // To check if the event listener is added
         this.initPointerEvents();
         this.circles = []
+        this.clickedObstacle = null
     
         
     }
@@ -236,8 +240,14 @@ class MyContents  {
                     console.warn(`WheelBarrow named ${wheelBarrowName} not found.`);
                 }
             }
-            this.picked_obj = obstacles;
-            //console.log("state move",this.current_state)
+            if (this.current_state === 9){
+                this.picked_obj = this.circles
+            }
+            else{
+                this.picked_obj = obstacles; 
+            }
+            
+            console.log("state move",this.current_state)
             
         }
 
@@ -325,33 +335,48 @@ class MyContents  {
             console.log("picked obj",this.picked_obj)
             intersects2 = this.raycaster.intersectObjects(this.picked_obj,true);
             console.log("intersects click obstacle: ", intersects2);
+            console.log("estado: ", this.current_state);
             if (intersects2.length > 0) {
                 const clickedObstacle = intersects2[0].object.parent.parent;
                 console.log("clickedObstacle: ", clickedObstacle);
 
                 if(this.current_state === 8){
                     if (clickedObstacle.name.startsWith("wheelbarrow") || clickedObstacle.name.startsWith("wood")) {
+                        this.circles = []
+                        this.obstacleTrackPositions.forEach(position => {
+                            const circle = this.setObstacleTrackPosition(position);
+                            this.app.scene.add(circle);
+                            this.circles.push(circle);
+        
+                        });
                         this.picked_obj = this.circles
                         this.current_state = 9
+                        this.clickedObstacle = clickedObstacle
+                        console.log("picked obj",this.picked_obj)
                         
                     }
                     
                     this.text_obj.remove(...this.text_obj.children)
-                    this.text_obj.add(...this.createTextFromSpriteSheet('Please place the obstacle on the track:', new THREE.Vector3(-25, 15, 0)))
+                    this.text_obj.add(...this.createTextFromSpriteSheet('Please choose one circle to place the obstacle on the track:', new THREE.Vector3(-25, 15, 0)))
                 } 
 
-                if(this.current_state === 9){
+                else if(this.current_state === 9){
                     //foi dada set da posiçao do circulo
-                
                     console.log("intersects click circle: ", intersects2);
-                    //this.movingObstacle(clickedObstacle)
+                    this.movingObstacle(this.clickedObstacle,intersects2[0].object.position);
+                    this.current_state = States.RESUME_GAME;
+                    this.app.scene.remove(...this.circles);
                     
-                    //this.movingObstacle(clickedObstacle);
+                    
                 }
                 
             }
         }
-        this.pickingHelper(intersects2);
+
+        if (intersects2) {
+            this.pickingHelper(intersects2);
+        }
+        
 
     }
 
@@ -368,9 +393,9 @@ class MyContents  {
         return circle;
     }
 
-    movingObstacle(obstacle) {
+    movingObstacle(obstacle,circle_position) {
         const previousPosition = obstacle.position.clone();
-
+        
         let angle = Math.PI /2;
         let axis = new THREE.Vector3(0, 1, 0);
 
@@ -378,7 +403,7 @@ class MyContents  {
         obstacle.rotateOnAxis(axis, angle);
 
         //se jogador escolher a posição 0
-        obstacle.position.set(this.obstacleTrackPositions[0].x, previousPosition.y,this.obstacleTrackPositions[0].z);
+        obstacle.position.set(circle_position.x, previousPosition.y,circle_position.z);
 
         if (obstacle.material && obstacle.material.color && obstacle.originalColor) {
             obstacle.material.color.set(obstacle.originalColor);
@@ -1280,20 +1305,12 @@ class MyContents  {
                 
                 break;
             case States.PLACING_OBSTACLES:
-                //this.movingObstacle(clickedObstacle);
-                //this.restoreColorOfFirstPickedObj()
-                this.obstacleTrackPositions.forEach(position => {
-                    const circle = this.setObstacleTrackPosition(position);
-                    this.app.scene.add(circle);
-                    this.circles.push(circle);
-
-                });
-
-
-                this.current_state = States.RESUME_GAME;
+                
+                
                 break;
             case States.RESUME_GAME: //restart game
-                
+                this.text_obj.remove(...this.text_obj.children)
+
                 break;
             case States.CHOOSING_PLAYER_TRACTOR:
                 
