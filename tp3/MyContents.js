@@ -82,10 +82,10 @@ class MyContents  {
         this.menuItems = {};
         this.menu = null; // To store the menu object
         this.menuEventListenerAdded = false; // To check if the event listener is added
-        this.initPointerEvents();
         this.circles = []
         this.clickedObstacle = null
-        his.currentHighlighted = null;
+        this.currentHighlighted = null;
+        this.initPointerEvents();
         
         // Game
         this.keys = {W: false, S: false, A: false, D: false};
@@ -469,12 +469,7 @@ class MyContents  {
        
         const previousPosition = tractor.position.clone();
 
-        let angle = Math.PI /2;
-        let axis = new THREE.Vector3(0, 1, 0);
-
-        // Rotate the tractor to starting track position
-        tractor.rotateOnAxis(axis, angle);
-
+        let tractors = this.app.scene.getObjectByName("tractors");
         let toPosition = this.choosingPlayerTractor ? this.trackPositions[0] : this.trackPositions[1]; //zero is our player, one is the automatic one
 
         if (this.choosingPlayerTractor) {
@@ -492,11 +487,11 @@ class MyContents  {
         }
         
         if(!this.choosingPlayerTractor){
-            this.tractorAutonomous = tractor;
+            this.app.game.enemyTractor = new MyEnemyTractor(this.app,tractor);
         }
         console.log("tractor autonomo: ", this.tractorAutonomous);
         
-        this.app.game.enemyTractor = new MyEnemyTractor(this.app,tractor);
+        
         
     }
 
@@ -1247,23 +1242,6 @@ class MyContents  {
         console.log("" + new Array(indent * 4).join(' ') + " - " + obj.type + " " + (obj.id !== undefined ? "'" + obj.id + "'" : ""))
     }
 
-    movingAutonomousTractor() {
-         
-        this.oppTractor = this.tractorAutonomous ? this.tractorAutonomous : this.object.getObjectByName('tractor2');
-
-        console.log("autonomo",this.oppTractor);
-        //Route control points and quartenions
-    
-        this.routeControlPoints = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Vector3(point.xx, point.yy, point.zz));
-        this.routeQuartenions = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(point.rotation)));
-        this.buildSkyboxs();
-        this.set_materials(data.materials);
-        this.set_cameras(data.cameras,data.activeCameraId);
-
-        this.object = this.set_nodes(data.rootId);
-        this.app.scene.add(this.object);
-        this.clock = new THREE.Clock();
-    }
 
     handleKeys() {
         if (this.keys.W){
@@ -1349,9 +1327,10 @@ class MyContents  {
 
         this.text_obj.lookAt(cameraWorldPosition);
 
+        /*
         if (this.mixer) {
             this.mixer.update(this.clock.getDelta());
-        }
+        }*/
         //this.current_state = States.MAIN_MENU;
         switch (this.current_state) {
             
@@ -1360,16 +1339,16 @@ class MyContents  {
                 this.setMenu();
                 break;
             case States.STARTING_PLAY:
-                this.movingAutonomousTractor()
+                //this.movingAutonomousTractor()
                 this.restoreColorOfFirstPickedObj()
                 this.current_state = States.PLAY;
                 this.app.game.initGame();
                 break;
             case States.PLAY:
                 //missing collision with power up and popping menu
-                this.current_state = States.CHOOSING_OBSTACLES
+                //this.current_state = States.CHOOSING_OBSTACLES
                 this.text_obj.remove(...this.text_obj.children)
-                this.text_obj.add(...this.createTextFromSpriteSheet('Please choose the one obstacle (wheelbarrow or wood):', new THREE.Vector3(-25, 15, 0)))
+                //this.text_obj.add(...this.createTextFromSpriteSheet('Please choose the one obstacle (wheelbarrow or wood):', new THREE.Vector3(-25, 15, 0)))
                 this.handleKeys();
                 this.app.game.update();
                 this.updateCamera();
@@ -1428,6 +1407,7 @@ class MyContents  {
         //console.log("current state: ", this.current_state);
 
 
+}
 }
 
 export { MyContents };
