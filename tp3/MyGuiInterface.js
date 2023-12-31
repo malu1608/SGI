@@ -29,13 +29,9 @@ class MyGuiInterface  {
      * Initialize the gui interface
      */
     init() {
-
-        
-        
-        // interface with cameras
-        const cameraFolder = this.datgui.addFolder('Cameras')
-        const cameras = this.contents.app.cameras
-        //console.log("aqi",cameras)
+        // Interface with cameras
+        const cameraFolder = this.datgui.addFolder('Cameras');
+        const cameras = this.contents.app.cameras;
         cameraFolder.add(this.app, 'activeCameraName', Object.values(cameras).map(camera => camera.name)).name("active camera");
 
         cameras.forEach((camera, index) => {
@@ -43,7 +39,7 @@ class MyGuiInterface  {
             cameraFolder.open();
         });
         
-        // interface with videos
+        // Interface with videos
         const videos = this.contents.videos;
         const videosFolder = this.datgui.addFolder('Videos');
         videosFolder.close();
@@ -55,19 +51,17 @@ class MyGuiInterface  {
             videoFolder.close(); 
         });
 
-        // picking interface
+        // Picking interface
         const data_pic_color = {
             'picking color': this.contents.pickingColor
         };
 
         const pickFolder = this.datgui.addFolder('Picking');
         pickFolder.addColor(data_pic_color, 'picking color').onChange((value) => { this.contents.updatePickingColor(value) });
-        pickFolder.add(this.contents.raycaster, 'near', 0, 5)
-        pickFolder.add(this.contents.raycaster, 'far', 5, 80)
+        pickFolder.add(this.contents.raycaster, 'near', 0, 5);
+        pickFolder.add(this.contents.raycaster, 'far', 5, 80);
         pickFolder.add(this.contents, 'selectedLayer', ['none']).name("selected layer").onChange((value) => { this.contents.selectedLayers = value; this.contents.updateSelectedLayer() });
-        pickFolder.open()
-
-
+        pickFolder.open();
     }
 }
 

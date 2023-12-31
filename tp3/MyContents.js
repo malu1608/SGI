@@ -5,6 +5,9 @@ import { MyNurbsBuilder } from './MyNurbsBuilder.js';
 import { PolygonBuilder } from './PolygonBuilder.js';
 import { MyTrackBuilder } from './MyTrackBuilder.js';
 import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { MyTractor } from './MyTractor.js';
+import { MyEnemyTractor } from './MyEnemyTractor.js';
+import { MyGame} from './MyGame.js';
 
 const States = {
     CHOOSING_PLAYER_TRACTOR: 0,
@@ -41,7 +44,9 @@ class MyContents  {
         this.object = null;
         this.lights = {};
         this.videos = [];
-        this.picked_obj = []
+        this.picked_obj = [];
+
+        // Tractors
         this.selectedTractors = [];
         this.trackPositions = [
             new THREE.Vector3(-10,0,75),
@@ -80,10 +85,59 @@ class MyContents  {
         this.initPointerEvents();
         this.circles = []
         this.clickedObstacle = null
+        his.currentHighlighted = null;
+        
+        // Game
+        this.keys = {W: false, S: false, A: false, D: false};
+        document.addEventListener('keydown', this.onKeyDown.bind(this));
+        document.addEventListener('keyup', this.onKeyUp.bind(this));
+        this.app.game = new MyGame(this.app);
     
         
     }
 
+
+    onKeyDown(event) {
+        if(this.current_state === States.PLAY){
+            switch (event.code) {
+                case 'KeyW':
+                    this.keys.W = true;
+                    break;
+                case 'KeyS':
+                    this.keys.S = true;
+                    break;
+                case 'KeyA':
+                    this.keys.A = true;
+                    break;
+                case 'KeyD':
+                    this.keys.D = true;
+                    break;
+                default:
+                    break;
+            }
+        }    
+    }
+
+    onKeyUp(event) {
+        if(this.current_state === States.PLAY){
+            switch (event.code) {
+                case 'KeyW':
+                    this.keys.W = false;
+                    break;
+                case 'KeyS':
+                    this.keys.S = false;
+                    break;
+                case 'KeyA':
+                    this.keys.A = false;
+                    break;
+                case 'KeyD':
+                    this.keys.D = false;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 
     initPointerEvents(){
         document.addEventListener(
@@ -92,15 +146,14 @@ class MyContents  {
         );
         document.addEventListener("pointerdown", this.onPointerClick.bind(this));
         this.menuEventListenerAdded = true;
-           
     }
 
     setMenu() {
-       
         if (this.menu){
             return;
         }
-        
+
+        // Create a plane for the menu
         const menuGeometry = new THREE.PlaneGeometry(10, 10);
         const menuMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
         const menu = new THREE.Mesh(menuGeometry, menuMaterial);
@@ -108,6 +161,7 @@ class MyContents  {
         
         // Create 3D text for menu items and add to the scene
         this.menuItems.play = {
+
             object: this.text_obj.add(...this.createTextFromSpriteSheet('Start', new THREE.Vector3(0, 1, 0))),
             
             action : ()=>{this.current_state = States.START_GAME}
@@ -140,6 +194,7 @@ class MyContents  {
             Object.values(this.menuItems).forEach(item => {
                 //console.log("item",item)
                 item.object.visible = visible;
+
             });
         }
     }
@@ -148,8 +203,10 @@ class MyContents  {
      * initializes the contents
      */
     init() {
+
              
     }
+
 
     loadScene() {
 
@@ -265,13 +322,11 @@ class MyContents  {
     onPointerClick(event) {
         event.preventDefault();
 
-        // calculate pointer position in normalized device coordinates
+        // Calculate pointer position in normalized device coordinates
         this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-        //console.log("Position x: " + this.pointer.x + " y: " + this.pointer.y);
-        
-        //set the picking ray from the camera position and mouse coordinates
+        // Set the picking ray from the camera position and mouse coordinates
         this.raycaster.setFromCamera(this.pointer, this.app.getActiveCamera());
 
         if (this.current_state === 3) { // menu
@@ -421,7 +476,15 @@ class MyContents  {
         tractor.rotateOnAxis(axis, angle);
 
         let toPosition = this.choosingPlayerTractor ? this.trackPositions[0] : this.trackPositions[1]; //zero is our player, one is the automatic one
-        tractor.position.set(toPosition.x, previousPosition.y, toPosition.z);
+
+        if (this.choosingPlayerTractor) {
+            tractors.remove(tractor);
+            tractor.position.set(toPosition.x, previousPosition.y, toPosition.z);
+            tractor.rotation.set(0,-Math.PI/2,0)
+            this.app.scene.add(tractor);
+            this.app.game.playerTractor = new MyTractor(tractor);
+        }
+       
 
         // reset the color of the tractor 
         if (tractor.material && tractor.material.color && tractor.originalColor) {
@@ -433,24 +496,27 @@ class MyContents  {
         }
         console.log("tractor autonomo: ", this.tractorAutonomous);
         
+        this.app.game.enemyTractor = new MyEnemyTractor(this.app,tractor);
+        
     }
 
     pickingHelper(intersects) {
         if (intersects.length > 0) {
             const obj = intersects[0].object
-            console.log("Object picked: " + obj.name)
             if (this.notPickableObjIds.includes(obj.name)) {
                 this.restoreColorOfFirstPickedObj()
                 console.log("Object cannot be picked !")
-            }
-            
-            else
+            } 
+            else {
                 this.changeColorOfFirstPickedObj(obj)
-        } else {
+            }
+        } 
+        else {
             this.restoreColorOfFirstPickedObj()
         }
     }
 
+    // Method to change the color of the first picked object
     changeColorOfFirstPickedObj(obj) {
         if (this.lastPickedObj != obj) {
             if (this.lastPickedObj)
@@ -460,12 +526,15 @@ class MyContents  {
             this.lastPickedObj.material.color.setHex(this.pickingColor);
         }
     }
+
+    // Method to restore the color of the first picked object
     restoreColorOfFirstPickedObj() {
         if (this.lastPickedObj)
             this.lastPickedObj.material.color.setHex(this.lastPickedObj.currentHex);
         this.lastPickedObj = null;
     }
 
+    // Method to update the selected layer
     updateSelectedLayer() {
         this.raycaster.layers.enableAll()
         if (this.selectedLayer !== 'none') {
@@ -474,6 +543,7 @@ class MyContents  {
         }
     }
 
+    // Method to update the picking color
     updatePickingColor(value) {
         this.pickingColor = value.replace('#', '0x');
     }
@@ -501,10 +571,10 @@ class MyContents  {
         characters.forEach((char, index) => {
 
             const uv = this.getUVForCharacter(char);
-
             const characterTexture = new THREE.TextureLoader().load('fonts/spritesheet.png').clone();
-            characterTexture.needsUpdate = true; 
+            characterTexture.needsUpdate = true; // Important after modifying the texture
 
+            // Configure texture wrapping
             characterTexture.wrapS = THREE.ClampToEdgeWrapping;
             characterTexture.wrapT = THREE.ClampToEdgeWrapping;
 
@@ -522,11 +592,11 @@ class MyContents  {
             // Create a plane geometry for the character
             const geometry = new THREE.PlaneGeometry(1, 1); 
             const mesh = new THREE.Mesh(geometry, material);
-            mesh.position.set(position.x + index, position.y, position.z);
 
             // Position the character mesh
+            mesh.position.set(position.x + index, position.y, position.z);
             mesh.position.set(
-                position.x + index, // adjust the spacing
+                position.x + index, 
                 position.y,
                 position.z
             );
@@ -664,7 +734,6 @@ class MyContents  {
                 console.error(error);
             }
         );
-        
     }
 
     /**
@@ -1187,52 +1256,64 @@ class MyContents  {
     
         this.routeControlPoints = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Vector3(point.xx, point.yy, point.zz));
         this.routeQuartenions = this.oppTractor.data.representations[0].controlpoints.map(point => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(point.rotation)));
+        this.buildSkyboxs();
+        this.set_materials(data.materials);
+        this.set_cameras(data.cameras,data.activeCameraId);
 
-        // Close the route
-        this.routeControlPoints.push(this.routeControlPoints[0]);
-        this.routeQuartenions.push(this.routeQuartenions[0]);
+        this.object = this.set_nodes(data.rootId);
+        this.app.scene.add(this.object);
+        this.clock = new THREE.Clock();
+    }
 
-        // Place a box in each control point
-        this.routeControlPoints.forEach(point => {
-            const geometry = new THREE.BoxGeometry(2, 2, 2);
-            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-            const cube = new THREE.Mesh(geometry, material);
-            cube.position.set(point.x, point.y, point.z);
-            this.app.scene.add(cube);
-        });
+    handleKeys() {
+        if (this.keys.W){
+            this.app.game.playerTractor.accelerate();
+        }
+        if (this.keys.S){
+            this.app.game.playerTractor.decelerate();
+        }
+        if (this.keys.A){
+            this.app.game.playerTractor.turnLeft();
+        }
+        if (this.keys.D){
+            this.app.game.playerTractor.turnRight();
+        }
+    }
 
-        // Position and rotation keyframe tracks
-        const positionKF = new THREE.VectorKeyframeTrack(
-            '.position',
-            [...Array(this.routeControlPoints.length).keys()],
-            [].concat(...this.routeControlPoints.map(point => [...point.toArray()])),
-            THREE.InterpolateSmooth
-        );
+    updateCamera() {
 
-        const quaternionKF = new THREE.QuaternionKeyframeTrack(
-            '.quaternion',
-            [...Array(this.routeQuartenions.length).keys()],
-            [].concat(...this.routeQuartenions.map(point => [...point.toArray()])),
-        );
-
-        // Animation clip
-        const positionClip = new THREE.AnimationClip('OpponentTractor', -1, [positionKF]);
-        const rotationClip = new THREE.AnimationClip('OpponentTractor', -1, [quaternionKF]);
-
-        // Animation mixer
-        this.mixer = new THREE.AnimationMixer(this.oppTractor);
-
-        // Actions
-        this.positionAction = this.mixer.clipAction(positionClip);
-        this.rotationAction = this.mixer.clipAction(rotationClip);
-
-        // Change the speed of the animation
-        this.positionAction.timeScale = 0.5;
-        this.rotationAction.timeScale = 0.5;
-
-        this.positionAction.play();
-        this.rotationAction.play();
+        // Update the camera position and target
+        let activeCamera = this.app.getActiveCamera();
+        let tractorsPark = this.app.scene.getObjectByName('park');
         
+        switch(this.current_state){
+            case States.PLAY:
+                let offset = new THREE.Vector3(0, 8, -20);
+                let rotationMatrix = new THREE.Matrix4();
+                rotationMatrix.makeRotationY(this.app.game.playerTractor.orientation);
+
+                offset.applyMatrix4(rotationMatrix);
+
+                let cameraPosition = this.app.game.playerTractor.object.position.clone().add(offset);
+
+                activeCamera.position.copy(new THREE.Vector3(cameraPosition.x, cameraPosition.y, cameraPosition.z)); 
+
+                this.app.controls.target = this.app.game.playerTractor.object.position.clone();
+                break;
+
+            case States.CHOOSING_PLAYER_TRACTOR:
+                activeCamera.position.copy(tractorsPark.position.clone().add(new THREE.Vector3(0, 30, -30)));
+                this.app.controls.target = tractorsPark.position.clone();
+                break;
+            
+            case States.CHOOSING_AUTONOMOUS_TRACTOR:
+                activeCamera.position.copy(tractorsPark.position.clone().add(new THREE.Vector3(0, 30, -30)));
+                this.app.controls.target = tractorsPark.position.clone();
+                break;
+
+            default:
+                break;
+        }
     }
 
     onAfterSceneLoadedAndBeforeRender(data) {
@@ -1265,6 +1346,7 @@ class MyContents  {
         this.text_obj.position.set(...hudPosition);
         this.text_obj.scale.set(0.05, 0.05, 0.05)
 
+
         this.text_obj.lookAt(cameraWorldPosition);
 
         if (this.mixer) {
@@ -1281,12 +1363,17 @@ class MyContents  {
                 this.movingAutonomousTractor()
                 this.restoreColorOfFirstPickedObj()
                 this.current_state = States.PLAY;
+                this.app.game.initGame();
                 break;
             case States.PLAY:
                 //missing collision with power up and popping menu
                 this.current_state = States.CHOOSING_OBSTACLES
-                
+                this.text_obj.remove(...this.text_obj.children)
                 this.text_obj.add(...this.createTextFromSpriteSheet('Please choose the one obstacle (wheelbarrow or wood):', new THREE.Vector3(-25, 15, 0)))
+                this.handleKeys();
+                this.app.game.update();
+                this.updateCamera();
+                
                 break;
             case States.PAUSE:
                 
@@ -1313,11 +1400,11 @@ class MyContents  {
 
                 break;
             case States.CHOOSING_PLAYER_TRACTOR:
-                
+                this.updateCamera();
             
                 break;
             case States.CHOOSING_AUTONOMOUS_TRACTOR:
-                
+                this.updateCamera();
                 break;
 
             case States.START_GAME:
@@ -1340,7 +1427,7 @@ class MyContents  {
 
         //console.log("current state: ", this.current_state);
 
-    }
+
 }
 
 export { MyContents };
