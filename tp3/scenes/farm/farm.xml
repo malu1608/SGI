@@ -312,6 +312,7 @@
                 <noderef id="ducks" />
                 <noderef id="woman" />
                 <noderef id="line" />
+                <noderef id="powerups" />
 
                 <pointlight id="light1" enabled="true" 
                     color="1 1 1 1" 
@@ -322,6 +323,68 @@
                     position="100 60 100" 
                 /> 
                    
+            </children>
+        </node>
+
+        <!-- POWER UPS -->
+        <node id="powerups">
+            <children>
+                <noderef id="powerup1" />
+                <noderef id="powerup2" />
+                <noderef id="powerup3" />
+                <noderef id="powerup4" />
+            </children>
+        </node>
+
+        <node id="powerup1">
+            <transforms>
+                <translate value3="-70 7 100" />
+                <scale value3="0.3 0.3 0.3" />
+                <rotate value3="3.14 0 1.57" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Cube.obj" texture="scenes/farm/textures/powerup2.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="powerup2">
+            <transforms>
+                <translate value3="-120 7 -20" />
+                <scale value3="1.5 1.5 1.5" />
+                <rotate value3="1.57 0 3.14" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Star.obj" texture="scenes/farm/textures/powerup1.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="powerup3">
+            <transforms>
+                <translate value3="90 7 90" />
+                <scale value3="1.5 1.5 1.5" />
+                <rotate value3="1.57 0 0" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Star.obj" texture="scenes/farm/textures/powerup1.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="powerup4">
+            <transforms>
+                <translate value3="50 7 -90" />
+                <scale value3="0.3 0.3 0.3" />
+                <rotate value3="3.14 0 1.57" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Cube.obj" texture="scenes/farm/textures/powerup2.png"/>
+                </primitive>
             </children>
         </node>
 
