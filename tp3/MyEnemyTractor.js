@@ -38,7 +38,7 @@ class MyEnemyTractor {
 
         // Animation action
         this.action = this.mixer.clipAction(clip);
-        this.action.timeScale = 0.5;
+        this.action.timeScale = 0.3;
         this.action.play();
     }
 

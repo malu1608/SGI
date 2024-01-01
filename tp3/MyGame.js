@@ -43,16 +43,26 @@ class MyGame {
     }    
 
     updateLaps() {
-        const tractorPosition = this.playerTractor.position + 1;
-        const finishingLinePosition = new THREE.Vector3(-10, 0.2, 80);
+        const finishingLinePosition = new THREE.Vector3(-10, 0, 80);
+        const tractor = this.playerTractor;
+        const tractorPosition = tractor.object.position;
 
-        if (tractorPosition.z > finishingLinePosition.z) {
+        if(this.lapCount == 0){
+            this.app.lapCountDiv.innerHTML = "Laps: " + this.lapCount + "/" + this.targetLaps;
+        }
+    
+        if (tractorPosition.z > finishingLinePosition.z && !tractor.crossedFinishLine) {
+            tractor.crossedFinishLine = true; // Set the flag to prevent multiple counts
             this.lapCount++;
-            console.log(this.lapCount);
+    
+            if (this.lapCount >= this.targetLaps) {
+                this.winner = tractor;
+            }
+    
+            this.app.lapCountDiv.innerHTML = "Laps: " + this.lapCount + "/" + this.targetLaps;
 
-            this.app.lapCountDiv.innerHTML = "Laps: " + this.lapCount;
-
-            finishingLinePosition.z += 23.5;  
+        } else if (tractorPosition.z < finishingLinePosition.z) {
+            tractor.crossedFinishLine = false;
         }
     }
 
