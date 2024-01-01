@@ -352,7 +352,7 @@ class MyContents  {
             tractor.position.set(toPosition.x, previousPosition.y, toPosition.z);
             tractor.rotation.set(0,-Math.PI/2,0)
             this.app.scene.add(tractor);
-            this.app.game.playerTractor = new MyTractor(tractor);
+            this.app.game.playerTractor = new MyTractor(tractor, this.app);
         }
 
         // Optional: reset the color of the tractor if needed

@@ -67,6 +67,7 @@ class MyApp   {
         this.timerDiv = document.getElementById("timer");
         this.velocityDiv = document.getElementById("velocity");
         this.lapCountDiv = document.getElementById("laps");
+        this.durationDiv = document.getElementById("duration");
 
     }
 

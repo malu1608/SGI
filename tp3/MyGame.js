@@ -21,6 +21,7 @@ class MyGame {
         this.updateTractors();
         this.updateVelocity(this.playerTractor.currentSpeed);
         this.updateLaps();
+        this.checkPowerUpCollision();
     }
 
     updateElapsedTime(){
@@ -54,6 +55,25 @@ class MyGame {
             finishingLinePosition.z += 23.5;  
         }
     }
+
+    checkPowerUpCollision() {
+        const tractorPosition = this.playerTractor.object.position;
+
+        // Star Power up 1
+        const powerUpPosition1 = new THREE.Vector3(-120, 7, -20);
+        const distanceToPowerUp1 = tractorPosition.distanceTo(powerUpPosition1);
+
+        // Star Power up 2
+        const powerUpPosition2 = new THREE.Vector3(90, 7, 90);
+        const distanceToPowerUp2 = tractorPosition.distanceTo(powerUpPosition2);
+
+        if (distanceToPowerUp1 < 5) {
+            this.playerTractor.applyPowerUpEffect(1);
+        } else if (distanceToPowerUp2 < 5) {
+            this.playerTractor.applyPowerUpEffect(2);
+        }
+    }
+
 }
 
 export { MyGame };
