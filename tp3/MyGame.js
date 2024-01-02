@@ -7,17 +7,24 @@ class MyGame {
         this.enemyTractor = null;
         this.elapsedTime = 0;
         this.lapCount = 0;
-        this.targetLaps = 4;
+        this.targetLaps = 3;
         this.winner = null;
         this.clock = new THREE.Clock();
         this.trackControlPoints = null;
-        this.isColliding = false;
+        this.collidedWithPowerUp = false;
+        this.lastTimeCollided = -5;
+        this.obstacles = [];
+        this.endgame = false;
     }
 
     initGame(){
         this.clock.start();
         const trackSpline = new THREE.CatmullRomCurve3(this.trackControlPoints,true);
         this.trackPoints = trackSpline.getPoints(200);
+    }
+
+    addObstacle(obstacle) {
+        this.obstacles.push(obstacle);
     }
 
     update() {
@@ -29,6 +36,7 @@ class MyGame {
         this.checkPowerUpCollision();
         this.checkObstacleCollision();
         this.checkWinner();
+
     }
 
     updateElapsedTime(){
@@ -74,6 +82,12 @@ class MyGame {
     }
     
     checkPowerUpCollision() {
+
+        // If the tractor collided with a power up less than 2 seconds ago, we ignore the collision
+        if(this.lastTimeCollided + 2 > this.elapsedTime){
+            return;
+        }
+
         const tractorPosition = this.playerTractor.object.position;
 
         // Star Power up 1
@@ -84,45 +98,64 @@ class MyGame {
         const powerUpPosition2 = new THREE.Vector3(90, 7, 90);
         const distanceToPowerUp2 = tractorPosition.distanceTo(powerUpPosition2);
 
+        // Box Power up 3
+        const powerUpPosition3 = new THREE.Vector3(-70, 7, 100);
+        const distanceToPowerUp3 = tractorPosition.distanceTo(powerUpPosition3);
+
+        // Box Power up 4
+        const powerUpPosition4 = new THREE.Vector3(50, 7, -90);
+        const distanceToPowerUp4 = tractorPosition.distanceTo(powerUpPosition4);
+
         if (distanceToPowerUp1 < 5) {
             this.playerTractor.applyPowerUpEffect(1);
         } else if (distanceToPowerUp2 < 5) {
             this.playerTractor.applyPowerUpEffect(2);
         }
-    }
-
-    checkObstacleCollision() {
-        const tractorPosition = this.playerTractor.object.position;
-
-        // Box Power up 1
-        const powerUpPosition1 = new THREE.Vector3(-70, 7, 100);
-        const distanceToPowerUp1 = tractorPosition.distanceTo(powerUpPosition1);
-
-        // Box Power up 2
-        const powerUpPosition2 = new THREE.Vector3(50, 7, -90);
-        const distanceToPowerUp2 = tractorPosition.distanceTo(powerUpPosition2);
-
-        if (distanceToPowerUp1 < 5) {
-            this.isColliding = true;
-        } else if (distanceToPowerUp2 < 5) {
-            this.isColliding = true;
+        else if (distanceToPowerUp3 < 5) {
+            this.collidedWithPowerUp = true;
+            this.lastTimeCollided = this.elapsedTime;
+        } else if (distanceToPowerUp4 < 5) {
+            this.collidedWithPowerUp = true;
+            this.lastTimeCollided = this.elapsedTime;
         }
     }
 
-    isCollidingWithObstacle() {
-        return this.isColliding;
+    isCollidingWithPowerUp() {
+        return this.collidedWithPowerUp;
+    }
+
+    checkObstacleCollision() {
+        const tractorPosition = this.playerTractor.getPosition();
+        
+        for (let i = 0; i < this.obstacles.length; i++) {
+            const obstaclePosition = this.obstacles[i].position;
+            const distanceToObstacle = tractorPosition.distanceTo(obstaclePosition);
+
+            if (distanceToObstacle < 5) {
+                this.playerTractor.applyObstacleEffect();
+            }
+        }
+    }
+
+    resetCollision() {
+        this.collidedWithPowerUp = false;
     }
 
     checkWinner() {
-        if (this.playerTractor.completedLaps >= this.targetLaps) {
+        if (this.playerTractor.completedLaps > this.targetLaps) {
             this.winner = this.playerTractor;
             this.displayWinner();
             this.endGame();
-        } else if (this.enemyTractor.completedLaps >= this.targetLaps) {
+        } else if (this.enemyTractor.completedLaps > this.targetLaps) {
             this.winner = this.enemyTractor;
             this.displayWinner();
             this.endGame();
         }
+    }
+
+    endGame() {
+        this.pause();
+        this.endgame = true;
     }
 
     displayWinner() {
