@@ -502,6 +502,8 @@
             <children>
                 <noderef id="wood1" />
                 <noderef id="wood2" />
+                <noderef id="wood3" />
+                <noderef id="wood4" />
             </children>
         </node>
 
@@ -528,11 +530,37 @@
             </children>
         </node>
 
+        <node id="wood3">
+            <transforms>
+                <scale value3="0.7 0.7 0.7" />
+                <translate value3="55 0.7 60" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Wood.obj" texture="scenes/farm/textures/wood3d.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="wood4">
+            <transforms>
+                <scale value3="0.7 0.7 0.7" />
+                <translate value3="50 0.7 60" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Wood.obj" texture="scenes/farm/textures/wood3d.png"/>
+                </primitive>
+            </children>
+        </node>
+
         <!-- WHEELBARROW -->
         <node id="wheelbarrow">
             <children>
                 <noderef id="wheelbarrow1" />
                 <noderef id="wheelbarrow2" />
+                <noderef id="wheelbarrow3" />
+                <noderef id="wheelbarrow4" />
             </children>
         </node>
 
@@ -552,6 +580,30 @@
         <node id="wheelbarrow2">
             <transforms>
                 <translate value3="65 0 60" />
+                <scale value3="0.15 0.15 0.15" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Wheelbarrow.obj" texture="scenes/farm/textures/wheelbarrow.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="wheelbarrow3">
+            <transforms>
+                <translate value3="70 0 60" />
+                <scale value3="0.15 0.15 0.15" />
+            </transforms>
+            <children>
+                <primitive>
+                    <model3d filepath="scenes/farm/models/Wheelbarrow.obj" texture="scenes/farm/textures/wheelbarrow.png"/>
+                </primitive>
+            </children>
+        </node>
+
+        <node id="wheelbarrow4">
+            <transforms>
+                <translate value3="75 0 60" />
                 <scale value3="0.15 0.15 0.15" />
             </transforms>
             <children>

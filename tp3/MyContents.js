@@ -57,8 +57,18 @@ class MyContents  {
         this.obstacleTrackPositions = [
             new THREE.Vector3(-60,1,100),
             new THREE.Vector3(-125,1,50),
+            new THREE.Vector3(-125,1,10),
+            new THREE.Vector3(-125,1,100),
+            new THREE.Vector3(-30,1,-95),
+            new THREE.Vector3(-90,1,-95),
+            new THREE.Vector3(40,1,-95),
+            new THREE.Vector3(-120,1,-30),
             new THREE.Vector3(70,1,-90),
-            new THREE.Vector3(100,1,-30)
+            new THREE.Vector3(100,1,-30),
+            new THREE.Vector3(100,1,0),
+            new THREE.Vector3(95,1,40),
+            new THREE.Vector3(90,1,80),
+            new THREE.Vector3(50,1,105)
         ];
         this.clickedObstacle = null;
        
@@ -262,7 +272,7 @@ class MyContents  {
             
         } else if(this.current_state === 8 || this.current_state === 9  || this.current_state === 11) {
             let obstacles = [];
-            for (let i = 1; i <= 2; i++) { // 2 woods and 2 wheelbarrows
+            for (let i = 1; i <= 4; i++) { // 2 woods and 2 wheelbarrows
                 const woodName = "wood" + i;
                 const wheelBarrowName = "wheelbarrow" + i;
                 const wood = this.app.scene.getObjectByName(woodName);
@@ -380,7 +390,7 @@ class MyContents  {
                         this.clickedObstacle = clickedObstacle
                     }
                     this.text_obj.remove(...this.text_obj.children)
-                    this.text_obj.add(...this.createTextFromSpriteSheet('Please choose one circle to place the obstacle on the track:', new THREE.Vector3(-25, 15, 0)))
+                    this.text_obj.add(...this.createTextFromSpriteSheet('Please choose one circle to place the obstacle:', new THREE.Vector3(-25, 15, 0)))
                 } 
 
                 else if(this.current_state === 9){
@@ -1357,7 +1367,7 @@ class MyContents  {
             case States.CHOOSING_AUTONOMOUS_TRACTOR:
                 this.updateCamera();
                 break;
-                
+
             case States.START_GAME:
                 this.toggleMenuVisibility(false);
                 this.loadScene()
