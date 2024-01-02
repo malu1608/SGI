@@ -8,13 +8,14 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { MyTractor } from './MyTractor.js';
 import { MyEnemyTractor } from './MyEnemyTractor.js';
 import { MyGame} from './MyGame.js';
+import { MyFirework } from './MyFirework.js';
 
 const States = {
     CHOOSING_PLAYER_TRACTOR: 0,
     CHOOSING_AUTONOMOUS_TRACTOR: 1,
     STARTING_PLAY: 2,
     MAIN_MENU : 3,
-    INSTRUCTIONS : 4,
+    DIFICCULTY_LEVEL_MENU : 4,
     GAME_OVER : 5,
     START_GAME : 6,
     RESUME_GAME : 7,
@@ -80,20 +81,25 @@ class MyContents  {
         this.tilesPerRow = 16; // for a 16x16 grid
 
         this.menuItems = {};
+        this.difficultyLevelItems = {};
         this.menu = null; // To store the menu object
+        this.difficultyMenu = null; // To store the menu object
         this.menuEventListenerAdded = false; // To check if the event listener is added
         this.circles = []
         this.clickedObstacle = null
         this.currentHighlighted = null;
         this.initPointerEvents();
+        this.fireworks = []
         
         // Game
         this.keys = {W: false, S: false, A: false, D: false};
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
         this.app.game = new MyGame(this.app);
+
+        this.player_name = ""
     
-        
+        this.loadScene();
     }
 
 
@@ -154,17 +160,29 @@ class MyContents  {
         }
 
         // Create a plane for the menu
-        const menuGeometry = new THREE.PlaneGeometry(10, 10);
+        const menuGeometry = new THREE.PlaneGeometry(30, 30);
         const menuMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
         const menu = new THREE.Mesh(menuGeometry, menuMaterial);
-        menu.position.set(0, 0, -1);
+        menu.position.set(-20, 60, 150);
+
+        const playBtnPlane = new THREE.PlaneGeometry(15, 6);
+        const playBtnTexture =  new THREE.TextureLoader().load("./scenes/farm/textures/start_button.png");
+        
+        const playBtnMaterial = new THREE.MeshBasicMaterial({
+            map: playBtnTexture, 
+        });
+
+        const playBtnMesh = new THREE.Mesh(playBtnPlane, playBtnMaterial);
+        playBtnMesh.position.set(-20, 60, 152);
         
         // Create 3D text for menu items and add to the scene
+        
         this.menuItems.play = {
 
-            object: this.text_obj.add(...this.createTextFromSpriteSheet('Start', new THREE.Vector3(0, 1, 0))),
+            object: playBtnMesh,
             
-            action : ()=>{this.current_state = States.START_GAME}
+            action : ()=>{ this.current_state = States.DIFICCULTY_LEVEL_MENU;
+             }
         };
         console.log("text_obj start", this.text_obj) 
         /*
@@ -180,8 +198,90 @@ class MyContents  {
         this.menu = menu
         this.menu.visible = false
         this.toggleMenuVisibility(true);
-        this.app.scene.add(menu)
+        this.app.scene.add(menu, playBtnMesh);
         
+    }
+
+    setLevelsMenu() {
+        if (this.difficultyMenu) {
+            return;
+        }
+
+        console.log("imprime menu")
+        
+        // Create a plane for the menu
+        const menuGeometry = new THREE.PlaneGeometry(30, 30);
+        const menuMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const menu = new THREE.Mesh(menuGeometry, menuMaterial);
+        menu.position.set(30, 60, 150);
+
+        const btnPlane = new THREE.PlaneGeometry(15, 6);
+        const easyBtnTexture =  new THREE.TextureLoader().load("./scenes/farm/textures/1st_race_button.png");
+
+        const mediumBtnTexture =  new THREE.TextureLoader().load("./scenes/farm/textures/2nd_race_button.png");
+
+        const hardBtnTexture =  new THREE.TextureLoader().load("./scenes/farm/textures/3rd_race_button.png");
+        
+        const easyBtnMaterial = new THREE.MeshBasicMaterial({
+            map: easyBtnTexture, 
+        });
+
+        const mediumBtnMaterial = new THREE.MeshBasicMaterial({
+            map: mediumBtnTexture, 
+        });
+
+        const hardBtnMaterial = new THREE.MeshBasicMaterial({
+            map: hardBtnTexture, 
+        });
+
+        
+        const easyBtnMesh = new THREE.Mesh(btnPlane, easyBtnMaterial);
+        easyBtnMesh.position.set(30, 70, 152);
+
+        const mediumBtnMesh = new THREE.Mesh(btnPlane, mediumBtnMaterial);
+        mediumBtnMesh.position.set(30, 60, 152);
+
+        const hardBtnMesh = new THREE.Mesh(btnPlane, hardBtnMaterial);
+        hardBtnMesh.position.set(30, 50, 152);
+        
+        // Create 3D text for menu items and add to the scene
+        
+        this.difficultyLevelItems.easy = {
+
+            object: easyBtnMesh,
+            
+            action : ()=>{ this.current_state = States.CHOOSING_PLAYER_TRACTOR }
+        };
+
+        this.difficultyLevelItems.medium = {
+
+            object: mediumBtnMesh,
+            
+            action : ()=>{ this.current_state = States.CHOOSING_PLAYER_TRACTOR }
+        };
+
+        this.difficultyLevelItems.hard = {
+
+            object: hardBtnMesh,
+            
+            action : ()=>{ this.current_state = States.CHOOSING_PLAYER_TRACTOR }
+        };
+
+        console.log("text_obj start", this.text_obj) 
+        /*
+        this.menuItems.options = {
+            object: this.createTextFromSpriteSheet('2.OPTIONS', new THREE.Vector3(0, 0, 0)),
+            //action: this.showOptions.bind(this)
+        };
+        this.menuItems.quit = {
+            object: this.createTextFromSpriteSheet('3.QUIT', new THREE.Vector3(0, -1, 0)),
+            action: this.quitGame.bind(this)
+        };*/
+
+        this.difficultyMenu = menu
+        //this.menu.visible = false
+        //this.toggleMenuVisibility(true);
+        this.app.scene.add(menu, easyBtnMesh, mediumBtnMesh, hardBtnMesh);
     }
     
     toggleMenuVisibility(visible) {
@@ -319,6 +419,18 @@ class MyContents  {
              
     }
 
+    showNamePrompt() {
+        return new Promise((resolve) => {
+            const playerName = prompt('Enter your name:');
+            resolve(playerName);
+        });
+    }
+
+    update_player_name(playerName) {
+        this.player_name = playerName;
+    }
+
+
     onPointerClick(event) {
         event.preventDefault();
 
@@ -329,6 +441,7 @@ class MyContents  {
         // Set the picking ray from the camera position and mouse coordinates
         this.raycaster.setFromCamera(this.pointer, this.app.getActiveCamera());
 
+        console.log("this.current_state: ", this.current_state);
         if (this.current_state === 3) { // menu
             const menuItemsArray = Object.values(this.menuItems).map(item => item.object);
             console.log("menuItemsArray",menuItemsArray)
@@ -336,12 +449,41 @@ class MyContents  {
             console.log("menu click",intersects2);
             if (intersects2.length > 0) {
                 const intersected = intersects2[0].object;
-                console.log("entrei")
                 // Check which menu item was clicked and perform the action
                 for (let key in this.menuItems) {
                     const item = this.menuItems[key];
-                    if (item.object.isObject3D === intersected.isObject3D)  {
+                    console.log("ITEM: ", item);
+                    if (item.object === intersected)  {
+                        this.showNamePrompt().then((playerName) => {
+                            //console.log('Player name:', playerName);
+                            this.update_player_name(playerName)
+                        });
                         item.action();
+                        console.log("CURRENT STATE: ", this.current_state);
+                        break;
+                    }
+                }
+                
+            }
+            
+        } else if (this.current_state === 4) { // difficulty levels menu
+            const difficultyLevelItemsArray = Object.values(this.difficultyLevelItems).map(item => item.object);
+            intersects2 = this.raycaster.intersectObjects(difficultyLevelItemsArray.flat());
+
+            console.log("menu click",intersects2);
+
+            if (intersects2.length > 0) {
+                const intersected = intersects2[0].object;
+
+                // Check which menu item was clicked and perform the action
+                for (let key in this.difficultyLevelItems) {
+                    const item = this.difficultyLevelItems[key];
+
+                    console.log("ITEM: ", item);
+
+                    if (item.object === intersected)  {
+                        item.action();
+                        console.log("CURRENT STATE: ", this.current_state);
                         break;
                     }
                 }
@@ -373,13 +515,13 @@ class MyContents  {
                     
                     this.choosingPlayerTractor = false;
                     
-                    if(this.current_state === 0){
-                        this.current_state = 1
+                    if(this.current_state === States.CHOOSING_PLAYER_TRACTOR){
+                        this.current_state = States.CHOOSING_AUTONOMOUS_TRACTOR
                         this.text_obj.remove(...this.text_obj.children)
                         this.text_obj.add(...this.createTextFromSpriteSheet('Please choose the autonomous tractor:', new THREE.Vector3(-25, 15, 0)))
                     }
-                    else if (this.current_state === 1){
-                        this.current_state = 2
+                    else if (this.current_state === States.CHOOSING_AUTONOMOUS_TRACTOR){
+                        this.current_state = States.STARTING_PLAY;
                     }
                 }
                 
@@ -489,7 +631,7 @@ class MyContents  {
         if(!this.choosingPlayerTractor){
             this.app.game.enemyTractor = new MyEnemyTractor(this.app,tractor);
         }
-        console.log("tractor autonomo: ", this.tractorAutonomous);
+        
         
         
         
@@ -1265,28 +1407,40 @@ class MyContents  {
         let tractorsPark = this.app.scene.getObjectByName('park');
         
         switch(this.current_state){
+            case States.MAIN_MENU:
+                
+                //activeCamera.position.copy(new THREE.Vector3(0, 0, 100));
+                break
+            case States.DIFICCULTY_LEVEL_MENU:
+                console.log("estado dificulty level menu",this.current_state)
+                this.app.setActiveCamera('DifficultyMenuCamera');
+                break
+                
+            case States.STARTING_PLAY:
             case States.PLAY:
-                let offset = new THREE.Vector3(0, 8, -20);
+                console.log("estado play")
+                let offset = new THREE.Vector3(10, 8, 0);
                 let rotationMatrix = new THREE.Matrix4();
                 rotationMatrix.makeRotationY(this.app.game.playerTractor.orientation);
+
+                console.log("this.app.game.playerTractor: ", this.app.game.playerTractor);
 
                 offset.applyMatrix4(rotationMatrix);
 
                 let cameraPosition = this.app.game.playerTractor.object.position.clone().add(offset);
 
-                activeCamera.position.copy(new THREE.Vector3(cameraPosition.x, cameraPosition.y, cameraPosition.z)); 
+                activeCamera.position.copy(new THREE.Vector3(this.app.game.playerTractor.object.position.x, this.app.game.playerTractor.object.position.y, this.app.game.playerTractor.object.position.z)).add(offset); 
 
-                this.app.controls.target = this.app.game.playerTractor.object.position.clone();
+                console.log("cameraPosition: ", cameraPosition);
+                console.log("activeCamera.position: ", activeCamera.position);
+
+                console.log("activeCamera: ", activeCamera);
+                // this.app.controls.target = this.app.game.playerTractor.object.position.clone().add(new THREE.Vector3(0, 3, 0));
                 break;
 
             case States.CHOOSING_PLAYER_TRACTOR:
-                activeCamera.position.copy(tractorsPark.position.clone().add(new THREE.Vector3(0, 30, -30)));
-                this.app.controls.target = tractorsPark.position.clone();
-                break;
-            
             case States.CHOOSING_AUTONOMOUS_TRACTOR:
-                activeCamera.position.copy(tractorsPark.position.clone().add(new THREE.Vector3(0, 30, -30)));
-                this.app.controls.target = tractorsPark.position.clone();
+                this.app.setActiveCamera('CarsParkingCamera');
                 break;
 
             default:
@@ -1339,6 +1493,7 @@ class MyContents  {
                 this.setMenu();
                 break;
             case States.STARTING_PLAY:
+
                 //this.movingAutonomousTractor()
                 this.restoreColorOfFirstPickedObj()
                 this.current_state = States.PLAY;
@@ -1346,22 +1501,48 @@ class MyContents  {
                 break;
             case States.PLAY:
                 //missing collision with power up and popping menu
-                //this.current_state = States.CHOOSING_OBSTACLES
+                
                 this.text_obj.remove(...this.text_obj.children)
-                //this.text_obj.add(...this.createTextFromSpriteSheet('Please choose the one obstacle (wheelbarrow or wood):', new THREE.Vector3(-25, 15, 0)))
+                
                 this.handleKeys();
                 this.app.game.update();
                 this.updateCamera();
+
+
+                this.current_state = States.CHOOSING_OBSTACLES
+                this.text_obj.add(...this.createTextFromSpriteSheet('Please choose the one obstacle (wheelbarrow or wood):', new THREE.Vector3(-25, 15, 0)))
                 
                 break;
             case States.PAUSE:
                 
                 break;
             case States.GAME_OVER:
+                
+                if(Math.random()  < 0.05 ) {
+                    this.fireworks.push(new MyFirework(this.app, this))
+                    console.log("firework added")
+                }
+        
+                // for each fireworks 
+                for( let i = 0; i < this.fireworks.length; i++ ) {
+                    // is firework finished?
+                    if (this.fireworks[i].done) {
+                        // remove firework 
+                        this.fireworks.splice(i,1) 
+                        console.log("firework removed")
+                        continue 
+                    }
+                    // otherwise upsdate  firework
+                    this.fireworks[i].update()
+                }
+
     
                 break;
-            case States.INSTRUCTIONS:
-                
+            case States.DIFICCULTY_LEVEL_MENU:
+                this.updateCamera(); 
+                this.setLevelsMenu();
+                //this.current_state = States.MAIN_MENU;
+                //activeCamera.position.set(0, 0, 100);
                 break;
             case States.CHOOSING_OBSTACLES:
                 
@@ -1388,7 +1569,7 @@ class MyContents  {
 
             case States.START_GAME:
                 this.toggleMenuVisibility(false);
-                this.loadScene()
+                
                 this.current_state = States.CHOOSING_PLAYER_TRACTOR
                 //console.log("estado start game",this.current_state)
                 console.log("text_obj", this.text_obj)
@@ -1404,6 +1585,7 @@ class MyContents  {
                 break;
         }
 
+        
         //console.log("current state: ", this.current_state);
 
 

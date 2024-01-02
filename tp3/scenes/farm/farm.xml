@@ -7,11 +7,25 @@
     <!-- CAMERAS -->
     <cameras initial="Main" > 
         <perspective id="Main" 
-            angle="80" 
+            angle="30" 
             near="0.1" 
             far="10000" 
-            location="50 30 50" 
-            target="0 0.0 0" /> 
+            location="-20 90 230" 
+            target="-20 90 230" /> 
+
+        <perspective id="DifficultyMenuCamera" 
+            angle="30" 
+            near="0.1" 
+            far="10000" 
+            location="30 90 230" 
+            target="30 0 0" /> 
+
+        <perspective id="CarsParkingCamera" 
+            angle="30" 
+            near="0.1" 
+            far="10000" 
+            location="-5 50 50" 
+            target="-5 0 125" /> 
 
         <perspective id="Lake" 
             angle="80" 

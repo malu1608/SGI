@@ -14,6 +14,7 @@ class MyGame {
 
     initGame(){
         this.clock.start();
+        
     }
 
     update() {
