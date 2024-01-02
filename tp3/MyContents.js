@@ -179,21 +179,25 @@ class MyContents  {
             return;
         }
 
+        const menuTexture =  new THREE.TextureLoader().load("./scenes/farm/textures/background3.jpg");
         // Create a plane for the menu
         const menuGeometry = new THREE.PlaneGeometry(30, 30);
-        const menuMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const menuMaterial = new THREE.MeshBasicMaterial({ map : menuTexture });
         const menu = new THREE.Mesh(menuGeometry, menuMaterial);
         menu.position.set(-20, 60, 150);
         
-        const playBtnPlane = new THREE.PlaneGeometry(15, 6);
-        const playBtnTexture =  new THREE.TextureLoader().load("./scenes/farm/textures/start_button.png");
+        const playBtnPlane = new THREE.PlaneGeometry(10, 8);
+        const playBtnTexture =  new THREE.TextureLoader().load("./scenes/farm/textures/green_play_button.png");
         
         const playBtnMaterial = new THREE.MeshBasicMaterial({
-            map: playBtnTexture, 
+            map: playBtnTexture,
+            transparent: true,
+            alphaTest: 0.5 
+            
         });
 
         const playBtnMesh = new THREE.Mesh(playBtnPlane, playBtnMaterial);
-        playBtnMesh.position.set(-20, 60, 152);
+        playBtnMesh.position.set(-13, 50, 152);
 
         // Create 3D text for menu items and add to the scene
         this.menuItems.play = {
@@ -215,38 +219,44 @@ class MyContents  {
         
         // Create a plane for the menu
         const menuGeometry = new THREE.PlaneGeometry(30, 30);
-        const menuMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const menuMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
         const menu = new THREE.Mesh(menuGeometry, menuMaterial);
         menu.position.set(30, 60, 150);
 
         const btnPlane = new THREE.PlaneGeometry(15, 6);
-        const easyBtnTexture =  new THREE.TextureLoader().load("./scenes/farm/textures/1st_race_button.png");
+        const easyBtnTexture =  new THREE.TextureLoader().load("./scenes/farm/textures/2.png");
 
-        const mediumBtnTexture =  new THREE.TextureLoader().load("./scenes/farm/textures/2nd_race_button.png");
+        const mediumBtnTexture =  new THREE.TextureLoader().load("./scenes/farm/textures/medium_button2.png");
 
-        const hardBtnTexture =  new THREE.TextureLoader().load("./scenes/farm/textures/3rd_race_button.png");
+        const hardBtnTexture =  new THREE.TextureLoader().load("./scenes/farm/textures/hard_button.png");
         
         const easyBtnMaterial = new THREE.MeshBasicMaterial({
             map: easyBtnTexture, 
+            transparent: true,
+            alphaTest: 0.5 
         });
 
         const mediumBtnMaterial = new THREE.MeshBasicMaterial({
-            map: mediumBtnTexture, 
+            map: mediumBtnTexture,
+            transparent: true,
+            alphaTest: 0.5  
         });
 
         const hardBtnMaterial = new THREE.MeshBasicMaterial({
             map: hardBtnTexture, 
+            transparent: true,
+            alphaTest: 0.5 
         });
 
         
         const easyBtnMesh = new THREE.Mesh(btnPlane, easyBtnMaterial);
-        easyBtnMesh.position.set(30, 70, 152);
+        easyBtnMesh.position.set(30, 68, 152);
 
         const mediumBtnMesh = new THREE.Mesh(btnPlane, mediumBtnMaterial);
         mediumBtnMesh.position.set(30, 60, 152);
 
         const hardBtnMesh = new THREE.Mesh(btnPlane, hardBtnMaterial);
-        hardBtnMesh.position.set(30, 50, 152);
+        hardBtnMesh.position.set(30, 52, 152);
         
         // Create 3D text for menu items and add to the scene
         
