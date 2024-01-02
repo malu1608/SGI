@@ -42,6 +42,16 @@ class MyEnemyTractor {
         this.action.play();
     }
 
+    pause(){
+        this.action.paused = true;
+        this.clock.stop();
+    }
+
+    resume(){
+        this.action.paused = false;
+        this.clock.start();
+    }
+
     update(){
         this.mixer.update(this.clock.getDelta());
     }

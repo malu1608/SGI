@@ -7,13 +7,16 @@ class MyGame {
         this.enemyTractor = null;
         this.elapsedTime = 0;
         this.lapCount = 0;
-        this.targetLaps = 3;
+        this.targetLaps = 4;
         this.winner = null;
         this.clock = new THREE.Clock();
+        this.trackControlPoints = null;
     }
 
     initGame(){
         this.clock.start();
+        const trackSpline = new THREE.CatmullRomCurve3(this.trackControlPoints,true);
+        this.trackPoints = trackSpline.getPoints(200);
     }
 
     update() {
@@ -21,7 +24,9 @@ class MyGame {
         this.updateTractors();
         this.updateVelocity(this.playerTractor.currentSpeed);
         this.updateLaps();
+        this.checkOutOfTrack();
         this.checkPowerUpCollision();
+
     }
 
     updateElapsedTime(){
@@ -43,29 +48,41 @@ class MyGame {
     }    
 
     updateLaps() {
-        const finishingLinePosition = new THREE.Vector3(-10, 0, 80);
-        const tractor = this.playerTractor;
-        const tractorPosition = tractor.object.position;
-
-        if(this.lapCount == 0){
-            this.app.lapCountDiv.innerHTML = "Laps: " + this.lapCount + "/" + this.targetLaps;
-        }
-    
-        if (tractorPosition.z > finishingLinePosition.z && !tractor.crossedFinishLine) {
-            tractor.crossedFinishLine = true; // Set the flag to prevent multiple counts
-            this.lapCount++;
-    
-            if (this.lapCount >= this.targetLaps) {
-                this.winner = tractor;
-            }
-    
-            this.app.lapCountDiv.innerHTML = "Laps: " + this.lapCount + "/" + this.targetLaps;
-
-        } else if (tractorPosition.z < finishingLinePosition.z) {
-            tractor.crossedFinishLine = false;
-        }
+        this.lapCount = this.playerTractor.completedLaps;
+        this.app.lapCountDiv.innerHTML = "Laps: " + this.lapCount + "/" + this.targetLaps;
     }
 
+    checkOutOfTrack() {
+        let tractorPosition = this.playerTractor.object.position
+        let offset = new THREE.Vector3(0, -5.7, 0);
+        let floorPosition = tractorPosition.clone().add(offset);
+        const threshold = 13;
+
+        for (let i = 0; i < this.trackPoints.length; i++) {
+            const distance = floorPosition.distanceTo(this.trackPoints[i]);
+
+            // If the tractor is close enough to the track, we consider it to be in the track
+            if (distance < threshold) {
+                this.playerTractor.tractorInTrack();
+                return;
+            }
+        }
+
+        this.playerTractor.tractorOutTrack();
+    }
+
+    pause() {
+        this.clock.stop();
+        this.enemyTractor.pause();
+    }
+
+    resume() {
+        this.clock.start();
+        this.clock.elapsedTime = this.elapsedTime;
+        this.enemyTractor.resume();
+    }
+
+    
     checkPowerUpCollision() {
         const tractorPosition = this.playerTractor.object.position;
 

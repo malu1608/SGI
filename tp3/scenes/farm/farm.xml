@@ -730,6 +730,7 @@
                         <controlpoint xx="-114" yy="0" zz="121" />
                         <controlpoint xx="-102" yy="0" zz="-81" />
                         <controlpoint xx="90" yy="0" zz="-75" />
+                        <controlpoint xx="100" yy="0" zz="0" />
                     </track>
                 </primitive>
             </children>

@@ -68,6 +68,7 @@ class MyApp   {
         this.velocityDiv = document.getElementById("velocity");
         this.lapCountDiv = document.getElementById("laps");
         this.durationDiv = document.getElementById("duration");
+        this.pauseDiv = document.getElementById("pause");
 
     }
 

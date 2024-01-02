@@ -10,6 +10,8 @@ class MyTractor {
         this.accelerationRate = 0.02;
         this.maxSpeed = 1.5;
         this.orientation = tractor.rotation.y;
+        this.lappedRecently = false;
+        this.inTrack = true;
 
         // Get the wheels
         this.leftBackWheel = tractor.getObjectByName("group2 polySurface27");
@@ -26,6 +28,8 @@ class MyTractor {
         this.powerUpActive = false;
         this.powerUpCallback = null;
         this.resetPowerUpEffect = this.resetPowerUpEffect.bind(this);
+
+
     }
 
     accelerate() {
@@ -59,6 +63,25 @@ class MyTractor {
         this.updateSteering();
         this.updatePosition();
         this.updateWheelsRotation();
+        this.updateLaps();
+    }
+
+    getPosition() {
+        const offset = new THREE.Vector3(-10, -5.7, 2);
+        return this.object.position.clone().add(offset);
+    }
+
+    updateLaps() {
+        const finishingLinePosition = new THREE.Vector3(-10, 0, 80);
+        const pos = this.getPosition();
+        const distanceToFinish = pos.distanceTo(finishingLinePosition);
+
+        if (distanceToFinish < 10 && !this.lappedRecently) {
+            this.completedLaps++;
+            this.lappedRecently = true;
+        } else if (distanceToFinish > 10) {
+            this.lappedRecently = false;
+        }
     }
 
     updateSpeed() {
@@ -90,6 +113,20 @@ class MyTractor {
         this.object.rotation.y = this.orientation;
     }
 
+    tractorOutTrack() {
+        if(!this.inTrack) return;
+
+        this.inTrack = false;
+        this.maxSpeed = this.maxSpeed / 2;
+    }
+
+    tractorInTrack() {
+        if(this.inTrack) return;
+
+        this.inTrack = true;
+        this.maxSpeed = this.maxSpeed * 2;
+    }
+
     applyPowerUpEffect() {
         if (!this.powerUpActive) {
             this.maxSpeed = 3.0;
@@ -113,6 +150,7 @@ class MyTractor {
     
     resetPowerUpEffect() {
         this.maxSpeed = 1.5;
+        this.inTrack = true;
         this.powerUpActive = false;
 
         clearTimeout(this.powerUpTimeout);
@@ -122,7 +160,7 @@ class MyTractor {
         this.app.durationDiv.innerHTML = "The power up will end in " + remainingTime.toFixed(0) + "s";
 
         if (remainingTime <= 0) {
-            this.app.durationDiv.innerHTML = ""; // Set the content to an empty string
+            this.app.durationDiv.innerHTML = "";
         }
     }
 }

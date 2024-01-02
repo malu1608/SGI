@@ -48,7 +48,7 @@ class MyContents  {
         // Tractors
         this.selectedTractors = [];
         this.trackPositions = [
-            new THREE.Vector3(-10,0,75),
+            new THREE.Vector3(5,0,80),
             new THREE.Vector3(-10,0,85)
         ];
         this.choosingPlayerTractor = true;
@@ -72,16 +72,17 @@ class MyContents  {
 
         // Menu
         this.menuItems = {};
-        this.menu = null; // To store the menu object
-        this.menuEventListenerAdded = false; // To check if the event listener is added
+        this.menu = null; 
+        this.menuEventListenerAdded = false; 
         this.currentHighlighted = null;
         this.initPointerEvents();
 
         // Game
-        this.keys = {W: false, S: false, A: false, D: false};
+        this.keys = {W: false, S: false, A: false, D: false, Space: false};
         document.addEventListener('keydown', this.onKeyDown.bind(this));
         document.addEventListener('keyup', this.onKeyUp.bind(this));
         this.app.game = new MyGame(this.app);
+        
 
     }
 
@@ -100,10 +101,24 @@ class MyContents  {
                 case 'KeyD':
                     this.keys.D = true;
                     break;
+                case 'Space':
+                    this.keys.Space = true;
+                    break;
                 default:
                     break;
             }
-        }    
+        }  
+        if(this.current_state === States.PAUSE){
+            switch (event.code) {
+                case 'Space':
+                    this.current_state = States.PLAY;
+                    this.app.game.resume();
+                    this.app.pauseDiv.innerHTML = "";
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     onKeyUp(event) {
@@ -145,7 +160,7 @@ class MyContents  {
         const menuGeometry = new THREE.PlaneGeometry(10, 10);
         const menuMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
         const menu = new THREE.Mesh(menuGeometry, menuMaterial);
-        menu.position.set(0, 0, -1);
+        menu.position.set(0, 0, 0);
         
         // Create 3D text for menu items and add to the scene
         this.menuItems.play = {
@@ -168,14 +183,6 @@ class MyContents  {
                 item.object.forEach(obj => obj.visible = visible)
             });
         }
-    }
-
-    /**
-     * initializes the contents
-     */
-    init() {
-        
-          
     }
 
     loadScene() {
@@ -1042,6 +1049,8 @@ class MyContents  {
                 let trackRepresentations = primitive.representations[0];
                 const trackBuilder = new MyTrackBuilder(trackRepresentations.controlpoints, trackRepresentations.segments);
                 geometry = trackBuilder.build();
+                let cp = trackRepresentations.controlpoints.map(cp => new THREE.Vector3(cp.xx, cp.yy, cp.zz));
+                this.app.game.trackControlPoints = cp;
                 break;
 
             case "polygon":
@@ -1148,6 +1157,11 @@ class MyContents  {
         if (this.keys.D){
             this.app.game.playerTractor.turnRight();
         }
+        if (this.keys.Space){
+            this.keys.Space = false;
+            this.current_state = 10;
+            this.app.game.pause();
+        }
     }
 
     updateCamera() {
@@ -1200,7 +1214,7 @@ class MyContents  {
         this.text_obj.position.set(...hudPosition);
         this.text_obj.scale.set(0.05, 0.05, 0.05)
         this.text_obj.lookAt(cameraWorldPosition);
-
+        
         // Update the state
         switch (this.current_state) {
             case States.MAIN_MENU:
@@ -1219,6 +1233,7 @@ class MyContents  {
                 this.updateCamera();
                 break;
             case States.PAUSE:
+                this.app.pauseDiv.innerHTML = "PAUSE";
                 break;
             case States.GAME_OVER:
     
