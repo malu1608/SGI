@@ -597,8 +597,7 @@
                 </primitive>
                 <primitive>
                     <route id="tractor1">
-                        <controlpoint xx="83" yy="5.7" zz="119" rotation="-95"/>
-                        <controlpoint xx="16" yy="5.7" zz="83" rotation="-100"/>
+                        <controlpoint xx="0" yy="5.7" zz="80" rotation="-95"/>
                         <controlpoint xx="-34" yy="5.7" zz="83" rotation="-80" />
                         <controlpoint xx="-106" yy="5.7" zz="121" rotation="-170" />
                         <controlpoint xx="-125" yy="5.7" zz="21" rotation="-175"/>
@@ -606,6 +605,7 @@
                         <controlpoint xx="-34" yy="5.7" zz="-100" rotation="-270"/>
                         <controlpoint xx="98" yy="5.7" zz="-75" rotation="-10"/>
                         <controlpoint xx="99" yy="5.7" zz="20" rotation="5"/>
+                        <controlpoint xx="83" yy="5.7" zz="119" rotation="-95"/>
                     </route>
                 </primitive>
             </children> 
@@ -622,9 +622,8 @@
                     <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor2.png"/>
                 </primitive>
                 <primitive>
-                    <route id="tractor1">
-                        <controlpoint xx="83" yy="5.7" zz="119" rotation="-95"/>
-                        <controlpoint xx="17" yy="5.7" zz="83" rotation="-100"/>
+                    <route id="tractor2">
+                        <controlpoint xx="0" yy="5.7" zz="80" rotation="-95"/>
                         <controlpoint xx="-33" yy="5.7" zz="83" rotation="-80" />
                         <controlpoint xx="-105" yy="5.7" zz="121" rotation="-170" />
                         <controlpoint xx="-124" yy="5.7" zz="21" rotation="-175"/>
@@ -632,6 +631,8 @@
                         <controlpoint xx="-33" yy="5.7" zz="-100" rotation="-270"/>
                         <controlpoint xx="99" yy="5.7" zz="-75" rotation="-10"/>
                         <controlpoint xx="100" yy="5.7" zz="20" rotation="5"/>
+                        <controlpoint xx="83" yy="5.7" zz="119" rotation="-95"/>
+                        <controlpoint xx="17" yy="5.7" zz="83" rotation="-100"/>
                     </route>
                 </primitive>
             </children>
@@ -648,9 +649,8 @@
                     <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor3.png"/>
                 </primitive>
                 <primitive>
-                    <route id="tractor1">
-                        <controlpoint xx="83" yy="5.7" zz="119" rotation="-95"/>
-                        <controlpoint xx="17" yy="5.7" zz="84" rotation="-100"/>
+                    <route id="tractor3">
+                        <controlpoint xx="0" yy="5.7" zz="80" rotation="-95"/>
                         <controlpoint xx="-33" yy="5.7" zz="84" rotation="-80" />
                         <controlpoint xx="-105" yy="5.7" zz="122" rotation="-170" />
                         <controlpoint xx="-124" yy="5.7" zz="22" rotation="-175"/>
@@ -658,6 +658,8 @@
                         <controlpoint xx="-33" yy="5.7" zz="-99" rotation="-270"/>
                         <controlpoint xx="99" yy="5.7" zz="-74" rotation="-10"/>
                         <controlpoint xx="100" yy="5.7" zz="21" rotation="5"/>
+                        <controlpoint xx="83" yy="5.7" zz="119" rotation="-95"/>
+                        <controlpoint xx="17" yy="5.7" zz="84" rotation="-100"/>
                     </route>
                 </primitive>
             </children>
@@ -674,9 +676,8 @@
                     <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor4.png"/>
                 </primitive>
                 <primitive>
-                    <route id="tractor1">
-                        <controlpoint xx="83" yy="5.7" zz="119" rotation="-95"/>
-                        <controlpoint xx="16" yy="5.7" zz="84" rotation="-100"/>
+                    <route id="tractor4">
+                        <controlpoint xx="0" yy="5.7" zz="80" rotation="-95"/>
                         <controlpoint xx="-32" yy="5.7" zz="84" rotation="-80" />
                         <controlpoint xx="-104" yy="5.7" zz="122" rotation="-170" />
                         <controlpoint xx="-123" yy="5.7" zz="22" rotation="-175"/>
@@ -684,6 +685,7 @@
                         <controlpoint xx="-32" yy="5.7" zz="-99" rotation="-270"/>
                         <controlpoint xx="98" yy="5.7" zz="-74" rotation="-10"/>
                         <controlpoint xx="99" yy="5.7" zz="21" rotation="5"/>
+                        <controlpoint xx="83" yy="5.7" zz="119" rotation="-95"/>
                     </route>
                 </primitive>
             </children>
@@ -700,9 +702,8 @@
                     <model3d filepath="scenes/farm/models/Tractor.obj" texture="scenes/farm/textures/tractor5.png"/>
                 </primitive>
                 <primitive>
-                    <route id="tractor1">
-                        <controlpoint xx="83" yy="5.7" zz="119" rotation="-95"/>
-                        <controlpoint xx="15" yy="5.7" zz="83" rotation="-100"/>
+                    <route id="tractor5">
+                        <controlpoint xx="0" yy="5.7" zz="80" rotation="-95"/>
                         <controlpoint xx="-33" yy="5.7" zz="83" rotation="-80" />
                         <controlpoint xx="-105" yy="5.7" zz="121" rotation="-170" />
                         <controlpoint xx="-124" yy="5.7" zz="21" rotation="-175"/>
@@ -710,6 +711,8 @@
                         <controlpoint xx="-33" yy="5.7" zz="-100" rotation="-270"/>
                         <controlpoint xx="97" yy="5.7" zz="-75" rotation="-10"/>
                         <controlpoint xx="98" yy="5.7" zz="20" rotation="5"/>
+                        <controlpoint xx="83" yy="5.7" zz="119" rotation="-95"/>
+                        <controlpoint xx="15" yy="5.7" zz="83" rotation="-100"/>
                     </route>
                 </primitive>
             </children>
