@@ -69,6 +69,7 @@ class MyApp   {
         this.lapCountDiv = document.getElementById("laps");
         this.durationDiv = document.getElementById("duration");
         this.pauseDiv = document.getElementById("pause");
+        this.winnerDiv = document.getElementById("winner");
 
     }
 

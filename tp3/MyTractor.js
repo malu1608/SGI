@@ -28,8 +28,6 @@ class MyTractor {
         this.powerUpActive = false;
         this.powerUpCallback = null;
         this.resetPowerUpEffect = this.resetPowerUpEffect.bind(this);
-
-
     }
 
     accelerate() {

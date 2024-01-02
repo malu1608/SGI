@@ -28,7 +28,7 @@ class MyGame {
         this.checkOutOfTrack();
         this.checkPowerUpCollision();
         this.checkObstacleCollision();
-
+        this.checkWinner();
     }
 
     updateElapsedTime(){
@@ -72,7 +72,6 @@ class MyGame {
 
         this.playerTractor.tractorOutTrack();
     }
-
     
     checkPowerUpCollision() {
         const tractorPosition = this.playerTractor.object.position;
@@ -114,6 +113,22 @@ class MyGame {
         return this.isColliding;
     }
 
+    checkWinner() {
+        if (this.playerTractor.completedLaps >= this.targetLaps) {
+            this.winner = this.playerTractor;
+            this.displayWinner();
+            this.endGame();
+        } else if (this.enemyTractor.completedLaps >= this.targetLaps) {
+            this.winner = this.enemyTractor;
+            this.displayWinner();
+            this.endGame();
+        }
+    }
+
+    displayWinner() {
+        this.app.winnerDiv.innerHTML = this.winner === this.playerTractor ? "Player Wins!" : "Enemy Wins!";
+    }
+
     pause() {
         this.clock.stop();
         this.enemyTractor.pause();
@@ -124,7 +139,6 @@ class MyGame {
         this.clock.elapsedTime = this.elapsedTime;
         this.enemyTractor.resume();
     }
-
 
 }
 
