@@ -11,6 +11,7 @@ class MyGame {
         this.winner = null;
         this.clock = new THREE.Clock();
         this.trackControlPoints = null;
+        this.isColliding = false;
     }
 
     initGame(){
@@ -26,6 +27,7 @@ class MyGame {
         this.updateLaps();
         this.checkOutOfTrack();
         this.checkPowerUpCollision();
+        this.checkObstacleCollision();
 
     }
 
@@ -71,17 +73,6 @@ class MyGame {
         this.playerTractor.tractorOutTrack();
     }
 
-    pause() {
-        this.clock.stop();
-        this.enemyTractor.pause();
-    }
-
-    resume() {
-        this.clock.start();
-        this.clock.elapsedTime = this.elapsedTime;
-        this.enemyTractor.resume();
-    }
-
     
     checkPowerUpCollision() {
         const tractorPosition = this.playerTractor.object.position;
@@ -100,6 +91,40 @@ class MyGame {
             this.playerTractor.applyPowerUpEffect(2);
         }
     }
+
+    checkObstacleCollision() {
+        const tractorPosition = this.playerTractor.object.position;
+
+        // Box Power up 1
+        const powerUpPosition1 = new THREE.Vector3(-70, 7, 100);
+        const distanceToPowerUp1 = tractorPosition.distanceTo(powerUpPosition1);
+
+        // Box Power up 2
+        const powerUpPosition2 = new THREE.Vector3(50, 7, -90);
+        const distanceToPowerUp2 = tractorPosition.distanceTo(powerUpPosition2);
+
+        if (distanceToPowerUp1 < 5) {
+            this.isColliding = true;
+        } else if (distanceToPowerUp2 < 5) {
+            this.isColliding = true;
+        }
+    }
+
+    isCollidingWithObstacle() {
+        return this.isColliding;
+    }
+
+    pause() {
+        this.clock.stop();
+        this.enemyTractor.pause();
+    }
+
+    resume() {
+        this.clock.start();
+        this.clock.elapsedTime = this.elapsedTime;
+        this.enemyTractor.resume();
+    }
+
 
 }
 
