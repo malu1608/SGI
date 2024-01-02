@@ -28,6 +28,11 @@ class MyTractor {
         this.powerUpActive = false;
         this.powerUpCallback = null;
         this.resetPowerUpEffect = this.resetPowerUpEffect.bind(this);
+
+        // Obstacle variables
+        this.obstacleActive = false;
+        this.obstacleCallback = null;
+        this.resetObstacleEffect = this.resetObstacleEffect.bind(this);
     }
 
     accelerate() {
@@ -65,7 +70,12 @@ class MyTractor {
     }
 
     getPosition() {
-        const offset = new THREE.Vector3(-10, -5.7, 2);
+        const offset = new THREE.Vector3(0, -5.7, 10);
+        let rotationMatrix = new THREE.Matrix4();
+        rotationMatrix.makeRotationY(this.orientation);
+
+        offset.applyMatrix4(rotationMatrix);
+
         return this.object.position.clone().add(offset);
     }
 
@@ -145,6 +155,36 @@ class MyTractor {
             }, 50); 
         }
     }
+
+    applyObstacleEffect() {
+        if (!this.obstacleActive) {
+            this.maxSpeed = 0.75;
+            this.currentSpeed = Math.max(this.currentSpeed - this.accelerationRate, this.maxSpeed);
+            this.obstacleActive = true;
+    
+            const duration = 4; 
+            let remainingTime = duration;
+    
+            this.obstacleTimeout = setInterval(() => {
+                remainingTime -= 0.1; 
+                remainingTime = Math.max(0, remainingTime); // Ensure it doesn't go below zero
+                this.updateObstacleDuration(remainingTime);
+    
+                if (remainingTime <= 0) {
+                    this.resetObstacleEffect();
+                }
+            }, 50); 
+        }
+    }
+
+    resetObstacleEffect() {
+        this.obstacleActive = false;
+        this.maxSpeed = 1.5;
+        this.inTrack = true;
+
+        clearTimeout(this.obstacleTimeout);
+    }
+        
     
     resetPowerUpEffect() {
         this.maxSpeed = 1.5;
@@ -152,6 +192,14 @@ class MyTractor {
         this.powerUpActive = false;
 
         clearTimeout(this.powerUpTimeout);
+    }
+
+    updateObstacleDuration(remainingTime) {
+        this.app.durationDiv.innerHTML = "The obstacle will end in " + remainingTime.toFixed(0) + "s";
+
+        if (remainingTime <= 0) {
+            this.app.durationDiv.innerHTML = "";
+        }
     }
 
     updatePowerUpDuration(remainingTime) {

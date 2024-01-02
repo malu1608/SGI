@@ -126,6 +126,16 @@ class MyContents  {
                     break;
             }
         }
+        if(this.current_state === States.GAME_OVER){
+            switch (event.code) {
+                case 'Space':
+                    window.location.reload();
+                    break;
+                default:
+                    break;
+            }
+        }
+
     }
 
     onKeyUp(event) {
@@ -375,7 +385,8 @@ class MyContents  {
 
                 else if(this.current_state === 9){
                     this.movingObstacle(this.clickedObstacle,intersects2[0].object.position);
-                    this.current_state = States.RESUME_GAME;
+                    this.app.game.addObstacle(this.clickedObstacle);
+                    this.current_state = States.RESUME_GAME
                     this.app.scene.remove(...this.circles);
                 }
             }
@@ -1230,6 +1241,7 @@ class MyContents  {
         // Update the camera position and target
         let activeCamera = this.app.getActiveCamera();
         let tractorsPark = this.app.scene.getObjectByName('park');
+        let wheelbarrow = this.app.scene.getObjectByName('wheelbarrow2');
         
         switch(this.current_state){
             case States.PLAY:
@@ -1242,7 +1254,6 @@ class MyContents  {
                 let cameraPosition = this.app.game.playerTractor.object.position.clone().add(offset);
                 activeCamera.position.copy(new THREE.Vector3(cameraPosition.x, cameraPosition.y, cameraPosition.z)); 
                 this.app.controls.target = this.app.game.playerTractor.object.position.clone();
-
                 break;
 
             case States.CHOOSING_PLAYER_TRACTOR:
@@ -1253,6 +1264,16 @@ class MyContents  {
             case States.CHOOSING_AUTONOMOUS_TRACTOR:
                 activeCamera.position.copy(tractorsPark.position.clone().add(new THREE.Vector3(0, 30, -30)));
                 this.app.controls.target = tractorsPark.position.clone();
+                break;
+
+            case States.CHOOSING_OBSTACLES:
+                activeCamera.position.copy(new THREE.Vector3(85, 30, 80));
+                this.app.controls.target = new THREE.Vector3(65, 0, 60);
+                break;
+
+            case States.PLACING_OBSTACLES:
+                activeCamera.position.copy(new THREE.Vector3(0, 200, 0));
+                this.app.controls.target = new THREE.Vector3(0, 0, 0);
                 break;
 
             default:
@@ -1281,52 +1302,62 @@ class MyContents  {
                 this.toggleMenuVisibility(true);
                 this.setMenu();
                 break;
+
             case States.STARTING_PLAY:
                 this.current_state = States.PLAY;
                 break;
+
             case States.PLAY:
                 this.text_obj.remove(...this.text_obj.children)
                 this.handleKeys();
                 this.app.game.update();
                 this.updateCamera();
-                if (this.app.game.isCollidingWithObstacle()){
-                    this.current_state = States.PAUSE;
+                if (this.app.game.isCollidingWithPowerUp()){
+                    this.app.game.pause();
+                    this.current_state = States.CHOOSING_OBSTACLES;
                     this.text_obj.add(...this.createTextFromSpriteSheet('Please choose one obstacle:', new THREE.Vector3(-25, 15, 0)))
                 }
+                if(this.app.game.endgame){
+                    this.current_state = States.GAME_OVER;
+                }
                 break;
+
             case States.PAUSE:
                 this.app.pauseDiv.innerHTML = "PAUSE";
-                this.current_state = States.CHOOSING_OBSTACLES
                 break;
+
             case States.GAME_OVER:
     
                 break;
+
             case States.INSTRUCTIONS:
                 
                 break;
+
             case States.CHOOSING_OBSTACLES:
-            
+                this.updateCamera();
                 break;
+
             case States.PLACING_OBSTACLES:
-                
+                this.updateCamera();
                 break;
-            case States.RESUME_GAME: // Restart game
+
+            case States.RESUME_GAME: 
                 this.text_obj.remove(...this.text_obj.children)
+                this.app.game.resetCollision();
+                this.app.game.resume();
+                this.keys = {A:false, D:false, W:false, S:false, Space:false}
                 this.current_state = States.PLAY;
                 break;
+
             case States.CHOOSING_PLAYER_TRACTOR:
-                
                 this.updateCamera();
-                
-            
                 break;
+
             case States.CHOOSING_AUTONOMOUS_TRACTOR:
-
-            
                 this.updateCamera();
-                
                 break;
-
+                
             case States.START_GAME:
                 this.toggleMenuVisibility(false);
                 this.loadScene()
