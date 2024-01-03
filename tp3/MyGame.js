@@ -158,6 +158,10 @@ class MyGame {
         this.endgame = true;
     }
 
+    displayRestart() {
+        this.app.restartDiv.innerHTML = "Please press Space Bar to restart the game";
+    }
+
     displayWinner() {
         this.app.winnerDiv.innerHTML = this.winner === this.playerTractor ? "Player Wins!" : "Enemy Wins!";
     }
