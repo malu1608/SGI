@@ -71,7 +71,6 @@ class MyApp   {
         this.pauseDiv = document.getElementById("pause");
         this.winnerDiv = document.getElementById("winner");
         this.restartDiv = document.getElementById("restart");
-
     }
 
     /**
@@ -82,7 +81,7 @@ class MyApp   {
 
         // Create a basic perspective camera
         const perspective1 = new THREE.PerspectiveCamera( 75, aspect, 0.1, 1000 )
-        perspective1.position.set(10, 10, 3)
+        perspective1.position.set(10,10,3)
         this.cameras['Perspective'] = perspective1
 
         // Defines the frustum size for the orthographic cameras

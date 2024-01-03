@@ -1,14 +1,13 @@
 import * as THREE from 'three';
 
 class MyEnemyTractor {
-    constructor(app,tractor){
+    constructor(app,tractor,difficulty){
         this.app = app;
         this.object = tractor;
+        this.difficulty = difficulty;
         this.mixer = new THREE.AnimationMixer(tractor);
-
         this.clock = new THREE.Clock();
         this.clock.start();
-
         this.initRoute();
     }
 
@@ -38,7 +37,17 @@ class MyEnemyTractor {
 
         // Animation action
         this.action = this.mixer.clipAction(clip);
-        this.action.timeScale = 0.3;
+        
+        if(this.difficulty === "easy"){
+            this.action.timeScale = 0.2;
+        }
+        else if(this.difficulty === "medium"){
+            this.action.timeScale = 0.3;
+        }
+        else{
+            this.action.timeScale = 0.5;
+        }
+        
         this.action.play();
     }
 
