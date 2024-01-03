@@ -25,6 +25,8 @@
 
 ----
 
-### [TP3 - ...](tp3)
-- (items briefly describing main strong points)
+### [TP3 - Game development](tp3)
+- We worked on our creativity to create a farm race scene, with detailed tractors, animals with model3D, hay with wireframes, lake with nurbs,...
+- We have tractors using WASD keys, complete with rotating wheels and maximum speed. We also implemented power-ups, obstacles, outdoor displays, picking interactions, key animation and collision detection. 
+- Our interface uses spritesheets to enhance text visuals, and a user-friendly menu for a captivating gaming experience.
 
