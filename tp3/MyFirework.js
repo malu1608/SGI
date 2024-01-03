@@ -15,7 +15,7 @@ class MyFirework {
         this.points   = null
         
         this.material = new THREE.PointsMaterial({
-            size: 0.1,
+            size: 1,
             color: 0xffffff,
             opacity: 1,
             vertexColors: true,
@@ -27,6 +27,8 @@ class MyFirework {
         this.speed = 60
 
         this.launch() 
+
+        this.fireworksOrigin = new THREE.Vector3(-15, 0, 80)
 
     }
 
@@ -51,6 +53,7 @@ class MyFirework {
         this.points = new THREE.Points( this.geometry, this.material )
         this.points.castShadow = true;
         this.points.receiveShadow = true;
+        this.points.position.set( -20, 0, 80 )
         this.app.scene.add( this.points )  
         console.log("firework launched")
     }

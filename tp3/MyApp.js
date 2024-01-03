@@ -70,6 +70,7 @@ class MyApp   {
         this.durationDiv = document.getElementById("duration");
         this.pauseDiv = document.getElementById("pause");
         this.winnerDiv = document.getElementById("winner");
+        this.restartDiv = document.getElementById("restart");
 
     }
 
