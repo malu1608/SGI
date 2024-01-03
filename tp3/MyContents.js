@@ -1558,7 +1558,6 @@ class MyContents  {
                 break;
                 
             case States.START_GAME:
-                this.toggleMenuVisibility(false);
                 this.loadScene()
                 this.current_state = States.CHOOSING_PLAYER_TRACTOR
                 break;
