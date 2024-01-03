@@ -158,7 +158,9 @@ class MyGame {
         this.endgame = true;
     }
 
-    displayRestart() {
+    displayGameOver() {
+        this.app.difficultyDiv.innerHTML = "Difficulty: " + this.app.contents.selectedDifficulty;
+        this.app.timeDiv.innerHTML = "Time: " + this.elapsedTime.toFixed(2) + "s";
         this.app.restartDiv.innerHTML = "Please press Space Bar to restart the game";
     }
 

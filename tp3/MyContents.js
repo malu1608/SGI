@@ -330,7 +330,7 @@ class MyContents  {
 
        const restartBtnMesh = new THREE.Mesh(restartBtnPlane, restartBtnMaterial);
 
-       restartBtnMesh.add(this.app.game.displayWinner(),this.app.game.displayRestart());
+       restartBtnMesh.add(this.app.game.displayWinner(),this.app.game.displayGameOver());
        restartBtnMesh.position.set(-15, 50, 152);
        this.gameOverMenu = menu
        menu.add();
@@ -1558,6 +1558,7 @@ class MyContents  {
                 break;
                 
             case States.START_GAME:
+                this.toggleMenuVisibility(false);
                 this.loadScene()
                 this.current_state = States.CHOOSING_PLAYER_TRACTOR
                 break;

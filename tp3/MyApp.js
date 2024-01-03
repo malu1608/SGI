@@ -71,6 +71,8 @@ class MyApp   {
         this.pauseDiv = document.getElementById("pause");
         this.winnerDiv = document.getElementById("winner");
         this.restartDiv = document.getElementById("restart");
+        this.difficultyDiv = document.getElementById("difficulty");
+        this.timeDiv = document.getElementById("time");
     }
 
     /**
