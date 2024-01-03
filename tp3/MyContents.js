@@ -213,7 +213,6 @@ class MyContents  {
         const playBtnMesh = new THREE.Mesh(playBtnPlane, playBtnMaterial);
         playBtnMesh.position.set(-13, 50, 152);
 
-        // Create 3D text for menu items and add to the scene
         this.menuItems.play = {
             object: playBtnMesh, 
             action : ()=>{this.current_state = States.DIFICCULTY_LEVEL_MENU;}
@@ -1475,18 +1474,18 @@ class MyContents  {
 
     update() {
         const activeCamera = this.app.getActiveCamera();
-        const cameraWorldPosition = new THREE.Vector3();
-        const cameraWorldDirection = new THREE.Vector3();
+        const cameraWPosition = new THREE.Vector3();
+        const cameraWDirection = new THREE.Vector3();
 
         // Update the position of the HUD
-        activeCamera.getWorldPosition(cameraWorldPosition);
-        activeCamera.getWorldDirection(cameraWorldDirection);
+        activeCamera.getWorldPosition(cameraWPosition);
+        activeCamera.getWorldDirection(cameraWDirection);
 
-        const hudPosition = cameraWorldPosition.clone().add(cameraWorldDirection.clone());
+        const hudPosition = cameraWPosition.clone().add(cameraWDirection.clone());
         
         this.text_obj.position.set(...hudPosition);
         this.text_obj.scale.set(0.05, 0.05, 0.05)
-        this.text_obj.lookAt(cameraWorldPosition);
+        this.text_obj.lookAt(cameraWPosition);
         
         // Update the state
         switch (this.current_state) {

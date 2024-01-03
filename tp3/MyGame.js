@@ -163,7 +163,7 @@ class MyGame {
     }
 
     displayWinner() {
-        this.app.winnerDiv.innerHTML = this.winner === this.playerTractor ? "Player Wins!" : "Enemy Wins!";
+        this.app.winnerDiv.innerHTML = this.winner === this.playerTractor ? this.app.contents.player_name + " Wins!" : "Enemy Wins!";
     }
 
     pause() {
