@@ -16,12 +16,6 @@ Three browser projects built with **Three.js / WebGL** for the Interactive Graph
 - Lap counting, pause screen, winner screen and restart
 - A short user manual
 
-## My contribution
-I designed and built the **game menus and their integration with the game** (start menu, final menu and the new visual design), and worked on the scenes in the earlier parts together with my partner.
-
-## Team
-Pair project · **Maria Luísa Salvador** · Catarina Gonçalves
-
 ## Run
 Serve the folder with any local web server and open the part you want, for example:
 ```bash
